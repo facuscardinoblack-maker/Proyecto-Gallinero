@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - High Quality Edition</title>
+    <title>Proyecto Gallinero - Anime & Fox Threat Edition</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -403,11 +403,11 @@ let state = {
 };
 
 const BREEDS = {
-    'Leghorn': { base: '#FFFFFF', dark: '#D0D7DE', comb: '#E63946', size: 15, layRate: 70, resistance: 40 },
-    'Rhode Island Red': { base: '#8B2600', dark: '#5C1900', comb: '#D62828', size: 17, layRate: 60, resistance: 60 },
-    'Brahma': { base: '#EAECEE', dark: '#515A5D', comb: '#B7094C', size: 21, layRate: 40, resistance: 80 },
-    'Orpington': { base: '#2C3E50', dark: '#1A252F', comb: '#D62828', size: 19, layRate: 55, resistance: 70 },
-    'Híbrida': { base: '#F39C12', dark: '#B9770E', comb: '#FB8500', size: 16, layRate: 75, resistance: 75 }
+    'Leghorn': { base: '#FFFFFF', dark: '#E2E8F0', comb: '#FF4757', size: 16, layRate: 70, resistance: 40 },
+    'Rhode Island Red': { base: '#B33923', dark: '#7A1C0B', comb: '#FF4757', size: 18, layRate: 60, resistance: 60 },
+    'Brahma': { base: '#F1F2F6', dark: '#747D8C', comb: '#C0392B', size: 22, layRate: 40, resistance: 80 },
+    'Orpington': { base: '#2F3542', dark: '#1E272E', comb: '#FF4757', size: 20, layRate: 55, resistance: 70 },
+    'Híbrida': { base: '#FFA502', dark: '#CC8E35', comb: '#FF6B81', size: 17, layRate: 75, resistance: 75 }
 };
 
 function initAudio() {
@@ -433,7 +433,7 @@ function playSound(freq, type = 'sine', duration = 0.1) {
 }
 
 function createDirtParticles(x, y) {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
         state.particles.push({
             x: x + (Math.random() - 0.5) * 6,
             y: y + (Math.random() - 0.5) * 6,
@@ -444,7 +444,7 @@ function createDirtParticles(x, y) {
     }
 }
 
-// --- CLASE GALLINA ULTRA DETALLADA ---
+// --- CLASE GALLINA ESTILO ANIME / CHIBI ---
 class Chicken {
     constructor(name, breed, gender = 'female', genLay = null, genRes = null, health = 100, happiness = 100, x = null, y = null) {
         this.name = name;
@@ -455,8 +455,8 @@ class Chicken {
         this.genLay = genLay || BREEDS[breed].layRate;
         this.genRes = genRes || BREEDS[breed].resistance;
         
-        this.x = x !== null ? x : (40 + Math.random() * (canvas.width - 80));
-        this.y = y !== null ? y : (60 + Math.random() * (canvas.height - 100));
+        this.x = x !== null ? x : (60 + Math.random() * (canvas.width - 120));
+        this.y = y !== null ? y : (90 + Math.random() * (canvas.height - 140));
         this.vx = (Math.random() - 0.5) * 1.0;
         this.vy = (Math.random() - 0.5) * 1.0;
         
@@ -469,17 +469,17 @@ class Chicken {
     update() {
         if (this.isPecking) {
             this.peckTimer--;
-            if (this.peckTimer === 20) createDirtParticles(this.x + (this.vx >= 0 ? 12 : -12), this.y + 6);
+            if (this.peckTimer === 20) createDirtParticles(this.x + (this.vx >= 0 ? 14 : -14), this.y + 8);
             if (this.peckTimer <= 0) this.isPecking = false;
             return;
         }
 
         this.x += this.vx;
         this.y += this.vy;
-        this.walkCycle += 0.18;
+        this.walkCycle += 0.2;
 
-        if (this.x < 30 || this.x > canvas.width - 30) this.vx *= -1;
-        if (this.y < 60 || this.y > canvas.height - 30) this.vy *= -1;
+        if (this.x < 40 || this.x > canvas.width - 40) this.vx *= -1;
+        if (this.y < 80 || this.y > canvas.height - 40) this.vy *= -1;
 
         this.timer++;
         if (this.timer > 110) {
@@ -508,197 +508,213 @@ class Chicken {
         ctx.translate(this.x, this.y);
         if (this.vx < 0) ctx.scale(-1, 1);
 
-        // Sombra suave en suelo
+        // Sombra suave
         ctx.beginPath();
-        ctx.ellipse(0, 9, r * 0.75, r * 0.35, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.ellipse(0, 10, r * 0.8, r * 0.35, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.18)';
         ctx.fill();
 
-        // Patas articuladas
+        // Patas Chibi de trazo grueso
         const legSwing = Math.sin(this.walkCycle) * 4;
-        ctx.strokeStyle = '#E67E22';
-        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#2F3542';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.moveTo(-r * 0.2, 4); ctx.lineTo(-r * 0.2 + legSwing, 12);
-        ctx.lineTo(-r * 0.2 + legSwing + 3, 13);
         ctx.moveTo(r * 0.2, 4); ctx.lineTo(r * 0.2 - legSwing, 12);
-        ctx.lineTo(r * 0.2 - legSwing + 3, 13);
         ctx.stroke();
 
         const bodyBob = Math.sin(this.walkCycle * 2) * 1.5;
-        const peckY = this.isPecking ? 8 : 0;
+        const peckY = this.isPecking ? 10 : 0;
 
-        // Plumas de la Cola
+        // Cola Anime
+        ctx.fillStyle = info.dark;
+        ctx.strokeStyle = '#2F3542';
+        ctx.lineWidth = 2;
         if (isMale) {
-            ctx.fillStyle = info.dark;
             ctx.beginPath();
-            ctx.moveTo(-r * 0.5, -r * 0.4 + bodyBob);
-            ctx.bezierCurveTo(-r * 1.6, -r * 1.4, -r * 1.2, -r * 1.8, -r * 0.9, -r * 1.9);
-            ctx.bezierCurveTo(-r * 0.7, -r * 1.3, -r * 0.4, -r * 0.7, -r * 0.3, -r * 0.2);
+            ctx.moveTo(-r * 0.5, -r * 0.3 + bodyBob);
+            ctx.bezierCurveTo(-r * 1.7, -r * 1.5, -r * 1.3, -r * 2.0, -r * 0.8, -r * 2.0);
+            ctx.bezierCurveTo(-r * 0.6, -r * 1.4, -r * 0.3, -r * 0.7, -r * 0.2, -r * 0.2);
             ctx.fill();
+            ctx.stroke();
         } else {
-            ctx.fillStyle = info.dark;
             ctx.beginPath();
-            ctx.ellipse(-r * 0.7, -r * 0.4 + bodyBob, r * 0.4, r * 0.25, -0.4, 0, Math.PI * 2);
+            ctx.ellipse(-r * 0.7, -r * 0.4 + bodyBob, r * 0.45, r * 0.3, -0.4, 0, Math.PI * 2);
             ctx.fill();
+            ctx.stroke();
         }
 
-        // Cuerpo principal con Gradiente
-        const bodyGrad = ctx.createRadialGradient(0, -r * 0.3 + bodyBob, 2, 0, -r * 0.3 + bodyBob, r);
-        bodyGrad.addColorStop(0, info.base);
-        bodyGrad.addColorStop(1, info.dark);
-        
+        // Cuerpo Chibi Redondo
         ctx.beginPath();
-        ctx.ellipse(0, -r * 0.3 + bodyBob, r * 0.85, r * 0.65, 0.1, 0, Math.PI * 2);
-        ctx.fillStyle = bodyGrad;
+        ctx.ellipse(0, -r * 0.3 + bodyBob, r * 0.9, r * 0.7, 0, 0, Math.PI * 2);
+        ctx.fillStyle = info.base;
         ctx.fill();
-        ctx.strokeStyle = '#2C3E50';
-        ctx.lineWidth = 1.2;
         ctx.stroke();
 
-        // Ala articulada
+        // Ala
         ctx.beginPath();
-        ctx.ellipse(-r * 0.05, -r * 0.25 + bodyBob, r * 0.45, r * 0.32, 0.2, 0, Math.PI * 2);
+        ctx.ellipse(-r * 0.05, -r * 0.2 + bodyBob, r * 0.45, r * 0.32, 0.2, 0, Math.PI * 2);
         ctx.fillStyle = info.dark;
         ctx.fill();
         ctx.stroke();
 
-        // Cabeza
+        // Cabeza Anime Gran Tamaño
         ctx.save();
-        ctx.translate(r * 0.55, -r * 0.65 + bodyBob + peckY);
-
-        const headGrad = ctx.createRadialGradient(0, 0, 1, 0, 0, r * 0.4);
-        headGrad.addColorStop(0, info.base);
-        headGrad.addColorStop(1, info.dark);
+        ctx.translate(r * 0.6, -r * 0.7 + bodyBob + peckY);
 
         ctx.beginPath();
-        ctx.arc(0, 0, r * 0.4, 0, Math.PI * 2);
-        ctx.fillStyle = headGrad;
+        ctx.arc(0, 0, r * 0.5, 0, Math.PI * 2);
+        ctx.fillStyle = info.base;
         ctx.fill();
         ctx.stroke();
 
-        // Pico
+        // Pico Pequeño y Adorable
         ctx.beginPath();
-        ctx.moveTo(r * 0.25, -r * 0.08);
-        ctx.lineTo(r * 0.65, 0.02);
-        ctx.lineTo(r * 0.25, r * 0.15);
-        ctx.fillStyle = '#F39C12';
+        ctx.moveTo(r * 0.3, -r * 0.05);
+        ctx.lineTo(r * 0.7, 0.05);
+        ctx.lineTo(r * 0.3, r * 0.2);
+        ctx.fillStyle = '#FFA502';
         ctx.fill();
         ctx.stroke();
 
-        // Ojo detallado con brillo
+        // Ojos Anime Grandes con Brillo
         ctx.beginPath();
-        ctx.arc(r * 0.12, -r * 0.1, r * 0.09, 0, Math.PI * 2);
-        ctx.fillStyle = '#111';
+        ctx.ellipse(r * 0.15, -r * 0.1, r * 0.12, r * 0.16, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#2F3542';
         ctx.fill();
+        
+        // Brillo blanco en ojos
         ctx.beginPath();
-        ctx.arc(r * 0.15, -r * 0.13, r * 0.03, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFF';
+        ctx.arc(r * 0.18, -r * 0.15, r * 0.05, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF';
         ctx.fill();
 
-        // Cresta ilustrada
-        const combSize = isMale ? r * 0.5 : r * 0.28;
+        // Rubor en mejillas Anime
+        ctx.beginPath();
+        ctx.ellipse(r * 0.25, r * 0.12, r * 0.08, r * 0.05, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 107, 129, 0.5)';
+        ctx.fill();
+
+        // Cresta
+        const combSize = isMale ? r * 0.55 : r * 0.3;
         ctx.fillStyle = info.comb;
         ctx.beginPath();
-        ctx.ellipse(-r * 0.05, -combSize, combSize * 0.7, combSize * 0.45, -0.2, 0, Math.PI * 2);
+        ctx.ellipse(-r * 0.05, -combSize, combSize * 0.65, combSize * 0.4, -0.2, 0, Math.PI * 2);
         ctx.fill();
-
-        // Barbilla
-        ctx.beginPath();
-        ctx.ellipse(r * 0.1, r * 0.22, r * 0.12, r * 0.2, 0, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.stroke();
 
         ctx.restore();
         ctx.restore();
     }
 }
 
-// --- CLASE DEPREDADOR (ZORRO ILUSTRADO COMPLETO) ---
+// --- CLASE ZORRO ENEMIGO DIRIGIDO Y PELIGROSO ---
 class Predator {
     constructor() {
-        this.x = -30;
-        this.y = 60 + Math.random() * (canvas.height - 100);
+        this.x = Math.random() < 0.5 ? -30 : canvas.width + 30;
+        this.y = 80 + Math.random() * (canvas.height - 140);
         this.hp = 3;
         this.anim = 0;
+        this.speed = 1.3;
+        
+        // Seleccionar una gallina al azar como presa
+        this.targetIndex = state.chickens.length > 0 ? Math.floor(Math.random() * state.chickens.length) : null;
     }
 
     update() {
-        this.x += 0.9;
-        this.anim += 0.15;
+        this.anim += 0.2;
+
+        if (this.targetIndex !== null && state.chickens[this.targetIndex]) {
+            const target = state.chickens[this.targetIndex];
+            const dx = target.x - this.x;
+            const dy = target.y - this.y;
+            const dist = Math.hypot(dx, dy);
+
+            if (dist > 15) {
+                this.x += (dx / dist) * this.speed;
+                this.y += (dy / dist) * this.speed;
+            } else {
+                // ¡ALCANZÓ A LA GALLINA! SE LA COME
+                logEvent(`🚨 ¡EL ZORRO SE COMÍO A ${target.name.toUpperCase()}! 😭`);
+                state.chickens.splice(this.targetIndex, 1);
+                state.predators = []; // El zorro huye tras comer
+                playSound(150, 'sawtooth', 0.4);
+                updateUI();
+                saveGame();
+            }
+        } else {
+            // Si no hay gallinas, cruza en línea
+            this.x += this.speed;
+        }
     }
 
     draw(ctx) {
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        const tailWag = Math.sin(this.anim) * 5;
+        const tailWag = Math.sin(this.anim) * 6;
 
-        // Sombra
         ctx.beginPath();
         ctx.ellipse(0, 10, 18, 6, 0, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(0,0,0,0.2)';
         ctx.fill();
 
-        // Cola peluda de zorro
+        // Cola peluda
         ctx.beginPath();
         ctx.moveTo(-10, -2);
         ctx.quadraticCurveTo(-25 + tailWag, -18, -32 + tailWag, -8);
         ctx.quadraticCurveTo(-20 + tailWag, 6, -10, 2);
-        ctx.fillStyle = '#D35400';
+        ctx.fillStyle = '#FF6B6B';
         ctx.fill();
+        ctx.strokeStyle = '#2F3542';
+        ctx.lineWidth = 2;
+        ctx.stroke();
 
-        // Punta blanca de la cola
+        // Punta blanca
         ctx.beginPath();
         ctx.arc(-28 + tailWag, -9, 4, 0, Math.PI * 2);
         ctx.fillStyle = '#FFF';
         ctx.fill();
 
-        // Cuerpo
+        // Cuerpo Zorro Anime
         ctx.beginPath();
-        ctx.ellipse(0, 0, 15, 9, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#E67E22';
+        ctx.ellipse(0, 0, 16, 10, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#EE5253';
         ctx.fill();
+        ctx.stroke();
 
-        // Vientre blanco
+        // Cabeza y Orejas
         ctx.beginPath();
-        ctx.ellipse(2, 3, 10, 5, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFF';
-        ctx.fill();
+        ctx.moveTo(10, -8); ctx.lineTo(24, -2); ctx.lineTo(10, 6);
+        ctx.fillStyle = '#EE5253';
+        ctx.fill(); ctx.stroke();
 
-        // Cabeza de zorro
-        ctx.beginPath();
-        ctx.moveTo(10, -8);
-        ctx.lineTo(24, -2);
-        ctx.lineTo(10, 6);
-        ctx.fillStyle = '#D35400';
-        ctx.fill();
-
-        // Orejas
         ctx.beginPath();
         ctx.moveTo(8, -8); ctx.lineTo(12, -18); ctx.lineTo(15, -6);
-        ctx.fillStyle = '#2C3E50';
+        ctx.fillStyle = '#2F3542';
         ctx.fill();
 
-        // Ojo acechante
+        // Ojo Fiero Anime
         ctx.beginPath();
-        ctx.arc(16, -3, 2, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFF';
+        ctx.arc(16, -3, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#FF9F43';
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(16.5, -3, 1, 0, Math.PI * 2);
+        ctx.arc(17, -3, 1.2, 0, Math.PI * 2);
         ctx.fillStyle = '#000';
         ctx.fill();
 
-        // Cartel indicador
-        ctx.fillStyle = '#E63946';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.fillText(`🦊 Tap! [${this.hp}]`, -16, -22);
+        // Alerta sobre el zorro
+        ctx.fillStyle = '#FF4757';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText(`⚡ ¡TAP! [${this.hp}]`, -16, -22);
 
         ctx.restore();
     }
 }
 
-// SETUP DEL CANVAS
+// SETUP CANVAS
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -766,38 +782,66 @@ if (!loadGame()) {
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Fondo: Pasto con Gradiente
+    // Fondo: Pasto Cálido Anime
     const grassGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grassGrad.addColorStop(0, '#8eb897');
-    grassGrad.addColorStop(1, '#6b9e78');
+    grassGrad.addColorStop(0, '#95d5b2');
+    grassGrad.addColorStop(1, '#74c69d');
     ctx.fillStyle = grassGrad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Detalle de flores en el pasto
-    ctx.fillStyle = '#FFF';
+    // Parches de Tierra y Comedero
+    ctx.fillStyle = '#d8f3dc';
     ctx.beginPath();
-    ctx.arc(50, 120, 2, 0, Math.PI * 2);
-    ctx.arc(180, 220, 2, 0, Math.PI * 2);
-    ctx.arc(280, 90, 2, 0, Math.PI * 2);
+    ctx.ellipse(canvas.width * 0.5, canvas.height * 0.5, 120, 60, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Gallinero Estructura
-    ctx.fillStyle = '#5c3d2e';
-    ctx.fillRect(10, 10, 105, 60);
-    ctx.fillStyle = '#a83232';
+    // Flores Ilustradas
+    ctx.fillStyle = '#FF9FF3';
     ctx.beginPath();
-    ctx.moveTo(0, 10); ctx.lineTo(62, -8); ctx.lineTo(125, 10);
+    ctx.arc(60, 140, 4, 0, Math.PI * 2); ctx.arc(220, 240, 4, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#FFF';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.fillText('🏡 Gallinero', 22, 45);
 
-    // Renderizado de Partículas
+    // GALLINERO ILUSTRADO (Sin silueta plana)
+    ctx.save();
+    ctx.translate(15, 15);
+    
+    // Paredes de madera con tablas
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(0, 15, 110, 65);
+    ctx.strokeStyle = '#5C2C06';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 15, 110, 65);
+
+    // Líneas de tablas
+    ctx.beginPath();
+    ctx.moveTo(0, 35); ctx.lineTo(110, 35);
+    ctx.moveTo(0, 55); ctx.lineTo(110, 55);
+    ctx.stroke();
+
+    // Techo Tejas Rojas
+    ctx.fillStyle = '#EE5253';
+    ctx.beginPath();
+    ctx.moveTo(-10, 15); ctx.lineTo(55, -8); ctx.lineTo(120, 15);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    // Ventana Iluminada
+    ctx.fillStyle = '#FECA57';
+    ctx.fillRect(70, 30, 25, 25);
+    ctx.strokeRect(70, 30, 25, 25);
+
+    // Puerta del gallinero
+    ctx.fillStyle = '#5C2C06';
+    ctx.fillRect(15, 40, 25, 40);
+    
+    ctx.restore();
+
+    // Render Partículas
     for (let i = state.particles.length - 1; i >= 0; i--) {
         const p = state.particles[i];
         p.x += p.vx; p.y += p.vy; p.life--;
-        ctx.fillStyle = '#5c3d2e';
-        ctx.fillRect(p.x, p.y, 2, 2);
+        ctx.fillStyle = '#6D4C41';
+        ctx.fillRect(p.x, p.y, 2.5, 2.5);
         if (p.life <= 0) state.particles.splice(i, 1);
     }
 
@@ -805,21 +849,24 @@ function gameLoop() {
     state.worldEggs.forEach((egg) => {
         ctx.beginPath();
         ctx.ellipse(egg.x, egg.y, 6, 8, 0, 0, Math.PI * 2);
-        ctx.fillStyle = egg.type === 'Exótica' ? '#5DADE2' : (egg.type === 'Rica en Calcio' ? '#F4D03F' : '#FFFFFF');
+        ctx.fillStyle = egg.type === 'Exótica' ? '#48DBFB' : (egg.type === 'Rica en Calcio' ? '#FFD32A' : '#FFFFFF');
         ctx.fill();
-        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+        ctx.strokeStyle = '#2F3542';
+        ctx.lineWidth = 1.5;
         ctx.stroke();
     });
 
+    // Dibujar Aves
     state.chickens.forEach(c => { c.update(); c.draw(ctx); });
 
+    // Dibujar Depredadores
     state.predators.forEach((p, index) => {
         p.update();
         p.draw(ctx);
-        if (p.x > canvas.width + 30) state.predators.splice(index, 1);
+        if (p.x < -40 || p.x > canvas.width + 40) state.predators.splice(index, 1);
     });
 
-    // Filtro Noche (Ciclo de luz)
+    // Filtro Noche
     if (state.time >= 20 || state.time <= 5) {
         ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -837,7 +884,7 @@ function handleCanvasInteraction(clientX, clientY) {
 
     for (let i = state.worldEggs.length - 1; i >= 0; i--) {
         const egg = state.worldEggs[i];
-        if (Math.hypot(egg.x - clickX, egg.y - clickY) < 24) {
+        if (Math.hypot(egg.x - clickX, egg.y - clickY) < 25) {
             state.worldEggs.splice(i, 1);
             state.eggs++;
             playSound(650, 'sine', 0.05);
@@ -850,19 +897,19 @@ function handleCanvasInteraction(clientX, clientY) {
 
     for (let i = state.predators.length - 1; i >= 0; i--) {
         const p = state.predators[i];
-        if (Math.hypot(p.x - clickX, p.y - clickY) < 35) {
+        if (Math.hypot(p.x - clickX, p.y - clickY) < 40) {
             p.hp--;
             playSound(250, 'square', 0.1);
             if (p.hp <= 0) {
                 state.predators.splice(i, 1);
-                logEvent('⚔️ ¡Espantaste al zorro!');
+                logEvent('⚔️ ¡ESPANTASTE AL ZORRO!');
             }
             return;
         }
     }
 
     state.chickens.forEach((c, index) => {
-        if (Math.hypot(c.x - clickX, c.y - clickY) < 28) {
+        if (Math.hypot(c.x - clickX, c.y - clickY) < 30) {
             inspectChicken(index);
             playSound(450, 'triangle', 0.1);
         }
@@ -1037,9 +1084,9 @@ setInterval(() => {
     if (state.time >= 24) state.time = 0;
     document.getElementById('time-display').innerText = `${state.time.toString().padStart(2, '0')}:00`;
 
-    if ((state.time > 20 || state.time < 5) && Math.random() < 0.25 && state.predators.length === 0) {
+    if ((state.time > 20 || state.time < 5) && Math.random() < 0.25 && state.predators.length === 0 && state.chickens.length > 0) {
         state.predators.push(new Predator());
-        logEvent('⚠️ ¡UN ZORRO ACECHA! Tócale rápido para espantarlo.');
+        logEvent('⚠️ ¡UN ZORRO SE ACERCA A UNA GALLINA! ¡Tócale rápido!');
     }
 
     saveGame();
