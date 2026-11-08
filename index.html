@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Rural Expo & VIP Edition</title>
+    <title>Proyecto Gallinero - Rural Expo & Bugfix Edition</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -356,7 +356,6 @@
                 </div>
             </div>
 
-            <!-- TAB FERIA RURAL -->
             <div id="tab-feria" class="tab-content">
                 <h4 style="margin-bottom: 4px;">🏆 Exposición Rural Anual</h4>
                 <p style="font-size: 0.75rem; color:#666; margin-bottom: 10px;">Compite con tu mejor ejemplar para ganar prestigio y trofeos.</p>
@@ -574,6 +573,9 @@ class Chicken {
         const isNight = state.time >= 20 || state.time <= 5;
         const coopDoorX = 40; const coopDoorY = 65;
 
+        // BUCLE PRINCIPAL DE TIEMPO
+        this.timer++;
+
         if (this.isInside) {
             if (isNight) this.happiness = Math.min(100, this.happiness + 0.05);
             
@@ -584,10 +586,14 @@ class Chicken {
                 logEvent(`🐔 ${this.name} salió al patio.`);
             }
 
-            if (this.gender === 'female' && Math.random() < (this.genLay / 350)) {
-                state.eggs++;
-                updateUI();
-                saveGame();
+            // CORRECCIÓN BUG: Solo evaluar postura de huevos con el mismo intervalo que en el patio (timer > 110)
+            if (this.timer > 110) {
+                this.timer = 0;
+                if (this.gender === 'female' && Math.random() < (this.genLay / 350)) {
+                    state.eggs++;
+                    updateUI();
+                    saveGame();
+                }
             }
             return;
         }
@@ -614,7 +620,6 @@ class Chicken {
             }
         }
 
-        this.timer++;
         if (this.timer > 110) {
             this.timer = 0;
             if (Math.random() < 0.35) {
@@ -932,7 +937,6 @@ function buyUpgrade(type) {
     saveGame();
 }
 
-// LÓGICA DE LA FERIA RURAL
 function enterContest() {
     const idx = document.getElementById('select-contestant').value;
     if (idx === "") return logEvent('❌ Selecciona un ave para competir.');
@@ -941,7 +945,6 @@ function enterContest() {
     state.money -= 50;
     const c = state.chickens[idx];
 
-    // Cálculo de puntuación por el Jurado (0 a 100)
     const score = Math.round((c.genLay * 0.4) + (c.genRes * 0.3) + (c.health * 0.15) + (c.happiness * 0.15));
 
     if (score >= 80) {
@@ -972,7 +975,7 @@ function enterContest() {
 function completeVipOrder() {
     if (state.money < 0) return;
     state.money += 600;
-    logEvent('💰 Order VIP entregada a restaurante Michelin: +$600.');
+    logEvent('💰 Orden VIP entregada a restaurante Michelin: +$600.');
     updateUI();
     saveGame();
 }
