@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Mobile Fixed</title>
+    <title>Proyecto Gallinero - Mobile & Save System</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -73,7 +73,7 @@
                 gap: 6px;
                 align-items: center;
             }
-            #sidebar h2 { font-size: 0.9rem; }
+            #sidebar h2 { font-size: 0.85rem; }
             #sidebar p { display: none; }
         }
 
@@ -93,7 +93,7 @@
         }
 
         .stat-value {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: bold;
         }
 
@@ -326,6 +326,7 @@
                 <button class="tab-btn" onclick="switchTab('tab-cruza', event)">🧬 Cruza</button>
                 <button class="tab-btn" onclick="switchTab('tab-mejoras', event)">🏗️ Mejoras</button>
                 <button class="tab-btn" onclick="switchTab('tab-dieta', event)">🌾 Dieta</button>
+                <button class="tab-btn" onclick="switchTab('tab-ajustes', event)">⚙️ Sistema</button>
             </div>
 
             <!-- TAB: MERCADO -->
@@ -387,13 +388,22 @@
                     <button class="btn btn-success" onclick="setDiet('Exótica')">Botánica Exótica (+$15/día)</button>
                 </div>
             </div>
+
+            <!-- TAB: AJUSTES & GUARDADO -->
+            <div id="tab-ajustes" class="tab-content">
+                <h4 style="margin-bottom: 8px;">Gestión de Partida</h4>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button class="btn btn-success" onclick="saveGame(true)">💾 Guardar Partida Ahora</button>
+                    <button class="btn btn-danger" onclick="resetGame()">⚠️ Reiniciar Partida desde Cero</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
 // --- ESTADO Y PARÁMETROS DEL JUEGO ---
-const state = {
+let state = {
     money: 500,
     level: 1,
     capacity: 5,
@@ -440,17 +450,17 @@ function playSound(freq, type = 'sine', duration = 0.1) {
 }
 
 class Chicken {
-    constructor(name, breed, gender = 'female', genLay = null, genRes = null) {
+    constructor(name, breed, gender = 'female', genLay = null, genRes = null, health = 100, happiness = 100, x = null, y = null) {
         this.name = name;
         this.breed = breed;
         this.gender = gender;
-        this.health = 100;
-        this.happiness = 100;
+        this.health = health;
+        this.happiness = happiness;
         this.genLay = genLay || BREEDS[breed].layRate;
         this.genRes = genRes || BREEDS[breed].resistance;
         
-        this.x = 40 + Math.random() * (canvas.width - 80);
-        this.y = 60 + Math.random() * (canvas.height - 100);
+        this.x = x !== null ? x : (40 + Math.random() * (canvas.width - 80));
+        this.y = y !== null ? y : (60 + Math.random() * (canvas.height - 100));
         this.vx = (Math.random() - 0.5) * 1.2;
         this.vy = (Math.random() - 0.5) * 1.2;
         this.timer = 0;
@@ -471,6 +481,7 @@ class Chicken {
 
             if (this.gender === 'female' && Math.random() < (this.genLay / 250)) {
                 state.worldEggs.push({ x: this.x, y: this.y + 4, type: state.diet });
+                saveGame();
             }
         }
     }
@@ -542,8 +553,75 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-state.chickens.push(new Chicken('Clara', 'Leghorn', 'female'));
-state.chickens.push(new Chicken('Rojo', 'Rhode Island Red', 'male'));
+// --- SISTEMA DE GUARDADO EN LOCALSTORAGE ---
+function saveGame(manual = false) {
+    try {
+        const saveData = {
+            money: state.money,
+            level: state.level,
+            capacity: state.capacity,
+            eggs: state.eggs,
+            eggPrice: state.eggPrice,
+            food: state.food,
+            diet: state.diet,
+            time: state.time,
+            chickens: state.chickens.map(c => ({
+                name: c.name,
+                breed: c.breed,
+                gender: c.gender,
+                genLay: c.genLay,
+                genRes: c.genRes,
+                health: c.health,
+                happiness: c.happiness,
+                x: c.x,
+                y: c.y
+            })),
+            worldEggs: state.worldEggs
+        };
+        localStorage.setItem('proyecto_gallinero_save', JSON.stringify(saveData));
+        if (manual) logEvent('💾 Partida guardada con éxito.');
+    } catch(e) {
+        console.error('Error al guardar:', e);
+    }
+}
+
+function loadGame() {
+    const raw = localStorage.getItem('proyecto_gallinero_save');
+    if (!raw) return false;
+    try {
+        const data = JSON.parse(raw);
+        state.money = data.money;
+        state.level = data.level;
+        state.capacity = data.capacity;
+        state.eggs = data.eggs;
+        state.eggPrice = data.eggPrice;
+        state.food = data.food;
+        state.diet = data.diet;
+        state.time = data.time || 8;
+        state.worldEggs = data.worldEggs || [];
+        state.chickens = data.chickens.map(c => 
+            new Chicken(c.name, c.breed, c.gender, c.genLay, c.genRes, c.health, c.happiness, c.x, c.y)
+        );
+        logEvent('📂 Partida cargada automáticamente.');
+        return true;
+    } catch(e) {
+        console.error('Error al cargar guardado:', e);
+        return false;
+    }
+}
+
+function resetGame() {
+    if (confirm('¿Seguro que quieres borrar la partida y volver a empezar?')) {
+        localStorage.removeItem('proyecto_gallinero_save');
+        location.reload();
+    }
+}
+
+// Cargar estado o iniciar por defecto
+if (!loadGame()) {
+    state.chickens.push(new Chicken('Clara', 'Leghorn', 'female'));
+    state.chickens.push(new Chicken('Rojo', 'Rhode Island Red', 'male'));
+}
 
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -579,7 +657,7 @@ function gameLoop() {
 }
 requestAnimationFrame(gameLoop);
 
-// INTERACCIÓN TÁCTIL AJUSTADA PARA MÓVIL
+// INTERACCIÓN TÁCTIL
 function handleCanvasInteraction(clientX, clientY) {
     initAudio();
     const rect = canvas.getBoundingClientRect();
@@ -594,6 +672,7 @@ function handleCanvasInteraction(clientX, clientY) {
             playSound(600, 'sine', 0.05);
             logEvent('🥚 Huevo recolectado.');
             updateUI();
+            saveGame();
             return;
         }
     }
@@ -682,6 +761,7 @@ function buyChicken(breed) {
     state.chickens.push(new Chicken(`Ave #${state.chickens.length + 1}`, breed));
     logEvent(`✅ Compraste ${breed}.`);
     updateUI();
+    saveGame();
 }
 
 function sellEggs() {
@@ -691,6 +771,7 @@ function sellEggs() {
     logEvent(`💰 +$${total} por huevos.`);
     state.eggs = 0;
     updateUI();
+    saveGame();
 }
 
 function buyFood() {
@@ -699,6 +780,7 @@ function buyFood() {
     state.food += 50;
     logEvent('🌾 Comida comprada.');
     updateUI();
+    saveGame();
 }
 
 function buyMeds() {
@@ -707,6 +789,7 @@ function buyMeds() {
     state.chickens.forEach(c => c.health = 100);
     logEvent('💊 Aves curadas.');
     updateUI();
+    saveGame();
 }
 
 function breedChickens() {
@@ -729,6 +812,7 @@ function breedChickens() {
     
     logEvent(`🐣 Nació cría ${breed}!`);
     updateUI();
+    saveGame();
 }
 
 function setDiet(dietName) {
@@ -738,6 +822,7 @@ function setDiet(dietName) {
     else if (dietName === 'Exótica') state.eggPrice = 35;
     logEvent(`🌾 Dieta: ${dietName}`);
     updateUI();
+    saveGame();
 }
 
 function inspectChicken(index) {
@@ -763,6 +848,7 @@ function sellInspectedChicken() {
         closeInspector();
         logEvent('💰 Ave vendida por $40.');
         updateUI();
+        saveGame();
     }
 }
 
@@ -774,8 +860,10 @@ function upgradeFarm() {
     state.capacity += 5;
     logEvent(`🏗️ Gallinero Nivel ${state.level}!`);
     updateUI();
+    saveGame();
 }
 
+// Reloj y auto-guardado periódico
 setInterval(() => {
     state.time++;
     if (state.time >= 24) state.time = 0;
@@ -785,6 +873,9 @@ setInterval(() => {
         state.predators.push(new Predator());
         logEvent('⚠️ ¡UN ZORRO ACECHA! Tócale para espantarlo.');
     }
+
+    // Auto-guardado en segundo plano
+    saveGame();
 }, 5000);
 
 updateUI();
