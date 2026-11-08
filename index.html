@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Balanced Economy Edition</title>
+    <title>Proyecto Gallinero - Dynamic Economy & Market Edition</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -311,7 +311,7 @@
 
         <div id="controls-panel">
             <div class="tab-buttons">
-                <button class="tab-btn active" onclick="switchTab('tab-mercado', event)">🏪 Mercado</button>
+                <button class="tab-btn active" onclick="switchTab('tab-mercado', event)">📈 Mercado & Contratos</button>
                 <button class="tab-btn" onclick="switchTab('tab-gallinas', event)">🐔 Aves</button>
                 <button class="tab-btn" onclick="switchTab('tab-cruza', event)">🧬 Cruza</button>
                 <button class="tab-btn" onclick="switchTab('tab-feria', event)">🏆 Feria Rural</button>
@@ -321,12 +321,19 @@
             </div>
 
             <div id="tab-mercado" class="tab-content active">
+                <div style="margin-bottom: 10px; background:#e6ded4; padding:8px; border-radius:8px;">
+                    <h5 style="font-size:0.8rem; color:var(--primary);">Almacén de Huevos:</h5>
+                    <p style="font-size:0.85rem;">Comunes: <b id="stock-std">0</b> | Calcio: <b id="stock-cal">0</b> | Exóticos: <b id="stock-exo">0</b></p>
+                </div>
+
                 <div class="grid-cards">
                     <div class="card">
-                        <h4 style="font-size: 0.85rem;">Huevos en Stock</h4>
-                        <p style="font-size: 1.1rem; margin: 4px 0;">🥚 <span id="egg-count">0</span></p>
-                        <p style="font-size: 0.75rem; color:#666;">Base: $<span id="egg-price">10</span></p>
-                        <button class="btn btn-success" style="width:100%; margin-top:6px;" onclick="sellEggs()">Vender Todos</button>
+                        <h4 style="font-size: 0.8rem;">Cotización de Hoy</h4>
+                        <p style="font-size: 0.7rem; color:#666;" id="market-trend">Tendencia: Estable</p>
+                        <p style="font-size: 0.75rem; margin-top:2px;">Común: $<span id="price-std">10</span></p>
+                        <p style="font-size: 0.75rem;">Calcio: $<span id="price-cal">18</span></p>
+                        <p style="font-size: 0.75rem;">Exótico: $<span id="price-exo">35</span></p>
+                        <button class="btn btn-success" style="width:100%; margin-top:6px; font-size:0.75rem;" onclick="sellAllEggsMarket()">Vender Todo al Mercado</button>
                     </div>
 
                     <div class="card">
@@ -335,10 +342,16 @@
                         <button class="btn" style="width:100%; margin-top:4px;" onclick="buyChicken('Rhode Island Red')">R. Island ($80)</button>
                     </div>
 
-                    <div class="card" id="card-vip" style="display:none; border:2px solid var(--warning);">
-                        <h4 style="font-size: 0.85rem; color:var(--primary);">🌟 Orden VIP Gourmet</h4>
-                        <p style="font-size: 0.75rem; color:#666; margin:4px 0;">Entrega pedidos especiales.</p>
-                        <button class="btn btn-warning" style="width:100%; font-size:0.75rem;" onclick="completeVipOrder()">Completar ($600)</button>
+                    <div class="card" style="border: 2px solid var(--warning);">
+                        <h4 style="font-size: 0.8rem;">📝 Contrato: Panadería</h4>
+                        <p style="font-size: 0.7rem; color:#666;">Requiere 5 Huevos Comunes</p>
+                        <button class="btn btn-warning" style="width:100%; margin-top:6px; font-size:0.75rem;" onclick="fulfillContract('bakery')">Entregar ($80)</button>
+                    </div>
+
+                    <div class="card" id="card-vip" style="display:none; border:2px solid var(--success);">
+                        <h4 style="font-size: 0.8rem;">🌟 Orden VIP Michelin</h4>
+                        <p style="font-size: 0.7rem; color:#666;">Requiere 3 Huevos Exóticos</p>
+                        <button class="btn btn-success" style="width:100%; margin-top:6px; font-size:0.75rem;" onclick="fulfillContract('gourmet')">Entregar ($250)</button>
                     </div>
                 </div>
             </div>
@@ -392,9 +405,9 @@
             <div id="tab-dieta" class="tab-content">
                 <h4 style="margin-bottom: 8px;">Dieta Actual</h4>
                 <div style="display:flex; flex-direction:column; gap:6px;">
-                    <button class="btn" onclick="setDiet('Estándar')">Maíz Básico</button>
-                    <button class="btn btn-warning" onclick="setDiet('Rica en Calcio')">Rica en Calcio (+$5/huevo)</button>
-                    <button class="btn btn-success" onclick="setDiet('Exótica')">Botánica Exótica (+$15/huevo)</button>
+                    <button class="btn" onclick="setDiet('Estándar')">Maíz Básico (Huevos Comunes)</button>
+                    <button class="btn btn-warning" onclick="setDiet('Rica en Calcio')">Rica en Calcio (Huevos Calcio)</button>
+                    <button class="btn btn-success" onclick="setDiet('Exótica')">Botánica Exótica (Huevos Exóticos)</button>
                 </div>
             </div>
 
@@ -414,8 +427,9 @@ let state = {
     money: 500,
     level: 1,
     capacity: 5,
-    eggs: 0,
-    eggPrice: 10,
+    eggStock: { standard: 0, calcium: 0, exotic: 0 },
+    marketPrices: { standard: 10, calcium: 18, exotic: 35 },
+    marketTrend: 'Estable ➡️',
     food: 50,
     chickens: [],
     worldEggs: [],
@@ -822,8 +836,9 @@ function saveGame(manual = false) {
             money: state.money,
             level: state.level,
             capacity: state.capacity,
-            eggs: state.eggs,
-            eggPrice: state.eggPrice,
+            eggStock: state.eggStock,
+            marketPrices: state.marketPrices,
+            marketTrend: state.marketTrend,
             food: state.food,
             diet: state.diet,
             time: state.time,
@@ -850,8 +865,11 @@ function loadGame() {
     try {
         const data = JSON.parse(raw);
         state.money = data.money; state.level = data.level;
-        state.capacity = data.capacity; state.eggs = data.eggs;
-        state.eggPrice = data.eggPrice; state.food = data.food;
+        state.capacity = data.capacity; 
+        state.eggStock = data.eggStock || { standard: data.eggs || 0, calcium: 0, exotic: 0 };
+        state.marketPrices = data.marketPrices || { standard: 10, calcium: 18, exotic: 35 };
+        state.marketTrend = data.marketTrend || 'Estable ➡️';
+        state.food = data.food;
         state.diet = data.diet; state.time = data.time || 8;
         state.coopDoorOpen = data.coopDoorOpen !== undefined ? data.coopDoorOpen : true;
         state.hasReinforcedFence = data.hasReinforcedFence || false;
@@ -897,6 +915,54 @@ function updateUpgradeButtons() {
     document.getElementById('trophy-bronze').innerText = state.trophies.bronze;
 }
 
+function updateMarketPrices() {
+    const factorStd = 8 + Math.floor(Math.random() * 7); // $8 a $14
+    const factorCal = 15 + Math.floor(Math.random() * 10); // $15 a $24
+    const factorExo = 30 + Math.floor(Math.random() * 15); // $30 a $44
+
+    const isBull = Math.random() > 0.5;
+    state.marketTrend = isBull ? 'En Suba 🟢' : 'En Baja 🔴';
+
+    state.marketPrices.standard = factorStd;
+    state.marketPrices.calcium = factorCal;
+    state.marketPrices.exotic = factorExo;
+
+    logEvent(`📈 Mercado Libre: ${state.marketTrend}`);
+}
+
+function sellAllEggsMarket() {
+    const totalStd = state.eggStock.standard * state.marketPrices.standard;
+    const totalCal = state.eggStock.calcium * state.marketPrices.calcium;
+    const totalExo = state.eggStock.exotic * state.marketPrices.exotic;
+    const grandTotal = totalStd + totalCal + totalExo;
+
+    if (grandTotal <= 0) return logEvent('❌ No tienes huevos en stock para vender.');
+
+    state.money += grandTotal;
+    logEvent(`💰 Vendiste tu stock total por $${grandTotal}!`);
+    state.eggStock.standard = 0;
+    state.eggStock.calcium = 0;
+    state.eggStock.exotic = 0;
+    updateUI();
+    saveGame();
+}
+
+function fulfillContract(type) {
+    if (type === 'bakery') {
+        if (state.eggStock.standard < 5) return logEvent('❌ Te faltan Huevos Comunes (requiere 5).');
+        state.eggStock.standard -= 5;
+        state.money += 80;
+        logEvent('🍞 ¡Contrato con la Panadería completado (+$80)!');
+    } else if (type === 'gourmet') {
+        if (state.eggStock.exotic < 3) return logEvent('❌ Te faltan Huevos Exóticos (requiere 3).');
+        state.eggStock.exotic -= 3;
+        state.money += 250;
+        logEvent('👨‍🍳 ¡Orden VIP Gourmet entregada (+$250)!');
+    }
+    updateUI();
+    saveGame();
+}
+
 function buyUpgrade(type) {
     if (type === 'fence') {
         if (state.hasReinforcedFence) return;
@@ -931,7 +997,7 @@ function enterContest() {
         state.trophies.gold++;
         state.money += 500;
         state.hasVipAccess = true;
-        logEvent(`🥇 ¡1º PUESTO! ${c.name} ganó la Medalla de Oro y $500! ¡Clientes VIP desbloqueados!`);
+        logEvent(`🥇 ¡1º PUESTO! ${c.name} ganó la Medalla de Oro y $500! ¡Contratos VIP Desbloqueados!`);
         playSound(800, 'triangle', 0.3);
     } else if (score >= 65) {
         state.trophies.silver++;
@@ -948,14 +1014,6 @@ function enterContest() {
     }
 
     updateUpgradeButtons();
-    updateUI();
-    saveGame();
-}
-
-function completeVipOrder() {
-    if (state.money < 0) return;
-    state.money += 600;
-    logEvent('💰 Orden VIP entregada a restaurante Michelin: +$600.');
     updateUI();
     saveGame();
 }
@@ -1093,10 +1151,13 @@ function handleCanvasInteraction(clientX, clientY) {
     for (let i = state.worldEggs.length - 1; i >= 0; i--) {
         const egg = state.worldEggs[i];
         if (Math.hypot(egg.x - clickX, egg.y - clickY) < 25) {
+            if (egg.type === 'Exótica') state.eggStock.exotic++;
+            else if (egg.type === 'Rica en Calcio') state.eggStock.calcium++;
+            else state.eggStock.standard++;
+
             state.worldEggs.splice(i, 1);
-            state.eggs++;
             playSound(650, 'sine', 0.05);
-            logEvent('🥚 Huevo recolectado.');
+            logEvent(`🥚 Huevo recolectado (${egg.type}).`);
             updateUI();
             saveGame();
             return;
@@ -1134,8 +1195,15 @@ function updateUI() {
     document.getElementById('level-display').innerText = state.level;
     document.getElementById('chickens-count').innerText = state.chickens.length;
     document.getElementById('max-chickens').innerText = state.capacity;
-    document.getElementById('egg-count').innerText = state.eggs;
-    document.getElementById('egg-price').innerText = state.eggPrice;
+    
+    document.getElementById('stock-std').innerText = state.eggStock.standard;
+    document.getElementById('stock-cal').innerText = state.eggStock.calcium;
+    document.getElementById('stock-exo').innerText = state.eggStock.exotic;
+
+    document.getElementById('price-std').innerText = state.marketPrices.standard;
+    document.getElementById('price-cal').innerText = state.marketPrices.calcium;
+    document.getElementById('price-exo').innerText = state.marketPrices.exotic;
+    document.getElementById('market-trend').innerText = `Tendencia: ${state.marketTrend}`;
 
     const list = document.getElementById('chickens-list');
     list.innerHTML = '';
@@ -1193,34 +1261,6 @@ function buyChicken(breed) {
     saveGame();
 }
 
-function sellEggs() {
-    if (state.eggs <= 0) return;
-    const total = state.eggs * state.eggPrice;
-    state.money += total;
-    logEvent(`💰 +$${total} por huevos.`);
-    state.eggs = 0;
-    updateUI();
-    saveGame();
-}
-
-function buyFood() {
-    if (state.money < 20) return;
-    state.money -= 20;
-    state.food += 50;
-    logEvent('🌾 Comida comprada.');
-    updateUI();
-    saveGame();
-}
-
-function buyMeds() {
-    if (state.money < 40) return;
-    state.money -= 40;
-    state.chickens.forEach(c => c.health = 100);
-    logEvent('💊 Aves curadas.');
-    updateUI();
-    saveGame();
-}
-
 function breedChickens() {
     const mIdx = document.getElementById('select-mother').value;
     const fIdx = document.getElementById('select-father').value;
@@ -1246,10 +1286,7 @@ function breedChickens() {
 
 function setDiet(dietName) {
     state.diet = dietName;
-    if (dietName === 'Estándar') state.eggPrice = 10;
-    else if (dietName === 'Rica en Calcio') state.eggPrice = 18;
-    else if (dietName === 'Exótica') state.eggPrice = 35;
-    logEvent(`🌾 Dieta: ${dietName}`);
+    logEvent(`🌾 Dieta cambiada a: ${dietName}`);
     updateUI();
     saveGame();
 }
@@ -1293,28 +1330,22 @@ function upgradeFarm() {
     saveGame();
 }
 
-// Reloj del juego (Cada 5 segundos = 1 hora de juego)
 setInterval(() => {
     state.time++;
-    if (state.time >= 24) state.time = 0;
+    if (state.time >= 24) {
+        state.time = 0;
+        updateMarketPrices(); // Fluctuación diaria a las 00:00 hs
+    }
     document.getElementById('time-display').innerText = `${state.time.toString().padStart(2, '0')}:00`;
 
-    // Sincronización de Puesta de Huevos por Hora (Realista: ~1 huevo diario por gallina)
     state.chickens.forEach(c => {
         if (c.gender === 'female') {
-            // Probabilidad por hora basada en la genética de puesta
             if (Math.random() < (c.genLay / 2400)) {
-                let multiplier = 1;
-                let badge = state.diet;
-                if (c.genLay >= 85) {
-                    const roll = Math.random();
-                    if (roll < 0.25) { multiplier = 3; badge = 'Oro'; }
-                    else if (roll < 0.6) { multiplier = 2; badge = 'Doble'; }
-                }
-
                 if (c.isInside) {
-                    state.eggs += multiplier;
-                    logEvent(`🐔 ${c.name} puso ${multiplier} huevo(s) en el gallinero (${badge}).`);
+                    if (state.diet === 'Exótica') state.eggStock.exotic++;
+                    else if (state.diet === 'Rica en Calcio') state.eggStock.calcium++;
+                    else state.eggStock.standard++;
+                    logEvent(`🐔 ${c.name} puso un huevo en el gallinero (${state.diet}).`);
                 } else {
                     state.worldEggs.push({ x: c.x, y: c.y + 6, type: state.diet });
                     logEvent(`🐔 ${c.name} puso un huevo en el patio.`);
