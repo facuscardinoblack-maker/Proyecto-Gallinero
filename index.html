@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Mobile & Save System</title>
+    <title>Proyecto Gallinero - Deluxe Visuals</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -420,11 +420,11 @@ let state = {
 };
 
 const BREEDS = {
-    'Leghorn': { color: '#FFFFFF', comb: '#E63946', size: 10, layRate: 70, resistance: 40 },
-    'Rhode Island Red': { color: '#8B4513', comb: '#D62828', size: 12, layRate: 60, resistance: 60 },
-    'Brahma': { color: '#E5D3B3', comb: '#B7094C', size: 15, layRate: 40, resistance: 80 },
-    'Orpington': { color: '#2B2D42', comb: '#D62828', size: 13, layRate: 55, resistance: 70 },
-    'Híbrida': { color: '#FFB703', comb: '#FB8500', size: 11, layRate: 75, resistance: 75 }
+    'Leghorn': { color: '#F8F9FA', secondary: '#E9ECEF', comb: '#E63946', size: 14, layRate: 70, resistance: 40 },
+    'Rhode Island Red': { color: '#A04000', secondary: '#78281F', comb: '#D62828', size: 16, layRate: 60, resistance: 60 },
+    'Brahma': { color: '#D5D8DC', secondary: '#5D6D7E', comb: '#B7094C', size: 20, layRate: 40, resistance: 80 },
+    'Orpington': { color: '#273746', secondary: '#1B2631', comb: '#D62828', size: 18, layRate: 55, resistance: 70 },
+    'Híbrida': { color: '#F39C12', secondary: '#D35400', comb: '#FB8500', size: 15, layRate: 75, resistance: 75 }
 };
 
 function initAudio() {
@@ -449,6 +449,7 @@ function playSound(freq, type = 'sine', duration = 0.1) {
     } catch(e){}
 }
 
+// --- CLASE ANIMAL REDISEÑADA ESTÉTICAMENTE ---
 class Chicken {
     constructor(name, breed, gender = 'female', genLay = null, genRes = null, health = 100, happiness = 100, x = null, y = null) {
         this.name = name;
@@ -461,61 +462,148 @@ class Chicken {
         
         this.x = x !== null ? x : (40 + Math.random() * (canvas.width - 80));
         this.y = y !== null ? y : (60 + Math.random() * (canvas.height - 100));
-        this.vx = (Math.random() - 0.5) * 1.2;
-        this.vy = (Math.random() - 0.5) * 1.2;
+        this.vx = (Math.random() - 0.5) * 1.0;
+        this.vy = (Math.random() - 0.5) * 1.0;
+        
+        this.walkCycle = Math.random() * Math.PI * 2;
+        this.isPecking = false;
+        this.peckTimer = 0;
         this.timer = 0;
     }
 
     update() {
+        // Comportamiento de picoteo ocasional
+        if (this.isPecking) {
+            this.peckTimer--;
+            if (this.peckTimer <= 0) this.isPecking = false;
+            return;
+        }
+
         this.x += this.vx;
         this.y += this.vy;
+        this.walkCycle += 0.15;
 
-        if (this.x < 20 || this.x > canvas.width - 20) this.vx *= -1;
-        if (this.y < 50 || this.y > canvas.height - 20) this.vy *= -1;
+        if (this.x < 30 || this.x > canvas.width - 30) this.vx *= -1;
+        if (this.y < 60 || this.y > canvas.height - 30) this.vy *= -1;
 
         this.timer++;
-        if (this.timer > 100) {
-            this.vx = (Math.random() - 0.5) * 1.2;
-            this.vy = (Math.random() - 0.5) * 1.2;
+        if (this.timer > 120) {
             this.timer = 0;
+            const action = Math.random();
+            if (action < 0.3) {
+                // Detenerse a picotear
+                this.isPecking = true;
+                this.peckTimer = 40;
+            } else {
+                // Cambiar rumbo
+                this.vx = (Math.random() - 0.5) * 1.2;
+                this.vy = (Math.random() - 0.5) * 1.2;
+            }
 
-            if (this.gender === 'female' && Math.random() < (this.genLay / 250)) {
-                state.worldEggs.push({ x: this.x, y: this.y + 4, type: state.diet });
+            // Poner huevo aleatorio
+            if (this.gender === 'female' && Math.random() < (this.genLay / 300)) {
+                state.worldEggs.push({ x: this.x, y: this.y + 6, type: state.diet });
                 saveGame();
             }
         }
     }
 
     draw(ctx) {
-        const breedInfo = BREEDS[this.breed] || BREEDS['Leghorn'];
+        const info = BREEDS[this.breed] || BREEDS['Leghorn'];
+        const isMale = this.gender === 'male';
+        const scale = info.size;
+
         ctx.save();
         ctx.translate(this.x, this.y);
-        
+        if (this.vx < 0) ctx.scale(-1, 1); // Voltear sprite según dirección
+
+        // 1. Sombra en el suelo
         ctx.beginPath();
-        ctx.ellipse(0, 4, breedInfo.size, breedInfo.size / 2, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0,0,0,0.12)';
+        ctx.ellipse(0, 8, scale * 0.7, scale * 0.3, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.18)';
         ctx.fill();
 
+        // 2. Patas animadas
+        ctx.strokeStyle = '#D4AC0D';
+        ctx.lineWidth = 2;
+        const legOffset = Math.sin(this.walkCycle) * 3;
         ctx.beginPath();
-        ctx.arc(0, -breedInfo.size/2, breedInfo.size, 0, Math.PI * 2);
-        ctx.fillStyle = breedInfo.color;
+        ctx.moveTo(-scale * 0.2, 4); ctx.lineTo(-scale * 0.2 + legOffset, 10);
+        ctx.moveTo(scale * 0.2, 4); ctx.lineTo(scale * 0.2 - legOffset, 10);
+        ctx.stroke();
+
+        // Altura de cabeza si está picoteando
+        const peckY = this.isPecking ? 6 : 0;
+        const bodyBob = Math.sin(this.walkCycle * 2) * 1.5;
+
+        // 3. Cola del ave (Diferenciada para gallos)
+        ctx.fillStyle = info.secondary;
+        if (isMale) {
+            // Cola arqueada de gallo
+            ctx.beginPath();
+            ctx.moveTo(-scale * 0.6, -scale * 0.4 + bodyBob);
+            ctx.quadraticCurveTo(-scale * 1.4, -scale * 1.2, -scale * 1.1, -scale * 1.6);
+            ctx.quadraticCurveTo(-scale * 0.8, -scale * 0.8, -scale * 0.4, -scale * 0.2);
+            ctx.fill();
+        } else {
+            // Cola compacta de gallina
+            ctx.beginPath();
+            ctx.arc(-scale * 0.6, -scale * 0.4 + bodyBob, scale * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // 4. Cuerpo Principal
+        ctx.beginPath();
+        ctx.ellipse(0, -scale * 0.3 + bodyBob, scale * 0.8, scale * 0.6, 0.1, 0, Math.PI * 2);
+        ctx.fillStyle = info.color;
         ctx.fill();
-        ctx.strokeStyle = '#333';
+        ctx.strokeStyle = '#2C3E50';
         ctx.lineWidth = 1;
         ctx.stroke();
 
+        // Ala con textura de plumas
         ctx.beginPath();
-        ctx.arc(0, -breedInfo.size * 1.2, breedInfo.size / 3, 0, Math.PI * 2);
-        ctx.fillStyle = breedInfo.comb;
+        ctx.ellipse(-scale * 0.1, -scale * 0.3 + bodyBob, scale * 0.4, scale * 0.3, 0.2, 0, Math.PI * 2);
+        ctx.fillStyle = info.secondary;
         ctx.fill();
 
+        // 5. Cabeza y Cuello
+        ctx.save();
+        ctx.translate(scale * 0.5, -scale * 0.6 + bodyBob + peckY);
+
         ctx.beginPath();
-        ctx.moveTo(this.vx >= 0 ? breedInfo.size/2 : -breedInfo.size/2, -breedInfo.size/2);
-        ctx.lineTo(this.vx >= 0 ? breedInfo.size * 0.9 : -breedInfo.size * 0.9, -breedInfo.size/3);
-        ctx.lineTo(this.vx >= 0 ? breedInfo.size/2 : -breedInfo.size/2, 0);
-        ctx.fillStyle = '#FFB703';
+        ctx.arc(0, 0, scale * 0.38, 0, Math.PI * 2);
+        ctx.fillStyle = info.color;
+        ctx.fill();
+        ctx.stroke();
+
+        // Pico
+        ctx.beginPath();
+        ctx.moveTo(scale * 0.25, -scale * 0.1);
+        ctx.lineTo(scale * 0.6, 0);
+        ctx.lineTo(scale * 0.25, scale * 0.15);
+        ctx.fillStyle = '#F39C12';
         ctx.fill();
 
+        // Ojo
+        ctx.beginPath();
+        ctx.arc(scale * 0.1, -scale * 0.1, scale * 0.08, 0, Math.PI * 2);
+        ctx.fillStyle = '#111';
+        ctx.fill();
+
+        // Cresta (Más grande en machos)
+        ctx.beginPath();
+        const combSize = isMale ? scale * 0.45 : scale * 0.25;
+        ctx.ellipse(0, -combSize, combSize * 0.8, combSize * 0.5, -0.3, 0, Math.PI * 2);
+        ctx.fillStyle = info.comb;
+        ctx.fill();
+
+        // Barbilla
+        ctx.beginPath();
+        ctx.ellipse(scale * 0.1, scale * 0.2, scale * 0.12, scale * 0.18, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
         ctx.restore();
     }
 }
@@ -530,13 +618,13 @@ class Predator {
     draw(ctx) {
         ctx.save();
         ctx.translate(this.x, this.y);
-        ctx.fillStyle = '#D62828';
+        ctx.fillStyle = '#C0392B';
         ctx.beginPath();
-        ctx.arc(0, 0, 12, 0, Math.PI * 2);
+        ctx.arc(0, 0, 14, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = 'white';
-        ctx.font = '10px sans-serif';
-        ctx.fillText('🦊 Zorro', -16, -14);
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillText('🦊 Zorro', -20, -18);
         ctx.restore();
     }
 }
@@ -626,27 +714,35 @@ if (!loadGame()) {
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Fondo / Pasto estilizado
     ctx.fillStyle = '#a3c9a8';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = '#8B4513';
-    ctx.fillRect(10, 10, 90, 50);
-    ctx.fillStyle = '#D62828';
+    // Gallinero Estructura Visual
+    ctx.fillStyle = '#6E2C00';
+    ctx.fillRect(12, 12, 100, 55);
+    ctx.fillStyle = '#B03A2E';
     ctx.beginPath();
-    ctx.moveTo(0, 10); ctx.lineTo(55, -5); ctx.lineTo(110, 10);
+    ctx.moveTo(2, 12); ctx.lineTo(62, -6); ctx.lineTo(122, 12);
     ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('🏡 Gallinero', 22, 45);
 
+    // Huevos en el suelo
     state.worldEggs.forEach((egg) => {
         ctx.beginPath();
-        ctx.ellipse(egg.x, egg.y, 5, 7, 0, 0, Math.PI * 2);
-        ctx.fillStyle = egg.type === 'Exótica' ? '#84DCC6' : (egg.type === 'Rica en Calcio' ? '#FFB703' : '#FFFFFF');
+        ctx.ellipse(egg.x, egg.y, 6, 8, 0, 0, Math.PI * 2);
+        ctx.fillStyle = egg.type === 'Exótica' ? '#5DADE2' : (egg.type === 'Rica en Calcio' ? '#F4D03F' : '#FFFFFF');
         ctx.fill();
-        ctx.strokeStyle = '#888';
+        ctx.strokeStyle = '#7F8C8D';
         ctx.stroke();
     });
 
+    // Actualizar y Dibujar Aves
     state.chickens.forEach(c => { c.update(); c.draw(ctx); });
 
+    // Actualizar y Dibujar Depredadores
     state.predators.forEach((p, index) => {
         p.update();
         p.draw(ctx);
@@ -874,7 +970,6 @@ setInterval(() => {
         logEvent('⚠️ ¡UN ZORRO ACECHA! Tócale para espantarlo.');
     }
 
-    // Auto-guardado en segundo plano
     saveGame();
 }, 5000);
 
