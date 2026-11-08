@@ -2,341 +2,1377 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Proyecto Gallinero - Simulación & Genética</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Chart.js para el gráfico del mercado -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Fonts: VT323 & Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        * {
+            touch-action: manipulation;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #121826;
-            color: #f3f4f6;
+            background-color: #0f172a;
+            color: #f8fafc;
             user-select: none;
+            -webkit-user-select: none;
         }
         .font-pixel {
             font-family: 'VT323', monospace;
         }
-        /* Animación suave para las gallinas en el corral */
-        @keyframes bob {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-6px) rotate(2deg); }
-        }
-        @keyframes peck {
-            0%, 100% { transform: rotate(0deg); }
-            30% { transform: rotate(15deg) translateY(4px); }
-        }
-        .animate-chicken {
-            animation: bob 3s ease-in-out infinite;
-        }
-        .animate-peck {
-            animation: peck 1.5s ease-in-out infinite;
-        }
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
         }
         ::-webkit-scrollbar-track {
-            background: #1f2937;
+            background: #0f172a;
         }
         ::-webkit-scrollbar-thumb {
-            background: #374151;
+            background: #334155;
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #4b5563;
+            background: #475569;
+        }
+        /* Touch friendly active feedback */
+        .btn-touch {
+            min-height: 44px;
+            transition: transform 0.08s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .btn-touch:active {
+            transform: scale(0.96);
+        }
+        /* Toast notification animations */
+        @keyframes toastIn {
+            from { transform: translateY(100%) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .toast-animate {
+            animation: toastIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden bg-slate-950 text-slate-100">
+<body class="h-screen flex flex-col overflow-hidden bg-slate-950 text-slate-100 select-none">
 
-    <!-- TOP BAR / HUD -->
-    <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex flex-wrap items-center justify-between shadow-lg z-10">
-        <div class="flex items-center space-x-3">
-            <div class="bg-amber-500/20 p-2 rounded-lg border border-amber-500/40 text-amber-400">
-                <i class="fa-solid font-pixel text-2xl fa-egg"></i>
+    <!-- TOP BAR / HUD (RESPONSIVE) -->
+    <header class="bg-slate-900 border-b border-slate-800 px-3 py-2 sm:px-4 sm:py-3 flex items-center justify-between shadow-lg z-20 shrink-0">
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <div class="bg-amber-500/20 p-2 rounded-xl border border-amber-500/40 text-amber-400 flex items-center justify-center">
+                <i class="fa-solid font-pixel text-xl sm:text-2xl fa-egg"></i>
             </div>
             <div>
-                <h1 class="font-pixel text-2xl tracking-wider text-amber-400 leading-none">PROYECTO GALLINERO</h1>
-                <p class="text-xs text-slate-400">Simulador de Cría & Genética v1.0</p>
+                <h1 class="font-pixel text-xl sm:text-2xl tracking-wider text-amber-400 leading-none">PROYECTO GALLINERO</h1>
+                <p class="text-[10px] sm:text-xs text-slate-400 hidden sm:block">Simulador de Cría, Genética & Economía</p>
             </div>
         </div>
 
-        <!-- Recursos del Jugador -->
-        <div class="flex items-center space-x-6 text-sm">
+        <!-- Recursos del Jugador en HUD -->
+        <div class="flex items-center space-x-1.5 sm:space-x-3 text-xs">
             <!-- Dinero -->
-            <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2">
-                <i class="fa-solid fa-coins text-yellow-400 text-lg"></i>
+            <div class="bg-slate-800/90 px-2.5 py-1.5 rounded-xl border border-slate-700 flex items-center space-x-1.5">
+                <i class="fa-solid fa-coins text-yellow-400 text-sm sm:text-base"></i>
                 <div>
-                    <div class="text-xs text-slate-400">Dinero</div>
-                    <div id="hud-money" class="font-bold text-yellow-400">$150.00</div>
+                    <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold leading-none hidden sm:block">Dinero</div>
+                    <div id="hud-money" class="font-extrabold text-yellow-400 text-xs sm:text-sm">$150.00</div>
                 </div>
             </div>
 
-            <!-- Nivel / Reputación -->
-            <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2">
-                <i class="fa-solid fa-star text-amber-400 text-lg"></i>
+            <!-- Alimento -->
+            <div class="bg-slate-800/90 px-2.5 py-1.5 rounded-xl border border-slate-700 flex items-center space-x-1.5">
+                <i class="fa-solid fa-wheat-awn text-amber-500 text-sm sm:text-base"></i>
                 <div>
-                    <div class="text-xs text-slate-400">Nivel Granja</div>
-                    <div id="hud-level" class="font-bold text-amber-300">Niv. 1 (Corral Rústico)</div>
+                    <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold leading-none hidden sm:block">Comida</div>
+                    <div id="hud-food" class="font-bold text-slate-200 text-xs sm:text-sm">20/50 kg</div>
                 </div>
             </div>
 
-            <!-- Alimento en Stock -->
-            <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2">
-                <i class="fa-solid fa-wheat-awn text-amber-500 text-lg"></i>
+            <!-- Prestigio / Trofeos -->
+            <div class="bg-slate-800/90 px-2.5 py-1.5 rounded-xl border border-slate-700 flex items-center space-x-1.5">
+                <i class="fa-solid fa-trophy text-amber-400 text-sm sm:text-base"></i>
                 <div>
-                    <div class="text-xs text-slate-400">Comida (Kg)</div>
-                    <div id="hud-food" class="font-bold text-slate-200">20 / 50 kg</div>
+                    <div class="text-[9px] text-slate-400 uppercase tracking-wider font-semibold leading-none hidden sm:block">Prestigio</div>
+                    <div id="hud-prestige" class="font-bold text-amber-300 text-xs sm:text-sm">0 pts</div>
                 </div>
             </div>
 
-            <!-- Huevos en Almacén -->
-            <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2">
-                <i class="fa-solid fa-basket-shopping text-emerald-400 text-lg"></i>
-                <div>
-                    <div class="text-xs text-slate-400">Huevos en Cesta</div>
-                    <div id="hud-eggs" class="font-bold text-emerald-400">0</div>
-                </div>
-            </div>
-
-            <!-- Clima / Tiempo -->
-            <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2">
-                <i id="hud-weather-icon" class="fa-solid fa-sun text-amber-400 text-lg"></i>
-                <div>
-                    <div id="hud-season" class="text-xs text-slate-400">Primavera</div>
-                    <div id="hud-temp" class="font-bold text-slate-200">22°C</div>
+            <!-- Clima & Audio Toggle -->
+            <div class="flex items-center space-x-1">
+                <button onclick="toggleAudio()" id="btn-audio" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-xl border border-slate-700 text-xs flex items-center justify-center w-8 h-8">
+                    <i class="fa-solid fa-volume-xmark" id="audio-icon"></i>
+                </button>
+                <div class="bg-slate-800/90 px-2 py-1 rounded-xl border border-slate-700 hidden md:flex items-center space-x-1.5">
+                    <i id="hud-weather-icon" class="fa-solid fa-sun text-amber-400"></i>
+                    <span id="hud-weather-text" class="text-xs text-slate-300">Primavera (22°C)</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- CONTAINER PRINCIPAL (NAVIGATION & VIEWS) -->
-    <div class="flex-1 flex overflow-hidden">
+    <!-- CONTAINER PRINCIPAL -->
+    <div class="flex-1 flex overflow-hidden relative">
         
-        <!-- SIDEBAR DE NAVEGACIÓN -->
-        <nav class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between p-3">
-            <div class="space-y-1">
-                <button onclick="switchTab('coop')" id="nav-coop" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-left transition bg-amber-500/10 text-amber-400 border border-amber-500/30">
-                    <i class="fa-solid fa-warehouse text-lg"></i>
-                    <span>El Gallinero</span>
+        <!-- SIDEBAR DE NAVEGACIÓN (Desktop: Lateral, Mobile: Oculta) -->
+        <nav class="hidden md:flex w-60 bg-slate-900 border-r border-slate-800 flex-col justify-between p-3 shrink-0">
+            <div class="space-y-1.5">
+                <button onclick="switchTab('coop')" id="nav-coop" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-left transition btn-touch bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                    <i class="fa-solid fa-warehouse text-lg w-6 text-center"></i>
+                    <span>Gallinero en Vivo</span>
                 </button>
-                <button onclick="switchTab('genetics')" id="nav-genetics" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-left transition text-slate-400 hover:bg-slate-800 hover:text-slate-200">
-                    <i class="fa-solid fa-dna text-lg"></i>
-                    <span>Criadero & Genética</span>
+                <button onclick="switchTab('genetics')" id="nav-genetics" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-left transition btn-touch text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                    <i class="fa-solid fa-dna text-lg w-6 text-center"></i>
+                    <span>Cruza & Genética</span>
                 </button>
-                <button onclick="switchTab('market')" id="nav-market" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-left transition text-slate-400 hover:bg-slate-800 hover:text-slate-200">
-                    <i class="fa-solid fa-store text-lg"></i>
-                    <span>Mercado Agrícola</span>
+                <button onclick="switchTab('market')" id="nav-market" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-left transition btn-touch text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                    <i class="fa-solid fa-store text-lg w-6 text-center"></i>
+                    <span>Mercado & Dieta</span>
                 </button>
-                <button onclick="switchTab('upgrades')" id="nav-upgrades" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-left transition text-slate-400 hover:bg-slate-800 hover:text-slate-200">
-                    <i class="fa-solid fa-hammer text-lg"></i>
+                <button onclick="switchTab('fair')" id="nav-fair" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-left transition btn-touch text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                    <i class="fa-solid fa-award text-lg w-6 text-center"></i>
+                    <span>Feria Rural</span>
+                </button>
+                <button onclick="switchTab('upgrades')" id="nav-upgrades" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-left transition btn-touch text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                    <i class="fa-solid fa-hammer text-lg w-6 text-center"></i>
                     <span>Mejoras & Obras</span>
                 </button>
             </div>
 
-            <!-- Mini Panel de Estadísticas del Gallinero -->
+            <!-- Stats Rápidas Granja -->
             <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs space-y-2">
                 <div class="flex justify-between text-slate-400">
-                    <span>Población Total:</span>
-                    <span id="stat-count" class="font-bold text-slate-200">0 / 5</span>
+                    <span>Nivel Infraestructura:</span>
+                    <span id="sidebar-level" class="font-bold text-amber-400">Niv. 1</span>
                 </div>
                 <div class="flex justify-between text-slate-400">
-                    <span>Higiene del Corral:</span>
-                    <span id="stat-cleanliness" class="font-bold text-emerald-400">100%</span>
+                    <span>Población:</span>
+                    <span id="sidebar-birds" class="font-bold text-slate-200">0/5</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>Higiene Corral:</span>
+                    <span id="sidebar-clean" class="font-bold text-emerald-400">100%</span>
                 </div>
                 <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                    <div id="bar-cleanliness" class="bg-emerald-500 h-full w-full transition-all duration-300"></div>
+                    <div id="sidebar-clean-bar" class="bg-emerald-500 h-full w-full transition-all duration-300"></div>
                 </div>
             </div>
         </nav>
 
-        <!-- VISTAS / CONTENIDO -->
-        <main class="flex-1 bg-slate-950 p-6 overflow-y-auto relative">
+        <!-- VISTAS / CONTENIDO PRINCIPAL -->
+        <main class="flex-1 bg-slate-950 p-3 sm:p-5 overflow-y-auto relative pb-24 md:pb-6">
 
-            <!-- TAB 1: EL GALLINERO -->
-            <section id="tab-coop" class="space-y-6">
-                <!-- Barra de Acciones Rápidas -->
-                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 flex flex-wrap gap-3 items-center justify-between">
-                    <div class="flex gap-3">
-                        <button onclick="feedBirds()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl font-medium shadow-lg transition flex items-center space-x-2">
+            <!-- TAB 1: EL GALLINERO EN VIVO (CANVAS 2D) -->
+            <section id="tab-coop" class="space-y-4 max-w-7xl mx-auto">
+                
+                <!-- Acciones Rápidas Táctiles -->
+                <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800 flex flex-wrap gap-2 items-center justify-between">
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                        <button onclick="feedBirds()" class="flex-1 sm:flex-none bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm shadow-md transition btn-touch flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-wheat-awn"></i>
-                            <span>Alimentar Aves</span>
+                            <span>Alimentar</span>
                         </button>
-                        <button onclick="cleanCoop()" class="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2.5 rounded-xl font-medium shadow-lg transition flex items-center space-x-2">
+                        <button onclick="cleanCoop()" class="flex-1 sm:flex-none bg-teal-600 hover:bg-teal-500 active:bg-teal-700 text-white px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm shadow-md transition btn-touch flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-broom"></i>
-                            <span>Limpiar Gallinero</span>
+                            <span>Limpiar</span>
                         </button>
-                        <button onclick="collectEggs()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-medium shadow-lg transition flex items-center space-x-2">
-                            <i class="fa-solid fa-egg"></i>
-                            <span>Recolectar Huevos</span>
+                        <button onclick="collectEggs()" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm shadow-md transition btn-touch flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-basket-shopping"></i>
+                            <span>Recoger Huevos (<span id="btn-egg-count">0</span>)</span>
                         </button>
                     </div>
 
-                    <div class="text-xs text-slate-400 flex items-center space-x-4">
-                        <span class="flex items-center"><i class="fa-solid fa-circle text-emerald-500 text-[8px] mr-1.5"></i> Óptimo</span>
-                        <span class="flex items-center"><i class="fa-solid fa-circle text-amber-500 text-[8px] mr-1.5"></i> Hambriento</span>
-                        <span class="flex items-center"><i class="fa-solid fa-circle text-rose-500 text-[8px] mr-1.5"></i> Enfermo</span>
+                    <div class="text-[11px] text-slate-400 flex items-center space-x-3 w-full sm:w-auto justify-end pt-1 sm:pt-0">
+                        <span class="flex items-center"><i class="fa-solid fa-sun text-amber-400 mr-1"></i> <span id="env-time">Día</span></span>
+                        <span class="flex items-center"><i class="fa-solid fa-cloud text-slate-400 mr-1"></i> <span id="env-season">Primavera</span></span>
                     </div>
                 </div>
 
-                <!-- Corral Visual (Gráfico 2D Interactivo) -->
-                <div class="relative bg-gradient-to-b from-amber-950/20 via-emerald-950/20 to-slate-900 border-2 border-dashed border-slate-800 rounded-2xl min-h-[280px] p-6 flex flex-wrap gap-6 items-end justify-start overflow-hidden">
-                    <div class="absolute top-3 left-4 text-xs font-pixel text-slate-500 tracking-wider">CORRAL AL AIRE LIBRE - VISTA EN VIVO</div>
-                    
-                    <!-- Nidos Visuales en la esquina -->
-                    <div class="absolute top-4 right-4 flex space-x-3 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-                        <div class="text-center">
-                            <div class="text-xs text-slate-400 mb-1">Nidos</div>
-                            <div class="flex space-x-2" id="nests-container">
-                                <!-- Generado por JS -->
-                            </div>
-                        </div>
+                <!-- CANVAS 2D DE GALLINAS INTERACTIVO -->
+                <div class="relative bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                    <div class="absolute top-3 left-3 z-10 bg-slate-950/80 backdrop-blur border border-slate-800 px-3 py-1 rounded-xl text-xs font-semibold text-amber-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-eye"></i>
+                        <span id="canvas-status-title">VISTA SIMULADA EN VIVO</span>
                     </div>
 
-                    <!-- Gallinas rendered aquí -->
-                    <div id="coop-chickens-container" class="w-full flex flex-wrap gap-6 items-center z-10 min-h-[160px]">
-                        <!-- Rendered by JavaScript -->
-                    </div>
+                    <!-- Canvas elemento -->
+                    <canvas id="coopCanvas" class="w-full h-64 sm:h-80 md:h-96 block cursor-pointer"></canvas>
                 </div>
 
-                <!-- Lista Detallada de Aves -->
+                <!-- Lista de Aves con Detalles y Salud -->
                 <div>
-                    <h3 class="text-lg font-semibold text-slate-200 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-list-check text-amber-400"></i>
-                        Inventario de Aves en el Corral
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="birds-cards-container">
-                        <!-- Cards dinámicas por JS -->
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-base sm:text-lg font-bold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-feather text-amber-400"></i>
+                            Aves en el Corral (<span id="bird-list-count">0</span>)
+                        </h3>
+                        <span class="text-xs text-slate-400">Toca un ave para cuidarla</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="birds-cards-container">
+                        <!-- Cards dinámicas JS -->
                     </div>
                 </div>
             </section>
 
             <!-- TAB 2: CRIADERO & GENÉTICA -->
-            <section id="tab-genetics" class="space-y-6 hidden">
-                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
-                    <h2 class="text-xl font-bold text-amber-400 mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-dna"></i> Centro de Cruza y Genética
+            <section id="tab-genetics" class="space-y-4 max-w-7xl mx-auto hidden">
+                <div class="bg-slate-900 p-4 sm:p-6 rounded-2xl border border-slate-800">
+                    <h2 class="text-lg sm:text-xl font-bold text-amber-400 mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-dna"></i> Laboratorio Genético & Cruza
                     </h2>
-                    <p class="text-sm text-slate-400 mb-6">Selecciona un Gallo reproductor y una Gallina fértil para combinar su ADN. Las crías heredarán estadísticas con posibilidad de mutación genéticas y nuevas razas.</p>
+                    <p class="text-xs sm:text-sm text-slate-400 mb-5">Junta un Gallo ♂ y una Gallina ♀ para transmitir estadísticas combinadas. Hay probabilidad de mutación de nuevas razas exóticas.</p>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Seleccionar Padre (Gallo) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Gallo (Padre) -->
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                            <label class="block text-sm font-semibold text-slate-300 mb-2">Padre (Gallo ♂)</label>
-                            <select id="select-rooster" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-200 focus:outline-none focus:border-amber-500">
-                                <option value="">-- Seleccionar Gallo --</option>
+                            <label class="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">Seleccionar Gallo (Padre ♂)</label>
+                            <select id="select-rooster" onchange="previewGenetics()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-amber-500">
+                                <option value="">-- Ninguno Seleccionado --</option>
                             </select>
-                            <div id="rooster-preview" class="mt-4 p-3 bg-slate-900/50 rounded-lg border border-slate-800 hidden text-xs space-y-1">
-                                <!-- Preview stats -->
+                            <div id="rooster-preview-box" class="mt-3 p-3 bg-slate-900/60 rounded-xl border border-slate-800/80 text-xs hidden space-y-1">
+                                <!-- JS Preview -->
                             </div>
                         </div>
 
-                        <!-- Seleccionar Madre (Gallina) -->
+                        <!-- Gallina (Madre) -->
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                            <label class="block text-sm font-semibold text-slate-300 mb-2">Madre (Gallina ♀)</label>
-                            <select id="select-hen" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-200 focus:outline-none focus:border-amber-500">
-                                <option value="">-- Seleccionar Gallina --</option>
+                            <label class="block text-xs font-bold text-pink-400 uppercase tracking-wider mb-2">Seleccionar Gallina (Madre ♀)</label>
+                            <select id="select-hen" onchange="previewGenetics()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-amber-500">
+                                <option value="">-- Ninguna Seleccionada --</option>
                             </select>
-                            <div id="hen-preview" class="mt-4 p-3 bg-slate-900/50 rounded-lg border border-slate-800 hidden text-xs space-y-1">
-                                <!-- Preview stats -->
+                            <div id="hen-preview-box" class="mt-3 p-3 bg-slate-900/60 rounded-xl border border-slate-800/80 text-xs hidden space-y-1">
+                                <!-- JS Preview -->
                             </div>
                         </div>
                     </div>
 
-                    <!-- Botón de Acción -->
-                    <div class="mt-6 flex justify-center">
-                        <button onclick="breedBirds()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold px-8 py-3.5 rounded-xl shadow-lg transition transform active:scale-95 flex items-center space-x-2">
+                    <!-- Vista previa de cría estimada -->
+                    <div id="genetics-prediction" class="mt-4 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs hidden">
+                        <div class="font-bold text-amber-400 mb-1">Predicción de Descendencia:</div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-300" id="prediction-stats">
+                            <!-- Stats previstos -->
+                        </div>
+                    </div>
+
+                    <div class="mt-5 flex justify-center">
+                        <button onclick="breedBirds()" class="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold px-8 py-3.5 rounded-xl shadow-lg transition btn-touch flex items-center justify-center space-x-2 text-sm">
                             <i class="fa-solid fa-heart text-rose-600"></i>
-                            <span>Cruzar Aves Seleccionadas</span>
+                            <span>CRUZAR PAREJA DE AVES</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Enciclopedia de Razas Descubiertas -->
-                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
-                    <h3 class="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+                <!-- Compendio de Razas Descubiertas -->
+                <div class="bg-slate-900 p-4 sm:p-6 rounded-2xl border border-slate-800">
+                    <h3 class="text-base sm:text-lg font-bold text-slate-200 mb-3 flex items-center gap-2">
                         <i class="fa-solid fa-book-bookmark text-amber-400"></i>
-                        Registro de Razas & Mutaciones
+                        Compendio de Razas y Descubrimientos
                     </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="breed-encyclopedia">
-                        <!-- Cards de razas -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3" id="breed-encyclopedia">
+                        <!-- Dinámico JS -->
                     </div>
                 </div>
             </section>
 
-            <!-- TAB 3: MERCADO AGRÍCOLA -->
-            <section id="tab-market" class="space-y-6 hidden">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Gráfico de Precios -->
-                    <div class="lg:col-span-2 bg-slate-900 p-6 rounded-2xl border border-slate-800">
-                        <div class="flex justify-between items-center mb-4">
+            <!-- TAB 3: MERCADO AGRÍCOLA & DIETAS -->
+            <section id="tab-market" class="space-y-4 max-w-7xl mx-auto hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    
+                    <!-- Gráfico Bolsa Agrícola -->
+                    <div class="lg:col-span-2 bg-slate-900 p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="flex flex-wrap justify-between items-center gap-2">
                             <div>
-                                <h3 class="text-lg font-bold text-slate-200">Bolsa Agrícola de Huevos</h3>
-                                <p class="text-xs text-slate-400">Fluctuación de valor en tiempo real según la demanda</p>
+                                <h3 class="text-base sm:text-lg font-bold text-slate-200">Mercado Agropecuario</h3>
+                                <p class="text-xs text-slate-400">Precios fluctuantes según oferta y estación</p>
                             </div>
-                            <div class="text-right">
-                                <span class="text-xs text-slate-400">Precio Actual / Huevo:</span>
-                                <div id="current-egg-price" class="text-xl font-bold text-emerald-400">$2.50</div>
+                            <div class="flex space-x-3 text-xs">
+                                <div><span class="text-slate-400">Blanco:</span> <b id="price-egg-white" class="text-emerald-400">$2.00</b></div>
+                                <div><span class="text-slate-400">Dorado:</span> <b id="price-egg-gold" class="text-amber-400">$5.00</b></div>
+                                <div><span class="text-slate-400">Exótico:</span> <b id="price-egg-exotic" class="text-purple-400">$12.00</b></div>
                             </div>
                         </div>
-                        <div class="h-64">
+
+                        <div class="h-56 sm:h-64">
                             <canvas id="marketChart"></canvas>
+                        </div>
+
+                        <!-- Vender Todo -->
+                        <div class="pt-2">
+                            <button onclick="sellEggs()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition btn-touch shadow-lg flex items-center justify-center space-x-2 text-sm">
+                                <i class="fa-solid fa-hand-holding-dollar"></i>
+                                <span>Vender Huevos Acumulados</span>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Venta y Suministros -->
+                    <!-- Selección de Dietas y Compras -->
                     <div class="space-y-4">
-                        <!-- Vender Huevos -->
-                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
-                            <h4 class="font-semibold text-slate-200 mb-3 flex items-center gap-2">
-                                <i class="fa-solid fa-basket-shopping text-emerald-400"></i> Vender Producción
+                        <!-- Selección de Dieta -->
+                        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3">
+                            <h4 class="font-bold text-sm text-amber-400 flex items-center gap-2">
+                                <i class="fa-solid fa-bowl-food"></i> Plan de Nutrición Aviar
                             </h4>
-                            <p class="text-xs text-slate-400 mb-4">Vende tus huevos acumulados al precio de mercado actual.</p>
-                            <button onclick="sellEggs()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg flex items-center justify-center space-x-2">
-                                <i class="fa-solid fa-hand-holding-dollar"></i>
-                                <span>Vender Todos los Huevos</span>
-                            </button>
+                            <p class="text-xs text-slate-400">La dieta influye en la calidad y color de los huevos producidos.</p>
+                            
+                            <div class="space-y-2 text-xs">
+                                <label onclick="setDiet('basic')" class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-amber-500/50">
+                                    <div class="flex items-center space-x-2">
+                                        <input type="radio" name="diet" value="basic" id="diet-basic" checked class="text-amber-500">
+                                        <div>
+                                            <div class="font-bold text-slate-200">Maíz Básico</div>
+                                            <div class="text-[10px] text-slate-400">Huevos blancos tradicionales</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-slate-400">$0/día</span>
+                                </label>
+
+                                <label onclick="setDiet('calcium')" class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-amber-500/50">
+                                    <div class="flex items-center space-x-2">
+                                        <input type="radio" name="diet" value="calcium" id="diet-calcium" class="text-amber-500">
+                                        <div>
+                                            <div class="font-bold text-amber-400">Rica en Calcio</div>
+                                            <div class="text-[10px] text-slate-400">Mayor probabilidad de huevos Dorados</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-amber-400">$10/día</span>
+                                </label>
+
+                                <label onclick="setDiet('exotic')" class="flex items-center justify-between p-2.5 rounded-xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-amber-500/50">
+                                    <div class="flex items-center space-x-2">
+                                        <input type="radio" name="diet" value="exotic" id="diet-exotic" class="text-amber-500">
+                                        <div>
+                                            <div class="font-bold text-purple-400">Mezcla Botánica Exótica</div>
+                                            <div class="text-[10px] text-slate-400">Produce Huevos Azules y Rosados</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-purple-400">$25/día</span>
+                                </label>
+                            </div>
                         </div>
 
-                        <!-- Comprar Insumos -->
-                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3">
-                            <h4 class="font-semibold text-slate-200 mb-2 flex items-center gap-2">
-                                <i class="fa-solid fa-cart-shopping text-amber-400"></i> Comprar Insumos
+                        <!-- Tienda de Insumos & Aves -->
+                        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-2.5 text-xs">
+                            <h4 class="font-bold text-slate-200 flex items-center gap-2 text-sm">
+                                <i class="fa-solid fa-cart-shopping text-amber-400"></i> Tienda Agrícola
                             </h4>
-
-                            <div class="flex justify-between items-center p-3 bg-slate-950 rounded-xl border border-slate-800">
+                            
+                            <div class="flex justify-between items-center p-2.5 bg-slate-950 rounded-xl border border-slate-800">
                                 <div>
-                                    <div class="text-sm font-medium text-slate-200">Saco de Maíz (10kg)</div>
-                                    <div class="text-xs text-slate-400">Alimento básico</div>
+                                    <div class="font-semibold text-slate-200">Saco de Maíz (10kg)</div>
+                                    <div class="text-[10px] text-slate-400">Alimento general</div>
                                 </div>
-                                <button onclick="buySupplies('food', 15, 10)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold px-3 py-1.5 rounded-lg text-xs border border-slate-700">
+                                <button onclick="buySupplies('food', 15, 10)" class="bg-slate-800 hover:bg-slate-700 text-yellow-400 font-bold px-3 py-1.5 rounded-lg btn-touch">
                                     $15.00
                                 </button>
                             </div>
 
-                            <div class="flex justify-between items-center p-3 bg-slate-950 rounded-xl border border-slate-800">
+                            <div class="flex justify-between items-center p-2.5 bg-slate-950 rounded-xl border border-slate-800">
                                 <div>
-                                    <div class="text-sm font-medium text-slate-200">Vacuna Aviar</div>
-                                    <div class="text-xs text-slate-400">Cura aves enfermas</div>
+                                    <div class="font-semibold text-slate-200">Vacuna / Medicina</div>
+                                    <div class="text-[10px] text-slate-400">Cura aves enfermas</div>
                                 </div>
-                                <button onclick="buySupplies('medicine', 25, 1)" class="bg-slate-800 hover:bg-slate-700 text-rose-400 font-bold px-3 py-1.5 rounded-lg text-xs border border-slate-700">
-                                    $25.00
+                                <button onclick="buySupplies('medicine', 20, 1)" class="bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold px-3 py-1.5 rounded-lg btn-touch">
+                                    $20.00
                                 </button>
                             </div>
 
-                            <div class="flex justify-between items-center p-3 bg-slate-950 rounded-xl border border-slate-800">
+                            <div class="flex justify-between items-center p-2.5 bg-slate-950 rounded-xl border border-slate-800">
                                 <div>
-                                    <div class="text-sm font-medium text-slate-200">Comprar Gallina Leghorn</div>
-                                    <div class="text-xs text-slate-400">Raza común productora</div>
+                                    <div class="font-semibold text-slate-200">Comprar Gallina Leghorn</div>
+                                    <div class="text-[10px] text-slate-400">Alta puesta de huevos</div>
                                 </div>
-                                <button on
+                                <button onclick="buyBird('Leghorn')" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold px-3 py-1.5 rounded-lg btn-touch">
+                                    $35.00
+                                </button>
+                            </div>
+
+                            <div class="flex justify-between items-center p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+                                <div>
+                                    <div class="font-semibold text-slate-200">Comprar Gallo Orpington</div>
+                                    <div class="text-[10px] text-slate-400">Excelente reproductor</div>
+                                </div>
+                                <button onclick="buyBird('Orpington')" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold px-3 py-1.5 rounded-lg btn-touch">
+                                    $50.00
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: FERIA RURAL Y CONCURSOS -->
+            <section id="tab-fair" class="space-y-4 max-w-7xl mx-auto hidden">
+                <div class="bg-slate-900 p-4 sm:p-6 rounded-2xl border border-slate-800">
+                    <h2 class="text-lg sm:text-xl font-bold text-amber-400 mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-award"></i> Gran Exposición Rural Aviar
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-400 mb-5">Inscribe a tu mejor ave en el certamen provincial. Obtén prestigio, trofeos para tu granja y clientes VIP.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-1 bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Candidato para la Feria</label>
+                            <select id="select-fair-bird" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-amber-500">
+                                <option value="">-- Seleccionar Ave --</option>
+                            </select>
+
+                            <button onclick="enterFair()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-3 rounded-xl shadow-lg transition btn-touch flex items-center justify-center space-x-2 text-xs sm:text-sm">
+                                <i class="fa-solid fa-trophy"></i>
+                                <span>Presentar al Jurado</span>
+                            </button>
+                        </div>
+
+                        <div class="md:col-span-2 bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-bold text-slate-200 text-sm mb-2">Criterios de Evaluación del Jurado:</h4>
+                                <ul class="text-xs text-slate-400 space-y-1.5 list-disc list-inside">
+                                    <li>Salud y Plumaje (Salud 100% otorga puntos extra).</li>
+                                    <li>Resistencia y Genética de Raza.</li>
+                                    <li>Aves híbridas raras reciben bonificación especial de originalidad.</li>
+                                </ul>
+                            </div>
+                            
+                            <div id="fair-result-box" class="mt-4 p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs hidden">
+                                <!-- Resultado JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: MEJORAS & OBRAS -->
+            <section id="tab-upgrades" class="space-y-4 max-w-7xl mx-auto hidden">
+                <div class="bg-slate-900 p-4 sm:p-6 rounded-2xl border border-slate-800">
+                    <h2 class="text-lg sm:text-xl font-bold text-amber-400 mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-hammer"></i> Expansión & Climatización
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-400 mb-5">Mejora la calidad de vida en el gallinero para resistir olas de calor, invierno e invasiones de depredadores.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="upgrades-list-container">
+                        <!-- JS Dinámico -->
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MOBILE BOTTOM NAVBAR (Navegación Táctil Móvil) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around items-center px-1 py-2 z-30 shadow-2xl">
+        <button onclick="switchTab('coop')" id="mob-coop" class="flex flex-col items-center justify-center w-full py-1 text-amber-400">
+            <i class="fa-solid fa-warehouse text-lg"></i>
+            <span class="text-[10px] mt-0.5 font-medium">Corral</span>
+        </button>
+        <button onclick="switchTab('genetics')" id="mob-genetics" class="flex flex-col items-center justify-center w-full py-1 text-slate-400">
+            <i class="fa-solid fa-dna text-lg"></i>
+            <span class="text-[10px] mt-0.5 font-medium">Genética</span>
+        </button>
+        <button onclick="switchTab('market')" id="mob-market" class="flex flex-col items-center justify-center w-full py-1 text-slate-400">
+            <i class="fa-solid fa-store text-lg"></i>
+            <span class="text-[10px] mt-0.5 font-medium">Mercado</span>
+        </button>
+        <button onclick="switchTab('fair')" id="mob-fair" class="flex flex-col items-center justify-center w-full py-1 text-slate-400">
+            <i class="fa-solid fa-award text-lg"></i>
+            <span class="text-[10px] mt-0.5 font-medium">Feria</span>
+        </button>
+        <button onclick="switchTab('upgrades')" id="mob-upgrades" class="flex flex-col items-center justify-center w-full py-1 text-slate-400">
+            <i class="fa-solid fa-hammer text-lg"></i>
+            <span class="text-[10px] mt-0.5 font-medium">Obras</span>
+        </button>
+    </nav>
+
+    <!-- MODAL DE EVENTO ALEATORIO (Zorro / Ola de calor) -->
+    <div id="event-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-center">
+            <div id="event-icon-container" class="w-16 h-16 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center mx-auto text-3xl">
+                <i class="fa-solid fa-shield-cat"></i>
+            </div>
+            <h3 id="event-title" class="text-lg font-bold text-slate-100">¡Alerta en la Granja!</h3>
+            <p id="event-desc" class="text-xs sm:text-sm text-slate-300">Un zorro merodea cerca del recinto.</p>
+            
+            <div class="flex gap-3 pt-2" id="event-actions">
+                <!-- Botones agregados por JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICACIONES FLOTANTES -->
+    <div id="toast-container" class="fixed bottom-20 md:bottom-6 right-4 z-40 space-y-2 pointer-events-none max-w-xs w-full"></div>
+
+    <!-- JAVASCRIPT LOGIC (AUDIO, GAME STATE, CANVAS 2D, SAVE SYSTEM) -->
+    <script>
+        // ==========================================
+        // SINTETIZADOR DE SONIDO (WEB AUDIO API)
+        // ==========================================
+        let audioCtx = null;
+        let soundEnabled = false;
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('audio-icon');
+            if (soundEnabled) {
+                btn.className = 'fa-solid fa-volume-high text-amber-400';
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                playSound('pop');
+            } else {
+                btn.className = 'fa-solid fa-volume-xmark text-slate-400';
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'pop') {
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'egg') {
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.12);
+                    gain.gain.setValueAtTime(0.4, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                } else if (type === 'coin') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(987, now);
+                    osc.frequency.setValueAtTime(1318, now + 0.08);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'cluck') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(250, now);
+                    osc.frequency.linearRampToValueAtTime(180, now + 0.1);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // ==========================================
+        // ESTADO GLOBAL Y CONFIGURACIÓN
+        // ==========================================
+        const SAVE_KEY = 'proyecto_gallinero_save_v2';
+
+        let gameState = {
+            money: 150.00,
+            level: 1,
+            capacity: 5,
+            food: 20,
+            maxFood: 50,
+            medicine: 1,
+            cleanliness: 100,
+            prestige: 0,
+            activeDiet: 'basic', // basic, calcium, exotic
+            eggs: { white: 0, gold: 0, exotic: 0 },
+            eggPrices: { white: 2.00, gold: 5.00, exotic: 12.00 },
+            priceHistory: [2.00, 2.10, 1.95, 2.05, 2.00],
+            season: 'Primavera', // Primavera, Verano, Otoño, Invierno
+            timeOfDay: 'Día',
+            birds: [],
+            upgrades: {
+                heating: false,
+                guardDog: false,
+                autoFeeder: false
+            },
+            discoveredBreeds: ['Leghorn', 'Rhode Island Red', 'Orpington', 'Brahma']
+        };
+
+        const BASE_BREEDS = {
+            'Leghorn': { name: 'Leghorn', color: '#ffffff', combColor: '#ef4444', eggRate: 85, resistance: 60, consumption: 40, value: 35 },
+            'Rhode Island Red': { name: 'Rhode Island Red', color: '#7f1d1d', combColor: '#dc2626', eggRate: 75, resistance: 80, consumption: 50, value: 45 },
+            'Orpington': { name: 'Orpington', color: '#d97706', combColor: '#ef4444', eggRate: 60, resistance: 90, consumption: 65, value: 55 },
+            'Brahma': { name: 'Brahma', color: '#475569', combColor: '#b91c1c', eggRate: 50, resistance: 95, consumption: 80, value: 70 }
+        };
+
+        // ==========================================
+        // CANVAS 2D EN VIVO
+        // ==========================================
+        let canvas, ctx;
+        let canvasBirds = [];
+
+        function initCanvas() {
+            canvas = document.getElementById('coopCanvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+        }
+
+        function resizeCanvas() {
+            if (!canvas) return;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+
+        function syncCanvasBirds() {
+            // Sincronizar array visual con los datos del estado
+            canvasBirds = gameState.birds.map((b, i) => {
+                const existing = canvasBirds.find(cb => cb.id === b.id);
+                if (existing) {
+                    existing.color = b.color;
+                    existing.health = b.health;
+                    existing.hunger = b.hunger;
+                    return existing;
+                }
+                return {
+                    id: b.id,
+                    name: b.name,
+                    gender: b.gender,
+                    color: b.color,
+                    health: b.health,
+                    hunger: b.hunger,
+                    x: Math.random() * (canvas.width - 60) + 30,
+                    y: Math.random() * (canvas.height - 80) + 40,
+                    vx: (Math.random() - 0.5) * 0.8,
+                    vy: (Math.random() - 0.5) * 0.8,
+                    animTimer: Math.random() * 100,
+                    isPecking: false
+                };
+            });
+        }
+
+        function renderCanvas() {
+            if (!ctx || !canvas) return;
+
+            // 1. Dibujar Fondo según Nivel e Estación
+            const isNight = gameState.timeOfDay === 'Noche';
+            let bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            
+            if (isNight) {
+                bgGradient.addColorStop(0, '#020617');
+                bgGradient.addColorStop(1, '#0f172a');
+            } else if (gameState.season === 'Invierno') {
+                bgGradient.addColorStop(0, '#334155');
+                bgGradient.addColorStop(1, '#64748b');
+            } else {
+                bgGradient.addColorStop(0, '#064e3b');
+                bgGradient.addColorStop(1, '#022c22');
+            }
+            
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Textura del suelo (Corral)
+            ctx.fillStyle = gameState.season === 'Invierno' ? 'rgba(241, 245, 249, 0.25)' : 'rgba(217, 119, 6, 0.15)';
+            ctx.fillRect(0, canvas.height * 0.35, canvas.width, canvas.height * 0.65);
+
+            // Nidos en el fondo
+            const nestWidth = 40;
+            for (let i = 0; i < 4; i++) {
+                const nx = 20 + i * 50;
+                const ny = 25;
+                ctx.fillStyle = '#451a03';
+                ctx.fillRect(nx, ny, nestWidth, 30);
+                ctx.strokeStyle = '#78350f';
+                ctx.strokeRect(nx, ny, nestWidth, 30);
+
+                // Dibujar huevo si existe en inventario
+                const totalEggs = gameState.eggs.white + gameState.eggs.gold + gameState.eggs.exotic;
+                if (i < totalEggs) {
+                    ctx.fillStyle = i % 3 === 0 ? '#f8fafc' : (i % 3 === 1 ? '#fbbf24' : '#c084fc');
+                    ctx.beginPath();
+                    ctx.ellipse(nx + 20, ny + 15, 6, 8, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // 2. Dibujar Aves (Gallinas y Gallos)
+            canvasBirds.forEach(b => {
+                // Movimiento aleatorio
+                b.animTimer++;
+                if (Math.random() < 0.02) {
+                    b.vx = (Math.random() - 0.5) * 1.2;
+                    b.vy = (Math.random() - 0.5) * 1.2;
+                    b.isPecking = Math.random() < 0.3;
+                }
+
+                b.x += b.vx;
+                b.y += b.vy;
+
+                // Restricciones de bordes
+                b.x = Math.max(30, Math.min(canvas.width - 30, b.x));
+                b.y = Math.max(70, Math.min(canvas.height - 30, b.y));
+
+                // Cuerpo de la gallina
+                ctx.save();
+                ctx.translate(b.x, b.y);
+
+                // Sombra
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.ellipse(0, 10, 12, 5, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Cuerpo principal
+                ctx.fillStyle = b.color || '#ffffff';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 14, 10, b.vx < 0 ? -0.2 : 0.2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Cabeza
+                const headX = b.vx >= 0 ? 8 : -8;
+                const peckY = b.isPecking ? 4 : -6;
+                ctx.beginPath();
+                ctx.arc(headX, peckY, 7, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Cresta (Rooster más grande)
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                const crestSize = b.gender === 'male' ? 5 : 3;
+                ctx.arc(headX, peckY - 7, crestSize, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Pico
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath();
+                const beakDir = b.vx >= 0 ? 1 : -1;
+                ctx.moveTo(headX + (beakDir * 6), peckY - 2);
+                ctx.lineTo(headX + (beakDir * 11), peckY);
+                ctx.lineTo(headX + (beakDir * 6), peckY + 2);
+                ctx.closePath();
+                ctx.fill();
+
+                // Estado Alerta (Hambre/Salud)
+                if (b.hunger < 30 || b.health < 40) {
+                    ctx.fillStyle = '#ef4444';
+                    ctx.font = '10px Inter';
+                    ctx.fillText('⚠️', -6, -18);
+                }
+
+                ctx.restore();
+            });
+
+            requestAnimationFrame(renderCanvas);
+        }
+
+        // ==========================================
+        // INICIALIZACIÓN Y BUCLE DE JUEGO
+        // ==========================================
+        window.onload = function() {
+            loadGame();
+            
+            if (gameState.birds.length === 0) {
+                gameState.birds.push(createBird('Leghorn', 'Gallina Blanca ♀', 'female'));
+                gameState.birds.push(createBird('Rhode Island Red', 'Gallo Rojo ♂', 'male'));
+            }
+
+            initCanvas();
+            syncCanvasBirds();
+            renderCanvas();
+            initChart();
+            updateUI();
+
+            // Loop de juego (cada 3 segundos)
+            setInterval(gameLoop, 3000);
+            
+            // Auto guardado cada 10 segundos
+            setInterval(saveGame, 10000);
+        };
+
+        function createBird(breedKey, customName, gender = null, statsOverride = null) {
+            const breed = BASE_BREEDS[breedKey] || { name: breedKey, color: '#f8fafc', eggRate: 70, resistance: 70, consumption: 50, value: 50 };
+            const isMale = gender ? gender === 'male' : Math.random() > 0.5;
+            
+            return {
+                id: Date.now() + Math.random(),
+                name: customName || `${breed.name} ${isMale ? '♂' : '♀'}`,
+                breed: breed.name,
+                gender: isMale ? 'male' : 'female',
+                color: breed.color,
+                hunger: 100,
+                health: 100,
+                eggRate: statsOverride ? statsOverride.eggRate : breed.eggRate,
+                resistance: statsOverride ? statsOverride.resistance : breed.resistance,
+                consumption: statsOverride ? statsOverride.consumption : breed.consumption,
+                value: statsOverride ? statsOverride.value : breed.value
+            };
+        }
+
+        // BUCLE PRINCIPAL DE SIMULACIÓN
+        function gameLoop() {
+            // 1. Cambio de tiempo y estación
+            if (Math.random() < 0.1) {
+                gameState.timeOfDay = gameState.timeOfDay === 'Día' ? 'Noche' : 'Día';
+            }
+
+            // 2. Consumo de alimento
+            if (gameState.birds.length > 0) {
+                const totalConsumption = gameState.birds.reduce((acc, b) => acc + (b.consumption / 120), 0);
+                
+                if (gameState.food >= totalConsumption) {
+                    gameState.food = Math.max(0, gameState.food - totalConsumption);
+                } else {
+                    gameState.birds.forEach(b => {
+                        b.hunger = Math.max(0, b.hunger - 12);
+                        if (b.hunger < 20) b.health = Math.max(0, b.health - 8);
+                    });
+                    showToast('⚠️ Tus aves están hambrientas', 'rose');
+                }
+
+                // Deterioro de higiene
+                gameState.cleanliness = Math.max(0, gameState.cleanliness - (gameState.birds.length * 0.5));
+                if (gameState.cleanliness < 30) {
+                    gameState.birds.forEach(b => b.health = Math.max(0, b.health - 4));
+                }
+            }
+
+            // 3. Producción de Huevos según Dieta
+            gameState.birds.forEach(b => {
+                if (b.gender === 'female' && b.health > 40 && b.hunger > 20) {
+                    if (Math.random() < (b.eggRate / 100) * 0.3) {
+                        if (gameState.activeDiet === 'exotic') {
+                            gameState.eggs.exotic++;
+                        } else if (gameState.activeDiet === 'calcium' && Math.random() < 0.5) {
+                            gameState.eggs.gold++;
+                        } else {
+                            gameState.eggs.white++;
+                        }
+                        playSound('egg');
+                    }
+                }
+            });
+
+            // 4. Fluctuación del mercado
+            const delta = (Math.random() - 0.48) * 0.25;
+            gameState.eggPrices.white = Math.max(1.00, Math.min(4.50, gameState.eggPrices.white + delta));
+            gameState.priceHistory.push(gameState.eggPrices.white);
+            if (gameState.priceHistory.length > 8) gameState.priceHistory.shift();
+
+            // 5. Posibilidad de Evento Aleatorio (10% de probabilidad)
+            if (Math.random() < 0.08) {
+                triggerRandomEvent();
+            }
+
+            syncCanvasBirds();
+            updateChart();
+            updateUI();
+        }
+
+        // ==========================================
+        // EVENTOS ALEATORIOS
+        // ==========================================
+        function triggerRandomEvent() {
+            const modal = document.getElementById('event-modal');
+            const title = document.getElementById('event-title');
+            const desc = document.getElementById('event-desc');
+            const actions = document.getElementById('event-actions');
+            
+            const events = [
+                {
+                    title: '🦊 ¡Ataque de Zorro Nocturno!',
+                    desc: 'Un zorro intenta colarse en el corral.',
+                    action: () => {
+                        if (gameState.upgrades.guardDog) {
+                            showToast('🐕 Tu perro guardián ahuyentó al zorro.', 'emerald');
+                        } else {
+                            const victim = gameState.birds.pop();
+                            showToast(`😭 El zorro atrapó a ${victim ? victim.name : 'un ave'}.`, 'rose');
+                        }
+                    }
+                },
+                {
+                    title: '☀️ Ola de Calor Extremo',
+                    desc: 'Las temperaturas suben drásticamente.',
+                    action: () => {
+                        gameState.birds.forEach(b => b.health = Math.max(10, b.health - 15));
+                        showToast('🌡️ Las aves sufrieron por la ola de calor.', 'amber');
+                    }
+                }
+            ];
+
+            const ev = events[Math.floor(Math.random() * events.length)];
+            title.innerText = ev.title;
+            desc.innerText = ev.desc;
+
+            actions.innerHTML = `
+                <button onclick="resolveEvent(${events.indexOf(ev)})" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl btn-touch text-xs">
+                    Responder a la emergencia
+                </button>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function resolveEvent(idx) {
+            document.getElementById('event-modal').classList.add('hidden');
+            playSound('pop');
+            updateUI();
+        }
+
+        // ==========================================
+        // ACCIONES DEL JUGADOR
+        // ==========================================
+        function feedBirds() {
+            if (gameState.food <= 0) {
+                showToast('❌ No tienes comida. Compra sacos en el Mercado.', 'rose');
+                return;
+            }
+            gameState.birds.forEach(b => {
+                b.hunger = Math.min(100, b.hunger + 45);
+            });
+            playSound('cluck');
+            showToast('🌾 Alimentaste a tus aves.', 'amber');
+            updateUI();
+        }
+
+        function cleanCoop() {
+            gameState.cleanliness = 100;
+            playSound('pop');
+            showToast('🧹 El corral está completamente limpio.', 'teal');
+            updateUI();
+        }
+
+        function collectEggs() {
+            const total = gameState.eggs.white + gameState.eggs.gold + gameState.eggs.exotic;
+            if (total === 0) {
+                showToast('No hay huevos listos para recoger.', 'slate');
+                return;
+            }
+            playSound('egg');
+            showToast(`🧺 Recogiste ${total} huevos frescos.`, 'emerald');
+            updateUI();
+        }
+
+        function sellEggs() {
+            const totalEarnings = (gameState.eggs.white * gameState.eggPrices.white) +
+                                  (gameState.eggs.gold * gameState.eggPrices.gold) +
+                                  (gameState.eggs.exotic * gameState.eggPrices.exotic);
+
+            if (totalEarnings === 0) {
+                showToast('❌ No tienes huevos en la cesta.', 'rose');
+                return;
+            }
+
+            gameState.money += totalEarnings;
+            gameState.eggs = { white: 0, gold: 0, exotic: 0 };
+            playSound('coin');
+            showToast(`💰 Ganaste $${totalEarnings.toFixed(2)} por las ventas.`, 'emerald');
+            updateUI();
+        }
+
+        function setDiet(type) {
+            gameState.activeDiet = type;
+            showToast(`🥗 Dieta cambiada a: ${type.toUpperCase()}`, 'amber');
+        }
+
+        function buySupplies(type, cost, amount) {
+            if (gameState.money < cost) {
+                showToast('❌ Dinero insuficiente.', 'rose');
+                return;
+            }
+            gameState.money -= cost;
+            playSound('coin');
+
+            if (type === 'food') {
+                gameState.food = Math.min(gameState.maxFood, gameState.food + amount);
+                showToast(`+${amount}kg de comida comprados.`, 'amber');
+            } else if (type === 'medicine') {
+                gameState.medicine += amount;
+                gameState.birds.forEach(b => b.health = 100);
+                showToast('💊 Todas las aves han sido vacunadas.', 'teal');
+            }
+            updateUI();
+        }
+
+        function buyBird(breedKey) {
+            if (gameState.birds.length >= gameState.capacity) {
+                showToast('❌ El corral está lleno. Construye ampliaciones.', 'rose');
+                return;
+            }
+            const breed = BASE_BREEDS[breedKey];
+            if (gameState.money < breed.value) {
+                showToast('❌ Dinero insuficiente.', 'rose');
+                return;
+            }
+
+            gameState.money -= breed.value;
+            const newBird = createBird(breedKey);
+            gameState.birds.push(newBird);
+            playSound('cluck');
+            showToast(`🐓 Nueva ${breed.name} añadida al corral.`, 'emerald');
+            syncCanvasBirds();
+            updateUI();
+        }
+
+        function breedBirds() {
+            const roosterId = document.getElementById('select-rooster').value;
+            const henId = document.getElementById('select-hen').value;
+
+            if (!roosterId || !henId) {
+                showToast('❌ Selecciona un Gallo y una Gallina.', 'rose');
+                return;
+            }
+
+            if (gameState.birds.length >= gameState.capacity) {
+                showToast('❌ Corral lleno. Amplía la infraestructura.', 'rose');
+                return;
+            }
+
+            const father = gameState.birds.find(b => b.id == roosterId);
+            const mother = gameState.birds.find(b => b.id == henId);
+
+            const mutation = () => Math.floor(Math.random() * 16) - 5;
+            const childStats = {
+                eggRate: Math.min(99, Math.max(30, Math.round((father.eggRate + mother.eggRate) / 2 + mutation()))),
+                resistance: Math.min(99, Math.max(30, Math.round((father.resistance + mother.resistance) / 2 + mutation()))),
+                consumption: Math.min(99, Math.max(20, Math.round((father.consumption + mother.consumption) / 2 + mutation()))),
+                value: Math.min(150, Math.max(20, Math.round((father.value + mother.value) / 2 + mutation())))
+            };
+
+            let childBreed = father.breed;
+            if (father.breed !== mother.breed && Math.random() < 0.45) {
+                childBreed = `${father.breed.split(' ')[0]}-${mother.breed.split(' ')[0]} Híbrido`;
+                if (!gameState.discoveredBreeds.includes(childBreed)) {
+                    gameState.discoveredBreeds.push(childBreed);
+                    showToast(`✨ ¡NUEVA RAZA REGISTRADA: ${childBreed}!`, 'amber');
+                }
+            }
+
+            const chick = createBird(childBreed, `Polluelo Híbrido`, null, childStats);
+            gameState.birds.push(chick);
+            playSound('cluck');
+            showToast('🐣 ¡Nació una nueva cría con herencia genética!', 'emerald');
+            syncCanvasBirds();
+            updateUI();
+        }
+
+        function previewGenetics() {
+            const roosterId = document.getElementById('select-rooster').value;
+            const henId = document.getElementById('select-hen').value;
+            const box = document.getElementById('genetics-prediction');
+
+            if (!roosterId || !henId) {
+                box.classList.add('hidden');
+                return;
+            }
+
+            const father = gameState.birds.find(b => b.id == roosterId);
+            const mother = gameState.birds.find(b => b.id == henId);
+
+            document.getElementById('prediction-stats').innerHTML = `
+                <div>Puesta Est.: <b>${Math.round((father.eggRate + mother.eggRate)/2)}%</b></div>
+                <div>Resistencia: <b>${Math.round((father.resistance + mother.resistance)/2)}</b></div>
+                <div>Valor Base: <b>$${Math.round((father.value + mother.value)/2)}</b></div>
+                <div>Mutación: <b>±10%</b></div>
+            `;
+            box.classList.remove('hidden');
+        }
+
+        function enterFair() {
+            const birdId = document.getElementById('select-fair-bird').value;
+            if (!birdId) {
+                showToast('❌ Selecciona un ave candidata.', 'rose');
+                return;
+            }
+
+            const bird = gameState.birds.find(b => b.id == birdId);
+            const score = Math.round((bird.eggRate + bird.resistance + bird.value) / 3) + (bird.health === 100 ? 15 : 0);
+
+            const resultBox = document.getElementById('fair-result-box');
+            resultBox.classList.remove('hidden');
+
+            if (score > 70) {
+                const prize = 100;
+                gameState.money += prize;
+                gameState.prestige += 25;
+                playSound('coin');
+                resultBox.innerHTML = `
+                    <div class="font-bold text-amber-400">🥇 ¡PRIMER LUGAR EN LA EXPOSICIÓN RURAL!</div>
+                    <div class="text-slate-300 mt-1">Puntaje del jurado: <b>${score}/100</b>. Ganaste <b>$${prize}</b> y <b>+25 pts de Prestigio</b>.</div>
+                `;
+            } else {
+                resultBox.innerHTML = `
+                    <div class="font-bold text-slate-300">🎗️ Mención de Honor</div>
+                    <div class="text-slate-400 mt-1">Puntaje del jurado: <b>${score}/100</b>. Mejora la salud y genética del ave para la próxima edición.</div>
+                `;
+            }
+            updateUI();
+        }
+
+        // ==========================================
+        // SISTEMA DE INTERFAZ & NAVEGACIÓN
+        // ==========================================
+        function switchTab(tabId) {
+            ['coop', 'genetics', 'market', 'fair', 'upgrades'].forEach(id => {
+                const tabEl = document.getElementById(`tab-${id}`);
+                if (tabEl) tabEl.classList.add('hidden');
+                
+                // Desktop nav styles
+                const navEl = document.getElementById(`nav-${id}`);
+                if (navEl) {
+                    navEl.classList.remove('bg-amber-500/10', 'text-amber-400', 'border', 'border-amber-500/30');
+                    navEl.classList.add('text-slate-400');
+                }
+
+                // Mobile nav styles
+                const mobEl = document.getElementById(`mob-${id}`);
+                if (mobEl) {
+                    mobEl.classList.remove('text-amber-400');
+                    mobEl.classList.add('text-slate-400');
+                }
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-amber-500/10', 'text-amber-400', 'border', 'border-amber-500/30');
+                activeNav.classList.remove('text-slate-400');
+            }
+
+            const activeMob = document.getElementById(`mob-${tabId}`);
+            if (activeMob) {
+                activeMob.classList.add('text-amber-400');
+                activeMob.classList.remove('text-slate-400');
+            }
+
+            playSound('pop');
+            if (tabId === 'coop') resizeCanvas();
+        }
+
+        function updateUI() {
+            // HUD Base
+            document.getElementById('hud-money').innerText = `$${gameState.money.toFixed(2)}`;
+            document.getElementById('hud-food').innerText = `${gameState.food.toFixed(0)}/${gameState.maxFood}kg`;
+            document.getElementById('hud-prestige').innerText = `${gameState.prestige} pts`;
+            document.getElementById('hud-weather-text').innerText = `${gameState.season} (${gameState.timeOfDay})`;
+
+            const totalEggs = gameState.eggs.white + gameState.eggs.gold + gameState.eggs.exotic;
+            document.getElementById('btn-egg-count').innerText = totalEggs;
+
+            // Precios Mercado
+            document.getElementById('price-egg-white').innerText = `$${gameState.eggPrices.white.toFixed(2)}`;
+
+            // Sidebar stats
+            document.getElementById('sidebar-level').innerText = `Niv. ${gameState.level}`;
+            document.getElementById('sidebar-birds').innerText = `${gameState.birds.length}/${gameState.capacity}`;
+            document.getElementById('sidebar-clean').innerText = `${Math.round(gameState.cleanliness)}%`;
+            document.getElementById('sidebar-clean-bar').style.width = `${gameState.cleanliness}%`;
+
+            // Cards de Aves
+            const cardsContainer = document.getElementById('birds-cards-container');
+            document.getElementById('bird-list-count').innerText = gameState.birds.length;
+            cardsContainer.innerHTML = '';
+
+            gameState.birds.forEach(b => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 p-3.5 rounded-2xl border border-slate-800 space-y-2.5';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="font-bold text-xs sm:text-sm text-slate-200 flex items-center gap-1.5">
+                                ${b.name}
+                                <span class="text-xs ${b.gender === 'male' ? 'text-blue-400' : 'text-pink-400'}">
+                                    ${b.gender === 'male' ? '♂' : '♀'}
+                                </span>
+                            </div>
+                            <div class="text-[10px] text-slate-400">${b.breed}</div>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${b.health > 70 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">
+                            Salud: ${b.health}%
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-[11px]">
+                        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800/80">
+                            <span class="text-slate-500">Puesta:</span>
+                            <div class="font-bold text-amber-400">${b.eggRate}%</div>
+                        </div>
+                        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800/80">
+                            <span class="text-slate-500">Resistencia:</span>
+                            <div class="font-bold text-emerald-400">${b.resistance}</div>
+                        </div>
+                    </div>
+                `;
+                cardsContainer.appendChild(card);
+            });
+
+            // Selects de reproduccion y feria
+            const rSelect = document.getElementById('select-rooster');
+            const hSelect = document.getElementById('select-hen');
+            const fSelect = document.getElementById('select-fair-bird');
+
+            rSelect.innerHTML = '<option value="">-- Seleccionar Gallo --</option>';
+            hSelect.innerHTML = '<option value="">-- Seleccionar Gallina --</option>';
+            fSelect.innerHTML = '<option value="">-- Seleccionar Ave --</option>';
+
+            gameState.birds.forEach(b => {
+                const opt = `<option value="${b.id}">${b.name} (${b.breed})</option>`;
+                if (b.gender === 'male') rSelect.innerHTML += opt;
+                else hSelect.innerHTML += opt;
+                fSelect.innerHTML += opt;
+            });
+
+            // Enciclopedia
+            const encyContainer = document.getElementById('breed-encyclopedia');
+            encyContainer.innerHTML = '';
+            gameState.discoveredBreeds.forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center space-x-2.5';
+                div.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <div class="truncate">
+                        <div class="text-xs font-bold text-slate-200 truncate">${name}</div>
+                        <div class="text-[9px] text-emerald-400">Registrada</div>
+                    </div>
+                `;
+                encyContainer.appendChild(div);
+            });
+
+            renderUpgrades();
+        }
+
+        function renderUpgrades() {
+            const container = document.getElementById('upgrades-list-container');
+            container.innerHTML = `
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                    <div>
+                        <div class="font-bold text-xs sm:text-sm text-slate-200">Ampliación de Corral</div>
+                        <div class="text-[10px] text-slate-400">+5 lugares adicionales</div>
+                    </div>
+                    <button onclick="buyUpgrade('capacity', 80)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs btn-touch">
+                        $80.00
+                    </button>
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                    <div>
+                        <div class="font-bold text-xs sm:text-sm text-slate-200">Perro Guardián</div>
+                        <div class="text-[10px] text-slate-400">Protege contra el zorro nocturno</div>
+                    </div>
+                    <button onclick="buyUpgrade('guardDog', 150)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs btn-touch">
+                        $150.00
+                    </button>
+                </div>
+            `;
+        }
+
+        function buyUpgrade(type, cost) {
+            if (gameState.money < cost) {
+                showToast('❌ Dinero insuficiente.', 'rose');
+                return;
+            }
+            gameState.money -= cost;
+            playSound('coin');
+
+            if (type === 'capacity') {
+                gameState.capacity += 5;
+                gameState.level++;
+                showToast('🔨 Corral ampliado.', 'emerald');
+            } else if (type === 'guardDog') {
+                gameState.upgrades.guardDog = true;
+                showToast('🐕 Perro guardián adquirido.', 'emerald');
+            }
+            updateUI();
+        }
+
+        // ==========================================
+        // NOTIFICACIONES TOAST Y PERSISTENCIA
+        // ==========================================
+        function showToast(msg, color = 'emerald') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgClasses = {
+                emerald: 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200',
+                rose: 'bg-rose-950/90 border-rose-500/50 text-rose-200',
+                amber: 'bg-amber-950/90 border-amber-500/50 text-amber-200',
+                teal: 'bg-teal-950/90 border-teal-500/50 text-teal-200',
+                slate: 'bg-slate-900 border-slate-700 text-slate-200'
+            };
+
+            toast.className = `p-3 rounded-xl border text-xs shadow-xl toast-animate flex items-center justify-between ${bgClasses[color] || bgClasses.slate}`;
+            toast.innerHTML = `<span>${msg}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function saveGame() {
+            try {
+                localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function loadGame() {
+            try {
+                const saved = localStorage.getItem(SAVE_KEY);
+                if (saved) {
+                    gameState = Object.assign(gameState, JSON.parse(saved));
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // ==========================================
+        // CHART.JS MERCADO
+        // ==========================================
+        let chartInstance = null;
+        function initChart() {
+            const ctxChart = document.getElementById('marketChart').getContext('2d');
+            chartInstance = new Chart(ctxChart, {
+                type: 'line',
+                data: {
+                    labels: ['-4', '-3', '-2', '-1', 'Hoy'],
+                    datasets: [{
+                        label: 'Precio ($)',
+                        data: gameState.priceHistory,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+                        x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            if (chartInstance) {
+                chartInstance.data.datasets[0].data = gameState.priceHistory;
+                chartInstance.update();
+            }
+        }
+    </script>
+</body>
+</html>
