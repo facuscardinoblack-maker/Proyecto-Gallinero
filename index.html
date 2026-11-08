@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Security & Watchdog Edition</title>
+    <title>Proyecto Gallinero - Rural Expo & VIP Edition</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -314,6 +314,7 @@
                 <button class="tab-btn active" onclick="switchTab('tab-mercado', event)">🏪 Mercado</button>
                 <button class="tab-btn" onclick="switchTab('tab-gallinas', event)">🐔 Aves</button>
                 <button class="tab-btn" onclick="switchTab('tab-cruza', event)">🧬 Cruza</button>
+                <button class="tab-btn" onclick="switchTab('tab-feria', event)">🏆 Feria Rural</button>
                 <button class="tab-btn" onclick="switchTab('tab-mejoras', event)">🏗️ Seguridad</button>
                 <button class="tab-btn" onclick="switchTab('tab-dieta', event)">🌾 Dieta</button>
                 <button class="tab-btn" onclick="switchTab('tab-ajustes', event)">⚙️ Sistema</button>
@@ -334,10 +335,10 @@
                         <button class="btn" style="width:100%; margin-top:4px;" onclick="buyChicken('Rhode Island Red')">R. Island ($80)</button>
                     </div>
 
-                    <div class="card">
-                        <h4 style="font-size: 0.85rem;">Suministros</h4>
-                        <button class="btn btn-warning" style="width:100%; margin-top:4px;" onclick="buyFood()">Comida ($20)</button>
-                        <button class="btn" style="width:100%; margin-top:4px;" onclick="buyMeds()">Salud ($40)</button>
+                    <div class="card" id="card-vip" style="display:none; border:2px solid var(--warning);">
+                        <h4 style="font-size: 0.85rem; color:var(--primary);">🌟 Orden VIP Gourmet</h4>
+                        <p style="font-size: 0.75rem; color:#666; margin:4px 0;">Entrega 20 huevos exóticos.</p>
+                        <button class="btn btn-warning" style="width:100%; font-size:0.75rem;" onclick="completeVipOrder()">Completar ($600)</button>
                     </div>
                 </div>
             </div>
@@ -352,6 +353,20 @@
                     <select id="select-mother" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%;"></select>
                     <select id="select-father" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%;"></select>
                     <button class="btn btn-success" onclick="breedChickens()">Incubar Cría ($30)</button>
+                </div>
+            </div>
+
+            <!-- TAB FERIA RURAL -->
+            <div id="tab-feria" class="tab-content">
+                <h4 style="margin-bottom: 4px;">🏆 Exposición Rural Anual</h4>
+                <p style="font-size: 0.75rem; color:#666; margin-bottom: 10px;">Compite con tu mejor ejemplar para ganar prestigio y trofeos.</p>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <select id="select-contestant" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%;"></select>
+                    <button class="btn btn-warning" style="width:100%; font-weight:bold;" onclick="enterContest()">Inscribir Ave ($50)</button>
+                </div>
+                <div style="margin-top:12px; background:white; padding:10px; border-radius:8px; border:1px solid var(--border-color);">
+                    <h5 style="font-size:0.8rem; color:var(--primary);">Palmarés de Trofeos:</h5>
+                    <p style="font-size:0.9rem; margin-top:4px;">🥇 Oros: <b id="trophy-gold">0</b> | 🥈 Platas: <b id="trophy-silver">0</b> | 🥉 Bronces: <b id="trophy-bronze">0</b></p>
                 </div>
             </div>
 
@@ -411,6 +426,8 @@ let state = {
     coopDoorOpen: true,
     hasReinforcedFence: false,
     hasWatchdog: false,
+    trophies: { gold: 0, silver: 0, bronze: 0 },
+    hasVipAccess: false,
     diet: 'Estándar',
     inspectedIndex: null,
     time: 8,
@@ -475,21 +492,15 @@ function generateGrassTufts() {
     }
 }
 
-// --- CLASE PERRO GUARDIÁN (BOBBY) ---
 class Watchdog {
     constructor() {
-        this.x = 100;
-        this.y = 120;
-        this.vx = 0.8;
-        this.walkCycle = 0;
+        this.x = 100; this.y = 120; this.vx = 0.8; this.walkCycle = 0;
     }
-
     update(predators) {
         this.walkCycle += 0.15;
         this.x += this.vx;
         if (this.x < 40 || this.x > 180) this.vx *= -1;
 
-        // Si hay un zorro en pantalla y tenemos perro guardián, lo ataca automáticamente
         if (predators.length > 0) {
             const predator = predators[0];
             const dx = predator.x - this.x;
@@ -500,42 +511,32 @@ class Watchdog {
                 this.x += (dx / dist) * 2.2;
                 this.y += (dy / dist) * 2.2;
             } else {
-                // ¡El perro defiende y ahuyenta al zorro al instante!
                 logEvent('🐕 ¡Bobby el perro guardián echó al zorro a ladridos!');
                 playSound(400, 'square', 0.2);
                 state.predators = [];
             }
         }
     }
-
     draw(ctx) {
         ctx.save();
         ctx.translate(this.x, this.y);
         if (this.vx < 0) ctx.scale(-1, 1);
 
-        // Sombra
         ctx.beginPath();
         ctx.ellipse(0, 8, 14, 5, 0, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(0,0,0,0.2)';
         ctx.fill();
 
-        // Cuerpo de perrito Chibi
         ctx.beginPath();
         ctx.ellipse(0, 0, 14, 9, 0, 0, Math.PI * 2);
         ctx.fillStyle = '#D35400';
-        ctx.fill();
-        ctx.strokeStyle = '#2F3542';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
+        ctx.fill(); ctx.strokeStyle = '#2F3542'; ctx.lineWidth = 1.5; ctx.stroke();
 
-        // Cabeza y orejas caídas
         ctx.beginPath();
         ctx.arc(10, -4, 8, 0, Math.PI * 2);
         ctx.fillStyle = '#D35400';
-        ctx.fill();
-        ctx.stroke();
+        ctx.fill(); ctx.stroke();
 
-        // Oreja
         ctx.beginPath();
         ctx.ellipse(8, -8, 4, 6, 0.4, 0, Math.PI * 2);
         ctx.fillStyle = '#78281F';
@@ -844,6 +845,8 @@ function saveGame(manual = false) {
             coopDoorOpen: state.coopDoorOpen,
             hasReinforcedFence: state.hasReinforcedFence,
             hasWatchdog: state.hasWatchdog,
+            trophies: state.trophies,
+            hasVipAccess: state.hasVipAccess,
             chickens: state.chickens.map(c => ({
                 name: c.name, breed: c.breed, gender: c.gender,
                 genLay: c.genLay, genRes: c.genRes, health: c.health,
@@ -868,6 +871,8 @@ function loadGame() {
         state.coopDoorOpen = data.coopDoorOpen !== undefined ? data.coopDoorOpen : true;
         state.hasReinforcedFence = data.hasReinforcedFence || false;
         state.hasWatchdog = data.hasWatchdog || false;
+        state.trophies = data.trophies || { gold: 0, silver: 0, bronze: 0 };
+        state.hasVipAccess = data.hasVipAccess || false;
         state.worldEggs = data.worldEggs || [];
         state.chickens = data.chickens.map(c => 
             new Chicken(c.name, c.breed, c.gender, c.genLay, c.genRes, c.health, c.happiness, c.x, c.y, c.isInside)
@@ -899,24 +904,75 @@ function updateUpgradeButtons() {
         const btn = document.getElementById('btn-dog');
         if(btn) { btn.innerText = 'Adquirido ✅'; btn.disabled = true; btn.style.background = '#6b9080'; }
     }
+    if (state.hasVipAccess) {
+        document.getElementById('card-vip').style.display = 'block';
+    }
+    document.getElementById('trophy-gold').innerText = state.trophies.gold;
+    document.getElementById('trophy-silver').innerText = state.trophies.silver;
+    document.getElementById('trophy-bronze').innerText = state.trophies.bronze;
 }
 
 function buyUpgrade(type) {
     if (type === 'fence') {
         if (state.hasReinforcedFence) return;
-        if (state.money < 150) return logEvent('❌ Sin dinero para la malla.');
+        if (state.money < 150) return logEvent('❌ Sin dinero.');
         state.money -= 150;
         state.hasReinforcedFence = true;
-        logEvent('🛡️ ¡Malla reforzada instalada! Los zorros caen más rápido.');
+        logEvent('🛡️ ¡Malla reforzada instalada!');
         updateUpgradeButtons();
     } else if (type === 'dog') {
         if (state.hasWatchdog) return;
-        if (state.money < 300) return logEvent('❌ Sin dinero para el perro guardián.');
+        if (state.money < 300) return logEvent('❌ Sin dinero.');
         state.money -= 300;
         state.hasWatchdog = true;
-        logEvent('🐕 ¡Bobby el perro guardián se ha sumado a la granja!');
+        logEvent('🐕 ¡Bobby el perro guardián se unió a la granja!');
         updateUpgradeButtons();
     }
+    updateUI();
+    saveGame();
+}
+
+// LÓGICA DE LA FERIA RURAL
+function enterContest() {
+    const idx = document.getElementById('select-contestant').value;
+    if (idx === "") return logEvent('❌ Selecciona un ave para competir.');
+    if (state.money < 50) return logEvent('❌ Necesitas $50 para la inscripción.');
+
+    state.money -= 50;
+    const c = state.chickens[idx];
+
+    // Cálculo de puntuación por el Jurado (0 a 100)
+    const score = Math.round((c.genLay * 0.4) + (c.genRes * 0.3) + (c.health * 0.15) + (c.happiness * 0.15));
+
+    if (score >= 80) {
+        state.trophies.gold++;
+        state.money += 500;
+        state.hasVipAccess = true;
+        logEvent(`🥇 ¡1º PUESTO! ${c.name} ganó la Medalla de Oro y $500! ¡Clientes VIP desbloqueados!`);
+        playSound(800, 'triangle', 0.3);
+    } else if (score >= 65) {
+        state.trophies.silver++;
+        state.money += 300;
+        state.hasVipAccess = true;
+        logEvent(`🥈 ¡2º PUESTO! ${c.name} ganó Medalla de Plata y $300!`);
+        playSound(650, 'triangle', 0.2);
+    } else if (score >= 50) {
+        state.trophies.bronze++;
+        state.money += 150;
+        logEvent(`🥉 3º Puesto para ${c.name}. Premio de $150.`);
+    } else {
+        logEvent(`🎗️ ${c.name} obtuvo mención honorífica (Puntaje: ${score}/100). Sigue mejorando la genética.`);
+    }
+
+    updateUpgradeButtons();
+    updateUI();
+    saveGame();
+}
+
+function completeVipOrder() {
+    if (state.money < 0) return;
+    state.money += 600;
+    logEvent('💰 Order VIP entregada a restaurante Michelin: +$600.');
     updateUI();
     saveGame();
 }
@@ -925,14 +981,12 @@ function gameLoop() {
     state.globalFrame++;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Fondo: Pasto Base
     const grassGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
     grassGrad.addColorStop(0, '#74c69d');
     grassGrad.addColorStop(1, '#52b788');
     ctx.fillStyle = grassGrad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Césped Dinámico con Viento
     state.grassTufts.forEach((tuft) => {
         const sway = Math.sin(state.globalFrame * tuft.swaySpeed + tuft.offset) * 3;
         ctx.strokeStyle = tuft.color;
@@ -947,13 +1001,11 @@ function gameLoop() {
         }
     });
 
-    // Zona de alimentación
     ctx.fillStyle = '#d8f3dc';
     ctx.beginPath();
     ctx.ellipse(canvas.width * 0.55, canvas.height * 0.55, 110, 55, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // GALLINERO PRO 3D
     ctx.save();
     ctx.translate(15, 15);
     
@@ -1001,7 +1053,6 @@ function gameLoop() {
 
     ctx.restore();
 
-    // Actualizar y dibujar perro guardián si se compró
     if (state.hasWatchdog) {
         watchdogInstance.update(state.predators);
         watchdogInstance.draw(ctx);
@@ -1117,12 +1168,17 @@ function updateUI() {
 
     const selectM = document.getElementById('select-mother');
     const selectF = document.getElementById('select-father');
+    const selectContest = document.getElementById('select-contestant');
+
     selectM.innerHTML = '<option value="">Seleccionar Madre</option>';
     selectF.innerHTML = '<option value="">Seleccionar Padre</option>';
+    if (selectContest) selectContest.innerHTML = '<option value="">Seleccionar Ave de Exposición</option>';
+
     state.chickens.forEach((c, i) => {
-        const opt = `<option value="${i}">${c.name} (${c.breed})</option>`;
+        const opt = `<option value="${i}">${c.name} (${c.breed}) - Gen:${c.genLay}</option>`;
         if (c.gender === 'female') selectM.innerHTML += opt;
         else selectF.innerHTML += opt;
+        if (selectContest) selectContest.innerHTML += opt;
     });
 }
 
