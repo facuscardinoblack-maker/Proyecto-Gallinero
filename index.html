@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Pro Canvas Edition</title>
+    <title>Proyecto Gallinero - Security & Watchdog Edition</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -314,7 +314,7 @@
                 <button class="tab-btn active" onclick="switchTab('tab-mercado', event)">🏪 Mercado</button>
                 <button class="tab-btn" onclick="switchTab('tab-gallinas', event)">🐔 Aves</button>
                 <button class="tab-btn" onclick="switchTab('tab-cruza', event)">🧬 Cruza</button>
-                <button class="tab-btn" onclick="switchTab('tab-mejoras', event)">🏗️ Mejoras</button>
+                <button class="tab-btn" onclick="switchTab('tab-mejoras', event)">🏗️ Seguridad</button>
                 <button class="tab-btn" onclick="switchTab('tab-dieta', event)">🌾 Dieta</button>
                 <button class="tab-btn" onclick="switchTab('tab-ajustes', event)">⚙️ Sistema</button>
             </div>
@@ -358,9 +358,19 @@
             <div id="tab-mejoras" class="tab-content">
                 <div class="grid-cards">
                     <div class="card">
+                        <h4 style="font-size:0.85rem;">Malla Reforzada</h4>
+                        <p style="font-size:0.75rem; color:#666; margin:4px 0;">Reduce la vida y ataques del zorro.</p>
+                        <button class="btn btn-warning" style="width:100%;" onclick="buyUpgrade('fence')" id="btn-fence">Comprar ($150)</button>
+                    </div>
+                    <div class="card">
+                        <h4 style="font-size:0.85rem;">Perro Guardián</h4>
+                        <p style="font-size:0.75rem; color:#666; margin:4px 0;">Bobby defiende tu granja automáticamente.</p>
+                        <button class="btn btn-success" style="width:100%;" onclick="buyUpgrade('dog')" id="btn-dog">Comprar ($300)</button>
+                    </div>
+                    <div class="card">
                         <h4 style="font-size:0.85rem;">Gallinero</h4>
-                        <p style="font-size:0.75rem;">Capacidad +5 aves.</p>
-                        <button class="btn btn-warning" style="width:100%; margin-top:6px;" onclick="upgradeFarm()">Ampliar ($200)</button>
+                        <p style="font-size:0.75rem; color:#666; margin:4px 0;">Capacidad +5 aves.</p>
+                        <button class="btn btn-warning" style="width:100%;" onclick="upgradeFarm()">Ampliar ($200)</button>
                     </div>
                 </div>
             </div>
@@ -399,6 +409,8 @@ let state = {
     particles: [],
     grassTufts: [],
     coopDoorOpen: true,
+    hasReinforcedFence: false,
+    hasWatchdog: false,
     diet: 'Estándar',
     inspectedIndex: null,
     time: 8,
@@ -443,8 +455,7 @@ function createDirtParticles(x, y) {
             y: y + (Math.random() - 0.5) * 6,
             vx: (Math.random() - 0.5) * 1.5,
             vy: -Math.random() * 1.5,
-            life: 20,
-            type: 'dirt'
+            life: 20
         });
     }
 }
@@ -463,6 +474,78 @@ function generateGrassTufts() {
         });
     }
 }
+
+// --- CLASE PERRO GUARDIÁN (BOBBY) ---
+class Watchdog {
+    constructor() {
+        this.x = 100;
+        this.y = 120;
+        this.vx = 0.8;
+        this.walkCycle = 0;
+    }
+
+    update(predators) {
+        this.walkCycle += 0.15;
+        this.x += this.vx;
+        if (this.x < 40 || this.x > 180) this.vx *= -1;
+
+        // Si hay un zorro en pantalla y tenemos perro guardián, lo ataca automáticamente
+        if (predators.length > 0) {
+            const predator = predators[0];
+            const dx = predator.x - this.x;
+            const dy = predator.y - this.y;
+            const dist = Math.hypot(dx, dy);
+
+            if (dist > 15) {
+                this.x += (dx / dist) * 2.2;
+                this.y += (dy / dist) * 2.2;
+            } else {
+                // ¡El perro defiende y ahuyenta al zorro al instante!
+                logEvent('🐕 ¡Bobby el perro guardián echó al zorro a ladridos!');
+                playSound(400, 'square', 0.2);
+                state.predators = [];
+            }
+        }
+    }
+
+    draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        if (this.vx < 0) ctx.scale(-1, 1);
+
+        // Sombra
+        ctx.beginPath();
+        ctx.ellipse(0, 8, 14, 5, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.fill();
+
+        // Cuerpo de perrito Chibi
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 14, 9, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#D35400';
+        ctx.fill();
+        ctx.strokeStyle = '#2F3542';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Cabeza y orejas caídas
+        ctx.beginPath();
+        ctx.arc(10, -4, 8, 0, Math.PI * 2);
+        ctx.fillStyle = '#D35400';
+        ctx.fill();
+        ctx.stroke();
+
+        // Oreja
+        ctx.beginPath();
+        ctx.ellipse(8, -8, 4, 6, 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = '#78281F';
+        ctx.fill();
+
+        ctx.restore();
+    }
+}
+
+const watchdogInstance = new Watchdog();
 
 class Chicken {
     constructor(name, breed, gender = 'female', genLay = null, genRes = null, health = 100, happiness = 100, x = null, y = null, isInside = false) {
@@ -559,7 +642,6 @@ class Chicken {
         ctx.translate(this.x, this.y);
         if (this.vx < 0) ctx.scale(-1, 1);
 
-        // Sombra suave en suelo
         ctx.beginPath();
         ctx.ellipse(0, 10, r * 0.8, r * 0.35, 0, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(0,0,0,0.22)';
@@ -645,7 +727,7 @@ class Predator {
     constructor() {
         this.x = Math.random() < 0.5 ? -30 : canvas.width + 30;
         this.y = 90 + Math.random() * (canvas.height - 150);
-        this.hp = 3;
+        this.hp = state.hasReinforcedFence ? 1 : 3;
         this.anim = 0;
         this.speed = 1.3;
         
@@ -760,6 +842,8 @@ function saveGame(manual = false) {
             diet: state.diet,
             time: state.time,
             coopDoorOpen: state.coopDoorOpen,
+            hasReinforcedFence: state.hasReinforcedFence,
+            hasWatchdog: state.hasWatchdog,
             chickens: state.chickens.map(c => ({
                 name: c.name, breed: c.breed, gender: c.gender,
                 genLay: c.genLay, genRes: c.genRes, health: c.health,
@@ -782,11 +866,14 @@ function loadGame() {
         state.eggPrice = data.eggPrice; state.food = data.food;
         state.diet = data.diet; state.time = data.time || 8;
         state.coopDoorOpen = data.coopDoorOpen !== undefined ? data.coopDoorOpen : true;
+        state.hasReinforcedFence = data.hasReinforcedFence || false;
+        state.hasWatchdog = data.hasWatchdog || false;
         state.worldEggs = data.worldEggs || [];
         state.chickens = data.chickens.map(c => 
             new Chicken(c.name, c.breed, c.gender, c.genLay, c.genRes, c.health, c.happiness, c.x, c.y, c.isInside)
         );
         logEvent('📂 Partida cargada.');
+        updateUpgradeButtons();
         return true;
     } catch(e) { return false; }
 }
@@ -803,6 +890,37 @@ if (!loadGame()) {
     state.chickens.push(new Chicken('Rojo', 'Rhode Island Red', 'male'));
 }
 
+function updateUpgradeButtons() {
+    if (state.hasReinforcedFence) {
+        const btn = document.getElementById('btn-fence');
+        if(btn) { btn.innerText = 'Adquirido ✅'; btn.disabled = true; btn.style.background = '#6b9080'; }
+    }
+    if (state.hasWatchdog) {
+        const btn = document.getElementById('btn-dog');
+        if(btn) { btn.innerText = 'Adquirido ✅'; btn.disabled = true; btn.style.background = '#6b9080'; }
+    }
+}
+
+function buyUpgrade(type) {
+    if (type === 'fence') {
+        if (state.hasReinforcedFence) return;
+        if (state.money < 150) return logEvent('❌ Sin dinero para la malla.');
+        state.money -= 150;
+        state.hasReinforcedFence = true;
+        logEvent('🛡️ ¡Malla reforzada instalada! Los zorros caen más rápido.');
+        updateUpgradeButtons();
+    } else if (type === 'dog') {
+        if (state.hasWatchdog) return;
+        if (state.money < 300) return logEvent('❌ Sin dinero para el perro guardián.');
+        state.money -= 300;
+        state.hasWatchdog = true;
+        logEvent('🐕 ¡Bobby el perro guardián se ha sumado a la granja!');
+        updateUpgradeButtons();
+    }
+    updateUI();
+    saveGame();
+}
+
 function gameLoop() {
     state.globalFrame++;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -814,8 +932,8 @@ function gameLoop() {
     ctx.fillStyle = grassGrad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Césped Dinámico con Viento (Swaying Grass)
-    state.grassTufts.forEach((tuft, idx) => {
+    // Césped Dinámico con Viento
+    state.grassTufts.forEach((tuft) => {
         const sway = Math.sin(state.globalFrame * tuft.swaySpeed + tuft.offset) * 3;
         ctx.strokeStyle = tuft.color;
         ctx.lineWidth = 1.8;
@@ -829,7 +947,7 @@ function gameLoop() {
         }
     });
 
-    // Zona de alimentación (Comedero)
+    // Zona de alimentación
     ctx.fillStyle = '#d8f3dc';
     ctx.beginPath();
     ctx.ellipse(canvas.width * 0.55, canvas.height * 0.55, 110, 55, 0, 0, Math.PI * 2);
@@ -839,39 +957,33 @@ function gameLoop() {
     ctx.save();
     ctx.translate(15, 15);
     
-    // Sombra del gallinero
     ctx.beginPath();
     ctx.ellipse(62, 82, 65, 12, 0, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(0,0,0,0.18)';
     ctx.fill();
 
-    // Paredes de Madera con Textura y Sombra Interna
     ctx.fillStyle = '#8B4513';
     ctx.fillRect(0, 15, 125, 75);
     ctx.strokeStyle = '#2F3542';
     ctx.lineWidth = 2.5;
     ctx.strokeRect(0, 15, 125, 75);
 
-    // Líneas de tablas
     ctx.beginPath();
     ctx.moveTo(0, 40); ctx.lineTo(125, 40);
     ctx.moveTo(0, 65); ctx.lineTo(125, 65);
     ctx.stroke();
 
-    // Techo Estilo Volumétrico con Tejas Rojas
     ctx.fillStyle = '#EE5253';
     ctx.beginPath();
     ctx.moveTo(-12, 15); ctx.lineTo(62, -10); ctx.lineTo(137, 15);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
 
-    // Sombra del alero del techo
     ctx.fillStyle = 'rgba(0,0,0,0.15)';
     ctx.beginPath();
     ctx.moveTo(-12, 15); ctx.lineTo(62, -10); ctx.lineTo(62, 15); ctx.closePath();
     ctx.fill();
 
-    // Ventana Iluminada Pro
     ctx.fillStyle = '#FECA57';
     ctx.fillRect(80, 30, 28, 28);
     ctx.strokeRect(80, 30, 28, 28);
@@ -879,7 +991,6 @@ function gameLoop() {
     ctx.fillRect(92, 30, 4, 28);
     ctx.fillRect(80, 42, 28, 4);
 
-    // Puerta Interactiva
     ctx.fillStyle = state.coopDoorOpen ? '#1E272E' : '#5C2C06';
     ctx.fillRect(20, 40, 30, 50);
     ctx.strokeRect(20, 40, 30, 50);
@@ -890,7 +1001,12 @@ function gameLoop() {
 
     ctx.restore();
 
-    // Partículas de tierra / polvo
+    // Actualizar y dibujar perro guardián si se compró
+    if (state.hasWatchdog) {
+        watchdogInstance.update(state.predators);
+        watchdogInstance.draw(ctx);
+    }
+
     for (let i = state.particles.length - 1; i >= 0; i--) {
         const p = state.particles[i];
         p.x += p.vx; p.y += p.vy; p.life--;
@@ -899,7 +1015,6 @@ function gameLoop() {
         if (p.life <= 0) state.particles.splice(i, 1);
     }
 
-    // Huevos en el suelo
     state.worldEggs.forEach((egg) => {
         ctx.beginPath();
         ctx.ellipse(egg.x, egg.y, 6, 8, 0, 0, Math.PI * 2);
@@ -910,9 +1025,6 @@ function gameLoop() {
         ctx.stroke();
     });
 
-    // ==========================================
-    // Y-SORTING (Profundidad Real: Ordenar por eje Y)
-    // ==========================================
     const renderables = [...state.chickens, ...state.predators];
     renderables.sort((a, b) => a.y - b.y);
 
@@ -921,7 +1033,6 @@ function gameLoop() {
         item.draw(ctx);
     });
 
-    // Filtro Noche Atmosférico
     if (state.time >= 20 || state.time <= 5) {
         ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1159,7 +1270,7 @@ setInterval(() => {
         const outdoorChickens = state.chickens.filter(c => !c.isInside);
         if (outdoorChickens.length > 0) {
             state.predators.push(new Predator());
-            logEvent('⚠️ ¡UN ZORRO BUSCA UNA GALLINA DESPROTEGIDA!');
+            logEvent('⚠️ ¡UN ZORRO SE ACERCA AL GALLINERO!');
         }
     }
 
