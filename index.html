@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Elite Genetics & Gold Eggs Edition</title>
+    <title>Proyecto Gallinero - Balanced Economy Edition</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -566,35 +566,11 @@ class Chicken {
         this.walkCycle = Math.random() * Math.PI * 2;
         this.isPecking = false;
         this.peckTimer = 0;
-        this.timer = 0;
     }
 
     update() {
         const isNight = state.time >= 20 || state.time <= 5;
         const coopDoorX = 40; const coopDoorY = 65;
-
-        this.timer++;
-
-        // Lógica de puesta con Calidad Genética (Huevos Dobles o de Oro según genLay)
-        const processEggLaying = () => {
-            if (this.gender !== 'female') return;
-            // Si la genética de puesta es alta (>75), da bonus de huevos de alta calidad
-            let eggMultiplier = 1;
-            let eggTypeBadge = state.diet;
-            
-            if (this.genLay >= 85) {
-                const roll = Math.random();
-                if (roll < 0.25) { eggMultiplier = 3; eggTypeBadge = 'Oro'; }
-                else if (roll < 0.6) { eggMultiplier = 2; eggTypeBadge = 'Doble'; }
-            }
-
-            state.eggs += eggMultiplier;
-            if (eggMultiplier > 1) {
-                logEvent(`✨ ¡${this.name} puso ${eggMultiplier} huevos de calidad (${eggTypeBadge})!`);
-            }
-            updateUI();
-            saveGame();
-        };
 
         if (this.isInside) {
             if (isNight) this.happiness = Math.min(100, this.happiness + 0.05);
@@ -604,13 +580,6 @@ class Chicken {
                 this.x = coopDoorX + 10;
                 this.y = coopDoorY + 25;
                 logEvent(`🐔 ${this.name} salió al patio.`);
-            }
-
-            if (this.timer > 110) {
-                this.timer = 0;
-                if (Math.random() < (this.genLay / 350)) {
-                    processEggLaying();
-                }
             }
             return;
         }
@@ -637,19 +606,13 @@ class Chicken {
             }
         }
 
-        if (this.timer > 110) {
-            this.timer = 0;
+        if (Math.random() < 0.003) {
             if (Math.random() < 0.35) {
                 this.isPecking = true;
                 this.peckTimer = 40;
             } else {
                 this.vx = (Math.random() - 0.5) * 1.2;
                 this.vy = (Math.random() - 0.5) * 1.2;
-            }
-
-            if (Math.random() < (this.genLay / 280)) {
-                processEggLaying();
-                state.worldEggs.push({ x: this.x, y: this.y + 6, type: state.diet });
             }
         }
     }
@@ -1269,7 +1232,7 @@ function breedChickens() {
     const father = state.chickens[fIdx];
 
     state.money -= 30;
-    const childLay = Math.round((mother.genLay + father.genLay) / 2 + (Math.random() * 12 - 4)); // Tiende a mejorar ligeramente con cruzas
+    const childLay = Math.round((mother.genLay + father.genLay) / 2 + (Math.random() * 12 - 4));
     const childRes = Math.round((mother.genRes + father.genRes) / 2 + (Math.random() * 12 - 4));
     const isHybrid = Math.random() < 0.4;
 
@@ -1330,10 +1293,36 @@ function upgradeFarm() {
     saveGame();
 }
 
+// Reloj del juego (Cada 5 segundos = 1 hora de juego)
 setInterval(() => {
     state.time++;
     if (state.time >= 24) state.time = 0;
     document.getElementById('time-display').innerText = `${state.time.toString().padStart(2, '0')}:00`;
+
+    // Sincronización de Puesta de Huevos por Hora (Realista: ~1 huevo diario por gallina)
+    state.chickens.forEach(c => {
+        if (c.gender === 'female') {
+            // Probabilidad por hora basada en la genética de puesta
+            if (Math.random() < (c.genLay / 2400)) {
+                let multiplier = 1;
+                let badge = state.diet;
+                if (c.genLay >= 85) {
+                    const roll = Math.random();
+                    if (roll < 0.25) { multiplier = 3; badge = 'Oro'; }
+                    else if (roll < 0.6) { multiplier = 2; badge = 'Doble'; }
+                }
+
+                if (c.isInside) {
+                    state.eggs += multiplier;
+                    logEvent(`🐔 ${c.name} puso ${multiplier} huevo(s) en el gallinero (${badge}).`);
+                } else {
+                    state.worldEggs.push({ x: c.x, y: c.y + 6, type: state.diet });
+                    logEvent(`🐔 ${c.name} puso un huevo en el patio.`);
+                }
+                updateUI();
+            }
+        }
+    });
 
     if ((state.time >= 20 || state.time <= 5) && state.coopDoorOpen) {
         state.chickens.forEach(c => {
