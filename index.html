@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Functional Coop & Grass Edition</title>
+    <title>Proyecto Gallinero - Pro Canvas Edition</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -402,6 +402,7 @@ let state = {
     diet: 'Estándar',
     inspectedIndex: null,
     time: 8,
+    globalFrame: 0,
     audioCtx: null
 };
 
@@ -442,26 +443,27 @@ function createDirtParticles(x, y) {
             y: y + (Math.random() - 0.5) * 6,
             vx: (Math.random() - 0.5) * 1.5,
             vy: -Math.random() * 1.5,
-            life: 20
+            life: 20,
+            type: 'dirt'
         });
     }
 }
 
-// Generar matas de césped estáticas con textura
 function generateGrassTufts() {
     state.grassTufts = [];
-    for (let i = 0; i < 65; i++) {
+    for (let i = 0; i < 80; i++) {
         state.grassTufts.push({
-            x: Math.random() * 800,
-            y: 70 + Math.random() * 500,
-            size: 4 + Math.random() * 6,
+            x: Math.random() * 1200,
+            y: 80 + Math.random() * 700,
+            size: 5 + Math.random() * 7,
             blades: 3 + Math.floor(Math.random() * 3),
+            swaySpeed: 0.05 + Math.random() * 0.05,
+            offset: Math.random() * Math.PI,
             color: Math.random() > 0.4 ? '#52b788' : '#74c69d'
         });
     }
 }
 
-// --- CLASE GALLINA CON MECÁNICA DE REFUGIO ---
 class Chicken {
     constructor(name, breed, gender = 'female', genLay = null, genRes = null, health = 100, happiness = 100, x = null, y = null, isInside = false) {
         this.name = name;
@@ -485,15 +487,12 @@ class Chicken {
     }
 
     update() {
-        // De noche o ante peligro buscan entrar si la puerta está abierta
         const isNight = state.time >= 20 || state.time <= 5;
         const coopDoorX = 40; const coopDoorY = 65;
 
         if (this.isInside) {
-            // Adentro descansan
             if (isNight) this.happiness = Math.min(100, this.happiness + 0.05);
             
-            // De día pueden volver a salir si la puerta está abierta
             if (!isNight && state.coopDoorOpen && Math.random() < 0.005) {
                 this.isInside = false;
                 this.x = coopDoorX + 10;
@@ -501,7 +500,6 @@ class Chicken {
                 logEvent(`🐔 ${this.name} salió al patio.`);
             }
 
-            // Poner huevos en el nido interior
             if (this.gender === 'female' && Math.random() < (this.genLay / 350)) {
                 state.eggs++;
                 updateUI();
@@ -510,7 +508,6 @@ class Chicken {
             return;
         }
 
-        // Si están en el patio
         if (this.isPecking) {
             this.peckTimer--;
             if (this.peckTimer === 20) createDirtParticles(this.x + (this.vx >= 0 ? 14 : -14), this.y + 8);
@@ -525,7 +522,6 @@ class Chicken {
         if (this.x < 30 || this.x > canvas.width - 30) this.vx *= -1;
         if (this.y < 85 || this.y > canvas.height - 30) this.vy *= -1;
 
-        // Entrar al gallinero si están cerca de la puerta abierta
         if (state.coopDoorOpen && Math.hypot(this.x - coopDoorX, this.y - coopDoorY) < 25) {
             if (isNight || Math.random() < 0.003) {
                 this.isInside = true;
@@ -553,7 +549,7 @@ class Chicken {
     }
 
     draw(ctx) {
-        if (this.isInside) return; // No se dibujan afueras si están adentro
+        if (this.isInside) return;
 
         const info = BREEDS[this.breed] || BREEDS['Leghorn'];
         const isMale = this.gender === 'male';
@@ -563,9 +559,10 @@ class Chicken {
         ctx.translate(this.x, this.y);
         if (this.vx < 0) ctx.scale(-1, 1);
 
+        // Sombra suave en suelo
         ctx.beginPath();
         ctx.ellipse(0, 10, r * 0.8, r * 0.35, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0,0,0,0.18)';
+        ctx.fillStyle = 'rgba(0,0,0,0.22)';
         ctx.fill();
 
         const legSwing = Math.sin(this.walkCycle) * 4;
@@ -644,7 +641,6 @@ class Chicken {
     }
 }
 
-// --- CLASE ZORRO ENEMIGO ---
 class Predator {
     constructor() {
         this.x = Math.random() < 0.5 ? -30 : canvas.width + 30;
@@ -653,7 +649,6 @@ class Predator {
         this.anim = 0;
         this.speed = 1.3;
         
-        // Solo persigue a gallinas que estén AFUERA del gallinero
         const outdoorChickens = state.chickens.filter(c => !c.isInside);
         this.target = outdoorChickens.length > 0 ? outdoorChickens[Math.floor(Math.random() * outdoorChickens.length)] : null;
     }
@@ -691,7 +686,7 @@ class Predator {
 
         ctx.beginPath();
         ctx.ellipse(0, 10, 18, 6, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.fillStyle = 'rgba(0,0,0,0.22)';
         ctx.fill();
 
         ctx.beginPath();
@@ -741,7 +736,6 @@ class Predator {
     }
 }
 
-// SETUP CANVAS
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -810,6 +804,7 @@ if (!loadGame()) {
 }
 
 function gameLoop() {
+    state.globalFrame++;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Fondo: Pasto Base
@@ -819,8 +814,9 @@ function gameLoop() {
     ctx.fillStyle = grassGrad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Renderizado de textura de Césped (Matas cortas y largas)
-    state.grassTufts.forEach(tuft => {
+    // Césped Dinámico con Viento (Swaying Grass)
+    state.grassTufts.forEach((tuft, idx) => {
+        const sway = Math.sin(state.globalFrame * tuft.swaySpeed + tuft.offset) * 3;
         ctx.strokeStyle = tuft.color;
         ctx.lineWidth = 1.8;
         ctx.lineCap = 'round';
@@ -828,7 +824,7 @@ function gameLoop() {
             ctx.beginPath();
             const angle = (i - (tuft.blades - 1) / 2) * 0.25;
             ctx.moveTo(tuft.x, tuft.y);
-            ctx.lineTo(tuft.x + Math.sin(angle) * tuft.size, tuft.y - Math.cos(angle) * tuft.size);
+            ctx.lineTo(tuft.x + Math.sin(angle) * tuft.size + sway, tuft.y - Math.cos(angle) * tuft.size);
             ctx.stroke();
         }
     });
@@ -839,48 +835,62 @@ function gameLoop() {
     ctx.ellipse(canvas.width * 0.55, canvas.height * 0.55, 110, 55, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // GALLINERO ILUSTRADO & FUNCIONAL
+    // GALLINERO PRO 3D
     ctx.save();
     ctx.translate(15, 15);
     
-    // Estructura de Madera
+    // Sombra del gallinero
+    ctx.beginPath();
+    ctx.ellipse(62, 82, 65, 12, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fill();
+
+    // Paredes de Madera con Textura y Sombra Interna
     ctx.fillStyle = '#8B4513';
     ctx.fillRect(0, 15, 125, 75);
     ctx.strokeStyle = '#2F3542';
     ctx.lineWidth = 2.5;
     ctx.strokeRect(0, 15, 125, 75);
 
-    // Líneas de madera
+    // Líneas de tablas
     ctx.beginPath();
     ctx.moveTo(0, 40); ctx.lineTo(125, 40);
     ctx.moveTo(0, 65); ctx.lineTo(125, 65);
     ctx.stroke();
 
-    // Techo
+    // Techo Estilo Volumétrico con Tejas Rojas
     ctx.fillStyle = '#EE5253';
     ctx.beginPath();
     ctx.moveTo(-12, 15); ctx.lineTo(62, -10); ctx.lineTo(137, 15);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
 
-    // Ventana con Luz
+    // Sombra del alero del techo
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.beginPath();
+    ctx.moveTo(-12, 15); ctx.lineTo(62, -10); ctx.lineTo(62, 15); ctx.closePath();
+    ctx.fill();
+
+    // Ventana Iluminada Pro
     ctx.fillStyle = '#FECA57';
     ctx.fillRect(80, 30, 28, 28);
     ctx.strokeRect(80, 30, 28, 28);
+    ctx.fillStyle = '#2F3542';
+    ctx.fillRect(92, 30, 4, 28);
+    ctx.fillRect(80, 42, 28, 4);
 
     // Puerta Interactiva
     ctx.fillStyle = state.coopDoorOpen ? '#1E272E' : '#5C2C06';
     ctx.fillRect(20, 40, 30, 50);
     ctx.strokeRect(20, 40, 30, 50);
 
-    // Cartel Estado Puerta
     ctx.fillStyle = '#FFF';
     ctx.font = 'bold 10px sans-serif';
     ctx.fillText(state.coopDoorOpen ? 'Abierta' : 'Cerrada', 16, 34);
 
     ctx.restore();
 
-    // Partículas
+    // Partículas de tierra / polvo
     for (let i = state.particles.length - 1; i >= 0; i--) {
         const p = state.particles[i];
         p.x += p.vx; p.y += p.vy; p.life--;
@@ -889,7 +899,7 @@ function gameLoop() {
         if (p.life <= 0) state.particles.splice(i, 1);
     }
 
-    // Huevos en suelo exterior
+    // Huevos en el suelo
     state.worldEggs.forEach((egg) => {
         ctx.beginPath();
         ctx.ellipse(egg.x, egg.y, 6, 8, 0, 0, Math.PI * 2);
@@ -900,17 +910,18 @@ function gameLoop() {
         ctx.stroke();
     });
 
-    // Dibujar Gallinas
-    state.chickens.forEach(c => { c.update(); c.draw(ctx); });
+    // ==========================================
+    // Y-SORTING (Profundidad Real: Ordenar por eje Y)
+    // ==========================================
+    const renderables = [...state.chickens, ...state.predators];
+    renderables.sort((a, b) => a.y - b.y);
 
-    // Dibujar Zorro
-    state.predators.forEach((p, index) => {
-        p.update();
-        p.draw(ctx);
-        if (p.x < -40 || p.x > canvas.width + 40) state.predators.splice(index, 1);
+    renderables.forEach(item => {
+        item.update();
+        item.draw(ctx);
     });
 
-    // Filtro Noche
+    // Filtro Noche Atmosférico
     if (state.time >= 20 || state.time <= 5) {
         ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -926,7 +937,6 @@ function handleCanvasInteraction(clientX, clientY) {
     const clickX = clientX - rect.left;
     const clickY = clientY - rect.top;
 
-    // Clic en Puerta de Gallinero para Abrir/Cerrar
     if (clickX >= 25 && clickX <= 75 && clickY >= 40 && clickY <= 110) {
         state.coopDoorOpen = !state.coopDoorOpen;
         playSound(350, 'square', 0.15);
@@ -935,7 +945,6 @@ function handleCanvasInteraction(clientX, clientY) {
         return;
     }
 
-    // Recolectar Huevos
     for (let i = state.worldEggs.length - 1; i >= 0; i--) {
         const egg = state.worldEggs[i];
         if (Math.hypot(egg.x - clickX, egg.y - clickY) < 25) {
@@ -949,7 +958,6 @@ function handleCanvasInteraction(clientX, clientY) {
         }
     }
 
-    // Espantar Zorro
     for (let i = state.predators.length - 1; i >= 0; i--) {
         const p = state.predators[i];
         if (Math.hypot(p.x - clickX, p.y - clickY) < 40) {
@@ -963,7 +971,6 @@ function handleCanvasInteraction(clientX, clientY) {
         }
     }
 
-    // Inspeccionar Aves
     state.chickens.forEach((c, index) => {
         if (!c.isInside && Math.hypot(c.x - clickX, c.y - clickY) < 30) {
             inspectChicken(index);
@@ -1141,7 +1148,6 @@ setInterval(() => {
     if (state.time >= 24) state.time = 0;
     document.getElementById('time-display').innerText = `${state.time.toString().padStart(2, '0')}:00`;
 
-    // De noche, si la puerta está abierta, las aves entran solas
     if ((state.time >= 20 || state.time <= 5) && state.coopDoorOpen) {
         state.chickens.forEach(c => {
             if (!c.isInside && Math.random() < 0.4) c.isInside = true;
