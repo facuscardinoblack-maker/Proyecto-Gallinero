@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Rural Expo & Bugfix Edition</title>
+    <title>Proyecto Gallinero - Elite Genetics & Gold Eggs Edition</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -300,7 +300,7 @@
                     <p>Estado: <b id="inspect-inside" style="color:var(--accent)">En el patio</b></p>
                     <p>Salud: <b id="inspect-health">100%</b></p>
                     <p>Felicidad: <b id="inspect-happy">100%</b></p>
-                    <p>Puesta: <b id="inspect-gen-lay">50</b> | Resistencia: <b id="inspect-gen-res">50</b></p>
+                    <p>Genética Puesta: <b id="inspect-gen-lay">50</b> | Resistencia: <b id="inspect-gen-res">50</b></p>
                 </div>
                 <div style="margin-top:12px; display:flex; gap:6px;">
                     <button class="btn btn-danger" style="flex:1;" onclick="sellInspectedChicken()">Vender</button>
@@ -323,10 +323,10 @@
             <div id="tab-mercado" class="tab-content active">
                 <div class="grid-cards">
                     <div class="card">
-                        <h4 style="font-size: 0.85rem;">Huevos Recolectados</h4>
+                        <h4 style="font-size: 0.85rem;">Huevos en Stock</h4>
                         <p style="font-size: 1.1rem; margin: 4px 0;">🥚 <span id="egg-count">0</span></p>
-                        <p style="font-size: 0.75rem; color:#666;">Precio: $<span id="egg-price">10</span></p>
-                        <button class="btn btn-success" style="width:100%; margin-top:6px;" onclick="sellEggs()">Vender</button>
+                        <p style="font-size: 0.75rem; color:#666;">Base: $<span id="egg-price">10</span></p>
+                        <button class="btn btn-success" style="width:100%; margin-top:6px;" onclick="sellEggs()">Vender Todos</button>
                     </div>
 
                     <div class="card">
@@ -337,7 +337,7 @@
 
                     <div class="card" id="card-vip" style="display:none; border:2px solid var(--warning);">
                         <h4 style="font-size: 0.85rem; color:var(--primary);">🌟 Orden VIP Gourmet</h4>
-                        <p style="font-size: 0.75rem; color:#666; margin:4px 0;">Entrega 20 huevos exóticos.</p>
+                        <p style="font-size: 0.75rem; color:#666; margin:4px 0;">Entrega pedidos especiales.</p>
                         <button class="btn btn-warning" style="width:100%; font-size:0.75rem;" onclick="completeVipOrder()">Completar ($600)</button>
                     </div>
                 </div>
@@ -348,11 +348,11 @@
             </div>
 
             <div id="tab-cruza" class="tab-content">
-                <h4 style="margin-bottom: 6px;">Laboratorio de Cruza</h4>
+                <h4 style="margin-bottom: 6px;">Laboratorio de Cruza de Élite</h4>
                 <div style="display:flex; flex-direction:column; gap:8px;">
                     <select id="select-mother" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%;"></select>
                     <select id="select-father" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%;"></select>
-                    <button class="btn btn-success" onclick="breedChickens()">Incubar Cría ($30)</button>
+                    <button class="btn btn-success" onclick="breedChickens()">Incubar Cría Mejorada ($30)</button>
                 </div>
             </div>
 
@@ -393,8 +393,8 @@
                 <h4 style="margin-bottom: 8px;">Dieta Actual</h4>
                 <div style="display:flex; flex-direction:column; gap:6px;">
                     <button class="btn" onclick="setDiet('Estándar')">Maíz Básico</button>
-                    <button class="btn btn-warning" onclick="setDiet('Rica en Calcio')">Rica en Calcio (+$5/día)</button>
-                    <button class="btn btn-success" onclick="setDiet('Exótica')">Botánica Exótica (+$15/día)</button>
+                    <button class="btn btn-warning" onclick="setDiet('Rica en Calcio')">Rica en Calcio (+$5/huevo)</button>
+                    <button class="btn btn-success" onclick="setDiet('Exótica')">Botánica Exótica (+$15/huevo)</button>
                 </div>
             </div>
 
@@ -439,7 +439,7 @@ const BREEDS = {
     'Rhode Island Red': { base: '#B33923', dark: '#7A1C0B', comb: '#FF4757', size: 18, layRate: 60, resistance: 60 },
     'Brahma': { base: '#F1F2F6', dark: '#747D8C', comb: '#C0392B', size: 22, layRate: 40, resistance: 80 },
     'Orpington': { base: '#2F3542', dark: '#1E272E', comb: '#FF4757', size: 20, layRate: 55, resistance: 70 },
-    'Híbrida': { base: '#FFA502', dark: '#CC8E35', comb: '#FF6B81', size: 17, layRate: 75, resistance: 75 }
+    'Híbrida': { base: '#FFA502', dark: '#CC8E35', comb: '#FF6B81', size: 17, layRate: 85, resistance: 80 }
 };
 
 function initAudio() {
@@ -573,8 +573,28 @@ class Chicken {
         const isNight = state.time >= 20 || state.time <= 5;
         const coopDoorX = 40; const coopDoorY = 65;
 
-        // BUCLE PRINCIPAL DE TIEMPO
         this.timer++;
+
+        // Lógica de puesta con Calidad Genética (Huevos Dobles o de Oro según genLay)
+        const processEggLaying = () => {
+            if (this.gender !== 'female') return;
+            // Si la genética de puesta es alta (>75), da bonus de huevos de alta calidad
+            let eggMultiplier = 1;
+            let eggTypeBadge = state.diet;
+            
+            if (this.genLay >= 85) {
+                const roll = Math.random();
+                if (roll < 0.25) { eggMultiplier = 3; eggTypeBadge = 'Oro'; }
+                else if (roll < 0.6) { eggMultiplier = 2; eggTypeBadge = 'Doble'; }
+            }
+
+            state.eggs += eggMultiplier;
+            if (eggMultiplier > 1) {
+                logEvent(`✨ ¡${this.name} puso ${eggMultiplier} huevos de calidad (${eggTypeBadge})!`);
+            }
+            updateUI();
+            saveGame();
+        };
 
         if (this.isInside) {
             if (isNight) this.happiness = Math.min(100, this.happiness + 0.05);
@@ -586,13 +606,10 @@ class Chicken {
                 logEvent(`🐔 ${this.name} salió al patio.`);
             }
 
-            // CORRECCIÓN BUG: Solo evaluar postura de huevos con el mismo intervalo que en el patio (timer > 110)
             if (this.timer > 110) {
                 this.timer = 0;
-                if (this.gender === 'female' && Math.random() < (this.genLay / 350)) {
-                    state.eggs++;
-                    updateUI();
-                    saveGame();
+                if (Math.random() < (this.genLay / 350)) {
+                    processEggLaying();
                 }
             }
             return;
@@ -630,9 +647,9 @@ class Chicken {
                 this.vy = (Math.random() - 0.5) * 1.2;
             }
 
-            if (this.gender === 'female' && Math.random() < (this.genLay / 280)) {
+            if (Math.random() < (this.genLay / 280)) {
+                processEggLaying();
                 state.worldEggs.push({ x: this.x, y: this.y + 6, type: state.diet });
-                saveGame();
             }
         }
     }
@@ -1252,14 +1269,14 @@ function breedChickens() {
     const father = state.chickens[fIdx];
 
     state.money -= 30;
-    const childLay = Math.round((mother.genLay + father.genLay) / 2 + (Math.random() * 10 - 5));
-    const childRes = Math.round((mother.genRes + father.genRes) / 2 + (Math.random() * 10 - 5));
-    const isHybrid = Math.random() < 0.35;
+    const childLay = Math.round((mother.genLay + father.genLay) / 2 + (Math.random() * 12 - 4)); // Tiende a mejorar ligeramente con cruzas
+    const childRes = Math.round((mother.genRes + father.genRes) / 2 + (Math.random() * 12 - 4));
+    const isHybrid = Math.random() < 0.4;
 
     const breed = isHybrid ? 'Híbrida' : mother.breed;
     state.chickens.push(new Chicken(`Cría #${state.chickens.length + 1}`, breed, Math.random() > 0.5 ? 'female' : 'male', childLay, childRes));
     
-    logEvent(`🐣 Nació cría ${breed}!`);
+    logEvent(`🐣 ¡Nació cría ${breed} (Gen Puesta: ${childLay})!`);
     updateUI();
     saveGame();
 }
