@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Anime & Fox Threat Edition</title>
+    <title>Proyecto Gallinero - Functional Coop & Grass Edition</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -297,6 +297,7 @@
                 <p style="font-size:0.8rem; color:#666;" id="inspect-breed">Raza: Leghorn</p>
                 <hr style="margin:6px 0;">
                 <div style="font-size:0.8rem; line-height: 1.4;">
+                    <p>Estado: <b id="inspect-inside" style="color:var(--accent)">En el patio</b></p>
                     <p>Salud: <b id="inspect-health">100%</b></p>
                     <p>Felicidad: <b id="inspect-happy">100%</b></p>
                     <p>Puesta: <b id="inspect-gen-lay">50</b> | Resistencia: <b id="inspect-gen-res">50</b></p>
@@ -396,6 +397,8 @@ let state = {
     worldEggs: [],
     predators: [],
     particles: [],
+    grassTufts: [],
+    coopDoorOpen: true,
     diet: 'Estándar',
     inspectedIndex: null,
     time: 8,
@@ -444,9 +447,23 @@ function createDirtParticles(x, y) {
     }
 }
 
-// --- CLASE GALLINA ESTILO ANIME / CHIBI ---
+// Generar matas de césped estáticas con textura
+function generateGrassTufts() {
+    state.grassTufts = [];
+    for (let i = 0; i < 65; i++) {
+        state.grassTufts.push({
+            x: Math.random() * 800,
+            y: 70 + Math.random() * 500,
+            size: 4 + Math.random() * 6,
+            blades: 3 + Math.floor(Math.random() * 3),
+            color: Math.random() > 0.4 ? '#52b788' : '#74c69d'
+        });
+    }
+}
+
+// --- CLASE GALLINA CON MECÁNICA DE REFUGIO ---
 class Chicken {
-    constructor(name, breed, gender = 'female', genLay = null, genRes = null, health = 100, happiness = 100, x = null, y = null) {
+    constructor(name, breed, gender = 'female', genLay = null, genRes = null, health = 100, happiness = 100, x = null, y = null, isInside = false) {
         this.name = name;
         this.breed = breed;
         this.gender = gender;
@@ -454,9 +471,10 @@ class Chicken {
         this.happiness = happiness;
         this.genLay = genLay || BREEDS[breed].layRate;
         this.genRes = genRes || BREEDS[breed].resistance;
+        this.isInside = isInside;
         
         this.x = x !== null ? x : (60 + Math.random() * (canvas.width - 120));
-        this.y = y !== null ? y : (90 + Math.random() * (canvas.height - 140));
+        this.y = y !== null ? y : (100 + Math.random() * (canvas.height - 150));
         this.vx = (Math.random() - 0.5) * 1.0;
         this.vy = (Math.random() - 0.5) * 1.0;
         
@@ -467,6 +485,32 @@ class Chicken {
     }
 
     update() {
+        // De noche o ante peligro buscan entrar si la puerta está abierta
+        const isNight = state.time >= 20 || state.time <= 5;
+        const coopDoorX = 40; const coopDoorY = 65;
+
+        if (this.isInside) {
+            // Adentro descansan
+            if (isNight) this.happiness = Math.min(100, this.happiness + 0.05);
+            
+            // De día pueden volver a salir si la puerta está abierta
+            if (!isNight && state.coopDoorOpen && Math.random() < 0.005) {
+                this.isInside = false;
+                this.x = coopDoorX + 10;
+                this.y = coopDoorY + 25;
+                logEvent(`🐔 ${this.name} salió al patio.`);
+            }
+
+            // Poner huevos en el nido interior
+            if (this.gender === 'female' && Math.random() < (this.genLay / 350)) {
+                state.eggs++;
+                updateUI();
+                saveGame();
+            }
+            return;
+        }
+
+        // Si están en el patio
         if (this.isPecking) {
             this.peckTimer--;
             if (this.peckTimer === 20) createDirtParticles(this.x + (this.vx >= 0 ? 14 : -14), this.y + 8);
@@ -478,8 +522,17 @@ class Chicken {
         this.y += this.vy;
         this.walkCycle += 0.2;
 
-        if (this.x < 40 || this.x > canvas.width - 40) this.vx *= -1;
-        if (this.y < 80 || this.y > canvas.height - 40) this.vy *= -1;
+        if (this.x < 30 || this.x > canvas.width - 30) this.vx *= -1;
+        if (this.y < 85 || this.y > canvas.height - 30) this.vy *= -1;
+
+        // Entrar al gallinero si están cerca de la puerta abierta
+        if (state.coopDoorOpen && Math.hypot(this.x - coopDoorX, this.y - coopDoorY) < 25) {
+            if (isNight || Math.random() < 0.003) {
+                this.isInside = true;
+                logEvent(`🏠 ${this.name} entró al gallinero.`);
+                return;
+            }
+        }
 
         this.timer++;
         if (this.timer > 110) {
@@ -500,6 +553,8 @@ class Chicken {
     }
 
     draw(ctx) {
+        if (this.isInside) return; // No se dibujan afueras si están adentro
+
         const info = BREEDS[this.breed] || BREEDS['Leghorn'];
         const isMale = this.gender === 'male';
         const r = info.size;
@@ -508,13 +563,11 @@ class Chicken {
         ctx.translate(this.x, this.y);
         if (this.vx < 0) ctx.scale(-1, 1);
 
-        // Sombra suave
         ctx.beginPath();
         ctx.ellipse(0, 10, r * 0.8, r * 0.35, 0, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(0,0,0,0.18)';
         ctx.fill();
 
-        // Patas Chibi de trazo grueso
         const legSwing = Math.sin(this.walkCycle) * 4;
         ctx.strokeStyle = '#2F3542';
         ctx.lineWidth = 3;
@@ -527,7 +580,6 @@ class Chicken {
         const bodyBob = Math.sin(this.walkCycle * 2) * 1.5;
         const peckY = this.isPecking ? 10 : 0;
 
-        // Cola Anime
         ctx.fillStyle = info.dark;
         ctx.strokeStyle = '#2F3542';
         ctx.lineWidth = 2;
@@ -536,115 +588,97 @@ class Chicken {
             ctx.moveTo(-r * 0.5, -r * 0.3 + bodyBob);
             ctx.bezierCurveTo(-r * 1.7, -r * 1.5, -r * 1.3, -r * 2.0, -r * 0.8, -r * 2.0);
             ctx.bezierCurveTo(-r * 0.6, -r * 1.4, -r * 0.3, -r * 0.7, -r * 0.2, -r * 0.2);
-            ctx.fill();
-            ctx.stroke();
+            ctx.fill(); ctx.stroke();
         } else {
             ctx.beginPath();
             ctx.ellipse(-r * 0.7, -r * 0.4 + bodyBob, r * 0.45, r * 0.3, -0.4, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
+            ctx.fill(); ctx.stroke();
         }
 
-        // Cuerpo Chibi Redondo
         ctx.beginPath();
         ctx.ellipse(0, -r * 0.3 + bodyBob, r * 0.9, r * 0.7, 0, 0, Math.PI * 2);
         ctx.fillStyle = info.base;
-        ctx.fill();
-        ctx.stroke();
+        ctx.fill(); ctx.stroke();
 
-        // Ala
         ctx.beginPath();
         ctx.ellipse(-r * 0.05, -r * 0.2 + bodyBob, r * 0.45, r * 0.32, 0.2, 0, Math.PI * 2);
         ctx.fillStyle = info.dark;
-        ctx.fill();
-        ctx.stroke();
+        ctx.fill(); ctx.stroke();
 
-        // Cabeza Anime Gran Tamaño
         ctx.save();
         ctx.translate(r * 0.6, -r * 0.7 + bodyBob + peckY);
 
         ctx.beginPath();
         ctx.arc(0, 0, r * 0.5, 0, Math.PI * 2);
         ctx.fillStyle = info.base;
-        ctx.fill();
-        ctx.stroke();
+        ctx.fill(); ctx.stroke();
 
-        // Pico Pequeño y Adorable
         ctx.beginPath();
-        ctx.moveTo(r * 0.3, -r * 0.05);
-        ctx.lineTo(r * 0.7, 0.05);
-        ctx.lineTo(r * 0.3, r * 0.2);
+        ctx.moveTo(r * 0.3, -r * 0.05); ctx.lineTo(r * 0.7, 0.05); ctx.lineTo(r * 0.3, r * 0.2);
         ctx.fillStyle = '#FFA502';
-        ctx.fill();
-        ctx.stroke();
+        ctx.fill(); ctx.stroke();
 
-        // Ojos Anime Grandes con Brillo
         ctx.beginPath();
         ctx.ellipse(r * 0.15, -r * 0.1, r * 0.12, r * 0.16, 0, 0, Math.PI * 2);
         ctx.fillStyle = '#2F3542';
         ctx.fill();
         
-        // Brillo blanco en ojos
         ctx.beginPath();
         ctx.arc(r * 0.18, -r * 0.15, r * 0.05, 0, Math.PI * 2);
         ctx.fillStyle = '#FFFFFF';
         ctx.fill();
 
-        // Rubor en mejillas Anime
         ctx.beginPath();
         ctx.ellipse(r * 0.25, r * 0.12, r * 0.08, r * 0.05, 0, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(255, 107, 129, 0.5)';
         ctx.fill();
 
-        // Cresta
         const combSize = isMale ? r * 0.55 : r * 0.3;
         ctx.fillStyle = info.comb;
         ctx.beginPath();
         ctx.ellipse(-r * 0.05, -combSize, combSize * 0.65, combSize * 0.4, -0.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+        ctx.fill(); ctx.stroke();
 
         ctx.restore();
         ctx.restore();
     }
 }
 
-// --- CLASE ZORRO ENEMIGO DIRIGIDO Y PELIGROSO ---
+// --- CLASE ZORRO ENEMIGO ---
 class Predator {
     constructor() {
         this.x = Math.random() < 0.5 ? -30 : canvas.width + 30;
-        this.y = 80 + Math.random() * (canvas.height - 140);
+        this.y = 90 + Math.random() * (canvas.height - 150);
         this.hp = 3;
         this.anim = 0;
         this.speed = 1.3;
         
-        // Seleccionar una gallina al azar como presa
-        this.targetIndex = state.chickens.length > 0 ? Math.floor(Math.random() * state.chickens.length) : null;
+        // Solo persigue a gallinas que estén AFUERA del gallinero
+        const outdoorChickens = state.chickens.filter(c => !c.isInside);
+        this.target = outdoorChickens.length > 0 ? outdoorChickens[Math.floor(Math.random() * outdoorChickens.length)] : null;
     }
 
     update() {
         this.anim += 0.2;
 
-        if (this.targetIndex !== null && state.chickens[this.targetIndex]) {
-            const target = state.chickens[this.targetIndex];
-            const dx = target.x - this.x;
-            const dy = target.y - this.y;
+        if (this.target && !this.target.isInside && state.chickens.includes(this.target)) {
+            const dx = this.target.x - this.x;
+            const dy = this.target.y - this.y;
             const dist = Math.hypot(dx, dy);
 
             if (dist > 15) {
                 this.x += (dx / dist) * this.speed;
                 this.y += (dy / dist) * this.speed;
             } else {
-                // ¡ALCANZÓ A LA GALLINA! SE LA COME
-                logEvent(`🚨 ¡EL ZORRO SE COMÍO A ${target.name.toUpperCase()}! 😭`);
-                state.chickens.splice(this.targetIndex, 1);
-                state.predators = []; // El zorro huye tras comer
+                logEvent(`🚨 ¡EL ZORRO SE COMÍO A ${this.target.name.toUpperCase()}! 😭`);
+                const idx = state.chickens.indexOf(this.target);
+                if (idx !== -1) state.chickens.splice(idx, 1);
+                state.predators = [];
                 playSound(150, 'sawtooth', 0.4);
                 updateUI();
                 saveGame();
             }
         } else {
-            // Si no hay gallinas, cruza en línea
             this.x += this.speed;
         }
     }
@@ -660,7 +694,6 @@ class Predator {
         ctx.fillStyle = 'rgba(0,0,0,0.2)';
         ctx.fill();
 
-        // Cola peluda
         ctx.beginPath();
         ctx.moveTo(-10, -2);
         ctx.quadraticCurveTo(-25 + tailWag, -18, -32 + tailWag, -8);
@@ -671,20 +704,16 @@ class Predator {
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Punta blanca
         ctx.beginPath();
         ctx.arc(-28 + tailWag, -9, 4, 0, Math.PI * 2);
         ctx.fillStyle = '#FFF';
         ctx.fill();
 
-        // Cuerpo Zorro Anime
         ctx.beginPath();
         ctx.ellipse(0, 0, 16, 10, 0, 0, Math.PI * 2);
         ctx.fillStyle = '#EE5253';
-        ctx.fill();
-        ctx.stroke();
+        ctx.fill(); ctx.stroke();
 
-        // Cabeza y Orejas
         ctx.beginPath();
         ctx.moveTo(10, -8); ctx.lineTo(24, -2); ctx.lineTo(10, 6);
         ctx.fillStyle = '#EE5253';
@@ -695,7 +724,6 @@ class Predator {
         ctx.fillStyle = '#2F3542';
         ctx.fill();
 
-        // Ojo Fiero Anime
         ctx.beginPath();
         ctx.arc(16, -3, 3, 0, Math.PI * 2);
         ctx.fillStyle = '#FF9F43';
@@ -705,7 +733,6 @@ class Predator {
         ctx.fillStyle = '#000';
         ctx.fill();
 
-        // Alerta sobre el zorro
         ctx.fillStyle = '#FF4757';
         ctx.font = 'bold 12px sans-serif';
         ctx.fillText(`⚡ ¡TAP! [${this.hp}]`, -16, -22);
@@ -722,6 +749,7 @@ function resizeCanvas() {
     const container = canvas.parentElement;
     canvas.width = container.clientWidth;
     canvas.height = container.clientHeight;
+    generateGrassTufts();
 }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
@@ -737,10 +765,11 @@ function saveGame(manual = false) {
             food: state.food,
             diet: state.diet,
             time: state.time,
+            coopDoorOpen: state.coopDoorOpen,
             chickens: state.chickens.map(c => ({
                 name: c.name, breed: c.breed, gender: c.gender,
                 genLay: c.genLay, genRes: c.genRes, health: c.health,
-                happiness: c.happiness, x: c.x, y: c.y
+                happiness: c.happiness, x: c.x, y: c.y, isInside: c.isInside
             })),
             worldEggs: state.worldEggs
         };
@@ -758,9 +787,10 @@ function loadGame() {
         state.capacity = data.capacity; state.eggs = data.eggs;
         state.eggPrice = data.eggPrice; state.food = data.food;
         state.diet = data.diet; state.time = data.time || 8;
+        state.coopDoorOpen = data.coopDoorOpen !== undefined ? data.coopDoorOpen : true;
         state.worldEggs = data.worldEggs || [];
         state.chickens = data.chickens.map(c => 
-            new Chicken(c.name, c.breed, c.gender, c.genLay, c.genRes, c.health, c.happiness, c.x, c.y)
+            new Chicken(c.name, c.breed, c.gender, c.genLay, c.genRes, c.health, c.happiness, c.x, c.y, c.isInside)
         );
         logEvent('📂 Partida cargada.');
         return true;
@@ -782,70 +812,84 @@ if (!loadGame()) {
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Fondo: Pasto Cálido Anime
+    // Fondo: Pasto Base
     const grassGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grassGrad.addColorStop(0, '#95d5b2');
-    grassGrad.addColorStop(1, '#74c69d');
+    grassGrad.addColorStop(0, '#74c69d');
+    grassGrad.addColorStop(1, '#52b788');
     ctx.fillStyle = grassGrad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Parches de Tierra y Comedero
+    // Renderizado de textura de Césped (Matas cortas y largas)
+    state.grassTufts.forEach(tuft => {
+        ctx.strokeStyle = tuft.color;
+        ctx.lineWidth = 1.8;
+        ctx.lineCap = 'round';
+        for (let i = 0; i < tuft.blades; i++) {
+            ctx.beginPath();
+            const angle = (i - (tuft.blades - 1) / 2) * 0.25;
+            ctx.moveTo(tuft.x, tuft.y);
+            ctx.lineTo(tuft.x + Math.sin(angle) * tuft.size, tuft.y - Math.cos(angle) * tuft.size);
+            ctx.stroke();
+        }
+    });
+
+    // Zona de alimentación (Comedero)
     ctx.fillStyle = '#d8f3dc';
     ctx.beginPath();
-    ctx.ellipse(canvas.width * 0.5, canvas.height * 0.5, 120, 60, 0, 0, Math.PI * 2);
+    ctx.ellipse(canvas.width * 0.55, canvas.height * 0.55, 110, 55, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Flores Ilustradas
-    ctx.fillStyle = '#FF9FF3';
-    ctx.beginPath();
-    ctx.arc(60, 140, 4, 0, Math.PI * 2); ctx.arc(220, 240, 4, 0, Math.PI * 2);
-    ctx.fill();
-
-    // GALLINERO ILUSTRADO (Sin silueta plana)
+    // GALLINERO ILUSTRADO & FUNCIONAL
     ctx.save();
     ctx.translate(15, 15);
     
-    // Paredes de madera con tablas
+    // Estructura de Madera
     ctx.fillStyle = '#8B4513';
-    ctx.fillRect(0, 15, 110, 65);
-    ctx.strokeStyle = '#5C2C06';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(0, 15, 110, 65);
+    ctx.fillRect(0, 15, 125, 75);
+    ctx.strokeStyle = '#2F3542';
+    ctx.lineWidth = 2.5;
+    ctx.strokeRect(0, 15, 125, 75);
 
-    // Líneas de tablas
+    // Líneas de madera
     ctx.beginPath();
-    ctx.moveTo(0, 35); ctx.lineTo(110, 35);
-    ctx.moveTo(0, 55); ctx.lineTo(110, 55);
+    ctx.moveTo(0, 40); ctx.lineTo(125, 40);
+    ctx.moveTo(0, 65); ctx.lineTo(125, 65);
     ctx.stroke();
 
-    // Techo Tejas Rojas
+    // Techo
     ctx.fillStyle = '#EE5253';
     ctx.beginPath();
-    ctx.moveTo(-10, 15); ctx.lineTo(55, -8); ctx.lineTo(120, 15);
+    ctx.moveTo(-12, 15); ctx.lineTo(62, -10); ctx.lineTo(137, 15);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
 
-    // Ventana Iluminada
+    // Ventana con Luz
     ctx.fillStyle = '#FECA57';
-    ctx.fillRect(70, 30, 25, 25);
-    ctx.strokeRect(70, 30, 25, 25);
+    ctx.fillRect(80, 30, 28, 28);
+    ctx.strokeRect(80, 30, 28, 28);
 
-    // Puerta del gallinero
-    ctx.fillStyle = '#5C2C06';
-    ctx.fillRect(15, 40, 25, 40);
-    
+    // Puerta Interactiva
+    ctx.fillStyle = state.coopDoorOpen ? '#1E272E' : '#5C2C06';
+    ctx.fillRect(20, 40, 30, 50);
+    ctx.strokeRect(20, 40, 30, 50);
+
+    // Cartel Estado Puerta
+    ctx.fillStyle = '#FFF';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText(state.coopDoorOpen ? 'Abierta' : 'Cerrada', 16, 34);
+
     ctx.restore();
 
-    // Render Partículas
+    // Partículas
     for (let i = state.particles.length - 1; i >= 0; i--) {
         const p = state.particles[i];
         p.x += p.vx; p.y += p.vy; p.life--;
-        ctx.fillStyle = '#6D4C41';
+        ctx.fillStyle = '#40916c';
         ctx.fillRect(p.x, p.y, 2.5, 2.5);
         if (p.life <= 0) state.particles.splice(i, 1);
     }
 
-    // Huevos
+    // Huevos en suelo exterior
     state.worldEggs.forEach((egg) => {
         ctx.beginPath();
         ctx.ellipse(egg.x, egg.y, 6, 8, 0, 0, Math.PI * 2);
@@ -856,10 +900,10 @@ function gameLoop() {
         ctx.stroke();
     });
 
-    // Dibujar Aves
+    // Dibujar Gallinas
     state.chickens.forEach(c => { c.update(); c.draw(ctx); });
 
-    // Dibujar Depredadores
+    // Dibujar Zorro
     state.predators.forEach((p, index) => {
         p.update();
         p.draw(ctx);
@@ -882,6 +926,16 @@ function handleCanvasInteraction(clientX, clientY) {
     const clickX = clientX - rect.left;
     const clickY = clientY - rect.top;
 
+    // Clic en Puerta de Gallinero para Abrir/Cerrar
+    if (clickX >= 25 && clickX <= 75 && clickY >= 40 && clickY <= 110) {
+        state.coopDoorOpen = !state.coopDoorOpen;
+        playSound(350, 'square', 0.15);
+        logEvent(state.coopDoorOpen ? '🚪 Puerta del gallinero ABIERTA.' : '🚪 Puerta del gallinero CERRADA.');
+        saveGame();
+        return;
+    }
+
+    // Recolectar Huevos
     for (let i = state.worldEggs.length - 1; i >= 0; i--) {
         const egg = state.worldEggs[i];
         if (Math.hypot(egg.x - clickX, egg.y - clickY) < 25) {
@@ -895,6 +949,7 @@ function handleCanvasInteraction(clientX, clientY) {
         }
     }
 
+    // Espantar Zorro
     for (let i = state.predators.length - 1; i >= 0; i--) {
         const p = state.predators[i];
         if (Math.hypot(p.x - clickX, p.y - clickY) < 40) {
@@ -908,8 +963,9 @@ function handleCanvasInteraction(clientX, clientY) {
         }
     }
 
+    // Inspeccionar Aves
     state.chickens.forEach((c, index) => {
-        if (Math.hypot(c.x - clickX, c.y - clickY) < 30) {
+        if (!c.isInside && Math.hypot(c.x - clickX, c.y - clickY) < 30) {
             inspectChicken(index);
             playSound(450, 'triangle', 0.1);
         }
@@ -935,7 +991,7 @@ function updateUI() {
         list.innerHTML += `
             <div class="card">
                 <h4 style="font-size:0.8rem;">${c.gender === 'female' ? '🐓' : '🐓♂️'} ${c.name}</h4>
-                <p style="font-size:0.7rem; color:#666;">${c.breed}</p>
+                <p style="font-size:0.7rem; color:#666;">${c.breed} ${c.isInside ? '(Adentro)' : '(Patio)'}</p>
                 <button class="btn btn-warning" style="width:100%; margin-top:4px; font-size:0.75rem;" onclick="inspectChicken(${i})">Ver</button>
             </div>
         `;
@@ -1046,6 +1102,7 @@ function inspectChicken(index) {
     const c = state.chickens[index];
     document.getElementById('inspect-name').innerText = c.name;
     document.getElementById('inspect-breed').innerText = `Raza: ${c.breed} (${c.gender === 'female' ? 'Hembra' : 'Macho'})`;
+    document.getElementById('inspect-inside').innerText = c.isInside ? 'Protegida en el gallinero' : 'En el patio';
     document.getElementById('inspect-health').innerText = `${c.health}%`;
     document.getElementById('inspect-happy').innerText = `${c.happiness}%`;
     document.getElementById('inspect-gen-lay').innerText = c.genLay;
@@ -1084,9 +1141,20 @@ setInterval(() => {
     if (state.time >= 24) state.time = 0;
     document.getElementById('time-display').innerText = `${state.time.toString().padStart(2, '0')}:00`;
 
-    if ((state.time > 20 || state.time < 5) && Math.random() < 0.25 && state.predators.length === 0 && state.chickens.length > 0) {
-        state.predators.push(new Predator());
-        logEvent('⚠️ ¡UN ZORRO SE ACERCA A UNA GALLINA! ¡Tócale rápido!');
+    // De noche, si la puerta está abierta, las aves entran solas
+    if ((state.time >= 20 || state.time <= 5) && state.coopDoorOpen) {
+        state.chickens.forEach(c => {
+            if (!c.isInside && Math.random() < 0.4) c.isInside = true;
+        });
+        updateUI();
+    }
+
+    if ((state.time > 20 || state.time < 5) && Math.random() < 0.25 && state.predators.length === 0) {
+        const outdoorChickens = state.chickens.filter(c => !c.isInside);
+        if (outdoorChickens.length > 0) {
+            state.predators.push(new Predator());
+            logEvent('⚠️ ¡UN ZORRO BUSCA UNA GALLINA DESPROTEGIDA!');
+        }
     }
 
     saveGame();
