@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Deluxe Visuals</title>
+    <title>Proyecto Gallinero - High Quality Edition</title>
     <style>
         :root {
             --bg-color: #f4efe6;
-            --primary: #5c3d2e;
+            --primary: #4a2e1b;
             --accent: #e07a5f;
             --panel-bg: #fffbf4;
             --border-color: #d4c5b9;
             --text-dark: #2b2d42;
-            --success: #81b29a;
+            --success: #6b9080;
             --warning: #f2cc8f;
             --danger: #e63946;
         }
@@ -35,7 +35,6 @@
             color: var(--text-dark);
         }
 
-        /* LAYOUT RESPONSIVE */
         #app-container {
             display: flex;
             width: 100vw;
@@ -49,7 +48,6 @@
             }
         }
 
-        /* SIDEBAR / BARRA SUPERIOR EN MÓVIL */
         #sidebar {
             width: 300px;
             background-color: var(--primary);
@@ -58,7 +56,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
             z-index: 10;
             flex-shrink: 0;
         }
@@ -80,7 +78,7 @@
         .stat-card {
             background: rgba(255, 255, 255, 0.12);
             padding: 8px;
-            border-radius: 6px;
+            border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
@@ -97,7 +95,6 @@
             font-weight: bold;
         }
 
-        /* ÁREA PRINCIPAL */
         #main-content {
             flex: 1;
             display: flex;
@@ -107,11 +104,10 @@
             height: 100%;
         }
 
-        /* CONTENEDOR DEL CANVAS */
         #viewport-container {
             flex: 1;
             position: relative;
-            background: #a3c9a8;
+            background: #7ca982;
             min-height: 180px;
             overflow: hidden;
         }
@@ -125,7 +121,6 @@
             display: block;
         }
 
-        /* PANEL DE CONTROLES INFERIOR */
         #controls-panel {
             height: 300px;
             background: var(--panel-bg);
@@ -179,13 +174,12 @@
             display: block;
         }
 
-        /* COMPONENTES UI */
         .btn {
             background: var(--accent);
             color: white;
             border: none;
             padding: 10px 12px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: bold;
             font-size: 0.85rem;
             cursor: pointer;
@@ -195,6 +189,7 @@
             gap: 4px;
             min-height: 40px;
             touch-action: manipulation;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .btn:active {
@@ -215,29 +210,27 @@
         .card {
             background: white;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
         }
 
-        /* MODAL INSPECTOR */
         #inspector-modal {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 16px;
-            border-radius: 12px;
+            padding: 18px;
+            border-radius: 14px;
             border: 2px solid var(--primary);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
             display: none;
             z-index: 100;
             width: 85%;
-            max-width: 300px;
+            max-width: 310px;
         }
 
-        /* NOTIFICACIONES EN PANTALLA */
         #log-panel {
             position: absolute;
             top: 8px;
@@ -253,11 +246,12 @@
         }
 
         .log-item {
-            background: rgba(0,0,0,0.75);
+            background: rgba(0,0,0,0.8);
             color: white;
-            padding: 6px 10px;
-            border-radius: 4px;
-            font-size: 0.75rem;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            backdrop-filter: blur(4px);
             animation: fadeIn 0.2s forwards;
         }
 
@@ -270,7 +264,6 @@
 <body>
 
 <div id="app-container">
-    <!-- BARRA LATERAL / SUPERIOR -->
     <div id="sidebar">
         <div>
             <h2>🐓 Proj. Gallinero</h2>
@@ -293,32 +286,28 @@
         </div>
     </div>
 
-    <!-- ÁREA PRINCIPAL -->
     <div id="main-content">
-        <!-- CANVAS VISUAL DE JUEGO -->
         <div id="viewport-container">
             <canvas id="gameCanvas"></canvas>
             
             <div id="log-panel"></div>
 
-            <!-- MODAL INSPECTOR -->
             <div id="inspector-modal">
                 <h3 id="inspect-name" style="color: var(--primary);">Gallina</h3>
                 <p style="font-size:0.8rem; color:#666;" id="inspect-breed">Raza: Leghorn</p>
                 <hr style="margin:6px 0;">
-                <div style="font-size:0.8rem; line-height: 1.3;">
+                <div style="font-size:0.8rem; line-height: 1.4;">
                     <p>Salud: <b id="inspect-health">100%</b></p>
                     <p>Felicidad: <b id="inspect-happy">100%</b></p>
                     <p>Puesta: <b id="inspect-gen-lay">50</b> | Resistencia: <b id="inspect-gen-res">50</b></p>
                 </div>
-                <div style="margin-top:10px; display:flex; gap:6px;">
+                <div style="margin-top:12px; display:flex; gap:6px;">
                     <button class="btn btn-danger" style="flex:1;" onclick="sellInspectedChicken()">Vender</button>
                     <button class="btn" style="flex:1;" onclick="closeInspector()">Cerrar</button>
                 </div>
             </div>
         </div>
 
-        <!-- CONTROLES -->
         <div id="controls-panel">
             <div class="tab-buttons">
                 <button class="tab-btn active" onclick="switchTab('tab-mercado', event)">🏪 Mercado</button>
@@ -329,11 +318,10 @@
                 <button class="tab-btn" onclick="switchTab('tab-ajustes', event)">⚙️ Sistema</button>
             </div>
 
-            <!-- TAB: MERCADO -->
             <div id="tab-mercado" class="tab-content active">
                 <div class="grid-cards">
                     <div class="card">
-                        <h4 style="font-size: 0.85rem;">Huevos</h4>
+                        <h4 style="font-size: 0.85rem;">Huevos Recolectados</h4>
                         <p style="font-size: 1.1rem; margin: 4px 0;">🥚 <span id="egg-count">0</span></p>
                         <p style="font-size: 0.75rem; color:#666;">Precio: $<span id="egg-price">10</span></p>
                         <button class="btn btn-success" style="width:100%; margin-top:6px;" onclick="sellEggs()">Vender</button>
@@ -353,12 +341,10 @@
                 </div>
             </div>
 
-            <!-- TAB: MIS AVES -->
             <div id="tab-gallinas" class="tab-content">
                 <div class="grid-cards" id="chickens-list"></div>
             </div>
 
-            <!-- TAB: CRUZA -->
             <div id="tab-cruza" class="tab-content">
                 <h4 style="margin-bottom: 6px;">Laboratorio de Cruza</h4>
                 <div style="display:flex; flex-direction:column; gap:8px;">
@@ -368,7 +354,6 @@
                 </div>
             </div>
 
-            <!-- TAB: MEJORAS -->
             <div id="tab-mejoras" class="tab-content">
                 <div class="grid-cards">
                     <div class="card">
@@ -379,7 +364,6 @@
                 </div>
             </div>
 
-            <!-- TAB: DIETA -->
             <div id="tab-dieta" class="tab-content">
                 <h4 style="margin-bottom: 8px;">Dieta Actual</h4>
                 <div style="display:flex; flex-direction:column; gap:6px;">
@@ -389,7 +373,6 @@
                 </div>
             </div>
 
-            <!-- TAB: AJUSTES & GUARDADO -->
             <div id="tab-ajustes" class="tab-content">
                 <h4 style="margin-bottom: 8px;">Gestión de Partida</h4>
                 <div style="display:flex; flex-direction:column; gap:8px;">
@@ -402,7 +385,6 @@
 </div>
 
 <script>
-// --- ESTADO Y PARÁMETROS DEL JUEGO ---
 let state = {
     money: 500,
     level: 1,
@@ -413,6 +395,7 @@ let state = {
     chickens: [],
     worldEggs: [],
     predators: [],
+    particles: [],
     diet: 'Estándar',
     inspectedIndex: null,
     time: 8,
@@ -420,11 +403,11 @@ let state = {
 };
 
 const BREEDS = {
-    'Leghorn': { color: '#F8F9FA', secondary: '#E9ECEF', comb: '#E63946', size: 14, layRate: 70, resistance: 40 },
-    'Rhode Island Red': { color: '#A04000', secondary: '#78281F', comb: '#D62828', size: 16, layRate: 60, resistance: 60 },
-    'Brahma': { color: '#D5D8DC', secondary: '#5D6D7E', comb: '#B7094C', size: 20, layRate: 40, resistance: 80 },
-    'Orpington': { color: '#273746', secondary: '#1B2631', comb: '#D62828', size: 18, layRate: 55, resistance: 70 },
-    'Híbrida': { color: '#F39C12', secondary: '#D35400', comb: '#FB8500', size: 15, layRate: 75, resistance: 75 }
+    'Leghorn': { base: '#FFFFFF', dark: '#D0D7DE', comb: '#E63946', size: 15, layRate: 70, resistance: 40 },
+    'Rhode Island Red': { base: '#8B2600', dark: '#5C1900', comb: '#D62828', size: 17, layRate: 60, resistance: 60 },
+    'Brahma': { base: '#EAECEE', dark: '#515A5D', comb: '#B7094C', size: 21, layRate: 40, resistance: 80 },
+    'Orpington': { base: '#2C3E50', dark: '#1A252F', comb: '#D62828', size: 19, layRate: 55, resistance: 70 },
+    'Híbrida': { base: '#F39C12', dark: '#B9770E', comb: '#FB8500', size: 16, layRate: 75, resistance: 75 }
 };
 
 function initAudio() {
@@ -449,7 +432,19 @@ function playSound(freq, type = 'sine', duration = 0.1) {
     } catch(e){}
 }
 
-// --- CLASE ANIMAL REDISEÑADA ESTÉTICAMENTE ---
+function createDirtParticles(x, y) {
+    for (let i = 0; i < 3; i++) {
+        state.particles.push({
+            x: x + (Math.random() - 0.5) * 6,
+            y: y + (Math.random() - 0.5) * 6,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: -Math.random() * 1.5,
+            life: 20
+        });
+    }
+}
+
+// --- CLASE GALLINA ULTRA DETALLADA ---
 class Chicken {
     constructor(name, breed, gender = 'female', genLay = null, genRes = null, health = 100, happiness = 100, x = null, y = null) {
         this.name = name;
@@ -472,36 +467,32 @@ class Chicken {
     }
 
     update() {
-        // Comportamiento de picoteo ocasional
         if (this.isPecking) {
             this.peckTimer--;
+            if (this.peckTimer === 20) createDirtParticles(this.x + (this.vx >= 0 ? 12 : -12), this.y + 6);
             if (this.peckTimer <= 0) this.isPecking = false;
             return;
         }
 
         this.x += this.vx;
         this.y += this.vy;
-        this.walkCycle += 0.15;
+        this.walkCycle += 0.18;
 
         if (this.x < 30 || this.x > canvas.width - 30) this.vx *= -1;
         if (this.y < 60 || this.y > canvas.height - 30) this.vy *= -1;
 
         this.timer++;
-        if (this.timer > 120) {
+        if (this.timer > 110) {
             this.timer = 0;
-            const action = Math.random();
-            if (action < 0.3) {
-                // Detenerse a picotear
+            if (Math.random() < 0.35) {
                 this.isPecking = true;
                 this.peckTimer = 40;
             } else {
-                // Cambiar rumbo
                 this.vx = (Math.random() - 0.5) * 1.2;
                 this.vy = (Math.random() - 0.5) * 1.2;
             }
 
-            // Poner huevo aleatorio
-            if (this.gender === 'female' && Math.random() < (this.genLay / 300)) {
+            if (this.gender === 'female' && Math.random() < (this.genLay / 280)) {
                 state.worldEggs.push({ x: this.x, y: this.y + 6, type: state.diet });
                 saveGame();
             }
@@ -511,96 +502,110 @@ class Chicken {
     draw(ctx) {
         const info = BREEDS[this.breed] || BREEDS['Leghorn'];
         const isMale = this.gender === 'male';
-        const scale = info.size;
+        const r = info.size;
 
         ctx.save();
         ctx.translate(this.x, this.y);
-        if (this.vx < 0) ctx.scale(-1, 1); // Voltear sprite según dirección
+        if (this.vx < 0) ctx.scale(-1, 1);
 
-        // 1. Sombra en el suelo
+        // Sombra suave en suelo
         ctx.beginPath();
-        ctx.ellipse(0, 8, scale * 0.7, scale * 0.3, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0,0,0,0.18)';
+        ctx.ellipse(0, 9, r * 0.75, r * 0.35, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
         ctx.fill();
 
-        // 2. Patas animadas
-        ctx.strokeStyle = '#D4AC0D';
-        ctx.lineWidth = 2;
-        const legOffset = Math.sin(this.walkCycle) * 3;
+        // Patas articuladas
+        const legSwing = Math.sin(this.walkCycle) * 4;
+        ctx.strokeStyle = '#E67E22';
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
-        ctx.moveTo(-scale * 0.2, 4); ctx.lineTo(-scale * 0.2 + legOffset, 10);
-        ctx.moveTo(scale * 0.2, 4); ctx.lineTo(scale * 0.2 - legOffset, 10);
+        ctx.moveTo(-r * 0.2, 4); ctx.lineTo(-r * 0.2 + legSwing, 12);
+        ctx.lineTo(-r * 0.2 + legSwing + 3, 13);
+        ctx.moveTo(r * 0.2, 4); ctx.lineTo(r * 0.2 - legSwing, 12);
+        ctx.lineTo(r * 0.2 - legSwing + 3, 13);
         ctx.stroke();
 
-        // Altura de cabeza si está picoteando
-        const peckY = this.isPecking ? 6 : 0;
         const bodyBob = Math.sin(this.walkCycle * 2) * 1.5;
+        const peckY = this.isPecking ? 8 : 0;
 
-        // 3. Cola del ave (Diferenciada para gallos)
-        ctx.fillStyle = info.secondary;
+        // Plumas de la Cola
         if (isMale) {
-            // Cola arqueada de gallo
+            ctx.fillStyle = info.dark;
             ctx.beginPath();
-            ctx.moveTo(-scale * 0.6, -scale * 0.4 + bodyBob);
-            ctx.quadraticCurveTo(-scale * 1.4, -scale * 1.2, -scale * 1.1, -scale * 1.6);
-            ctx.quadraticCurveTo(-scale * 0.8, -scale * 0.8, -scale * 0.4, -scale * 0.2);
+            ctx.moveTo(-r * 0.5, -r * 0.4 + bodyBob);
+            ctx.bezierCurveTo(-r * 1.6, -r * 1.4, -r * 1.2, -r * 1.8, -r * 0.9, -r * 1.9);
+            ctx.bezierCurveTo(-r * 0.7, -r * 1.3, -r * 0.4, -r * 0.7, -r * 0.3, -r * 0.2);
             ctx.fill();
         } else {
-            // Cola compacta de gallina
+            ctx.fillStyle = info.dark;
             ctx.beginPath();
-            ctx.arc(-scale * 0.6, -scale * 0.4 + bodyBob, scale * 0.35, 0, Math.PI * 2);
+            ctx.ellipse(-r * 0.7, -r * 0.4 + bodyBob, r * 0.4, r * 0.25, -0.4, 0, Math.PI * 2);
             ctx.fill();
         }
 
-        // 4. Cuerpo Principal
+        // Cuerpo principal con Gradiente
+        const bodyGrad = ctx.createRadialGradient(0, -r * 0.3 + bodyBob, 2, 0, -r * 0.3 + bodyBob, r);
+        bodyGrad.addColorStop(0, info.base);
+        bodyGrad.addColorStop(1, info.dark);
+        
         ctx.beginPath();
-        ctx.ellipse(0, -scale * 0.3 + bodyBob, scale * 0.8, scale * 0.6, 0.1, 0, Math.PI * 2);
-        ctx.fillStyle = info.color;
+        ctx.ellipse(0, -r * 0.3 + bodyBob, r * 0.85, r * 0.65, 0.1, 0, Math.PI * 2);
+        ctx.fillStyle = bodyGrad;
         ctx.fill();
         ctx.strokeStyle = '#2C3E50';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1.2;
         ctx.stroke();
 
-        // Ala con textura de plumas
+        // Ala articulada
         ctx.beginPath();
-        ctx.ellipse(-scale * 0.1, -scale * 0.3 + bodyBob, scale * 0.4, scale * 0.3, 0.2, 0, Math.PI * 2);
-        ctx.fillStyle = info.secondary;
+        ctx.ellipse(-r * 0.05, -r * 0.25 + bodyBob, r * 0.45, r * 0.32, 0.2, 0, Math.PI * 2);
+        ctx.fillStyle = info.dark;
         ctx.fill();
+        ctx.stroke();
 
-        // 5. Cabeza y Cuello
+        // Cabeza
         ctx.save();
-        ctx.translate(scale * 0.5, -scale * 0.6 + bodyBob + peckY);
+        ctx.translate(r * 0.55, -r * 0.65 + bodyBob + peckY);
+
+        const headGrad = ctx.createRadialGradient(0, 0, 1, 0, 0, r * 0.4);
+        headGrad.addColorStop(0, info.base);
+        headGrad.addColorStop(1, info.dark);
 
         ctx.beginPath();
-        ctx.arc(0, 0, scale * 0.38, 0, Math.PI * 2);
-        ctx.fillStyle = info.color;
+        ctx.arc(0, 0, r * 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = headGrad;
         ctx.fill();
         ctx.stroke();
 
         // Pico
         ctx.beginPath();
-        ctx.moveTo(scale * 0.25, -scale * 0.1);
-        ctx.lineTo(scale * 0.6, 0);
-        ctx.lineTo(scale * 0.25, scale * 0.15);
+        ctx.moveTo(r * 0.25, -r * 0.08);
+        ctx.lineTo(r * 0.65, 0.02);
+        ctx.lineTo(r * 0.25, r * 0.15);
         ctx.fillStyle = '#F39C12';
         ctx.fill();
+        ctx.stroke();
 
-        // Ojo
+        // Ojo detallado con brillo
         ctx.beginPath();
-        ctx.arc(scale * 0.1, -scale * 0.1, scale * 0.08, 0, Math.PI * 2);
+        ctx.arc(r * 0.12, -r * 0.1, r * 0.09, 0, Math.PI * 2);
         ctx.fillStyle = '#111';
         ctx.fill();
-
-        // Cresta (Más grande en machos)
         ctx.beginPath();
-        const combSize = isMale ? scale * 0.45 : scale * 0.25;
-        ctx.ellipse(0, -combSize, combSize * 0.8, combSize * 0.5, -0.3, 0, Math.PI * 2);
+        ctx.arc(r * 0.15, -r * 0.13, r * 0.03, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFF';
+        ctx.fill();
+
+        // Cresta ilustrada
+        const combSize = isMale ? r * 0.5 : r * 0.28;
         ctx.fillStyle = info.comb;
+        ctx.beginPath();
+        ctx.ellipse(-r * 0.05, -combSize, combSize * 0.7, combSize * 0.45, -0.2, 0, Math.PI * 2);
         ctx.fill();
 
         // Barbilla
         ctx.beginPath();
-        ctx.ellipse(scale * 0.1, scale * 0.2, scale * 0.12, scale * 0.18, 0, 0, Math.PI * 2);
+        ctx.ellipse(r * 0.1, r * 0.22, r * 0.12, r * 0.2, 0, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.restore();
@@ -608,23 +613,87 @@ class Chicken {
     }
 }
 
+// --- CLASE DEPREDADOR (ZORRO ILUSTRADO COMPLETO) ---
 class Predator {
     constructor() {
-        this.x = -20;
+        this.x = -30;
         this.y = 60 + Math.random() * (canvas.height - 100);
         this.hp = 3;
+        this.anim = 0;
     }
-    update() { this.x += 0.8; }
+
+    update() {
+        this.x += 0.9;
+        this.anim += 0.15;
+    }
+
     draw(ctx) {
         ctx.save();
         ctx.translate(this.x, this.y);
-        ctx.fillStyle = '#C0392B';
+
+        const tailWag = Math.sin(this.anim) * 5;
+
+        // Sombra
         ctx.beginPath();
-        ctx.arc(0, 0, 14, 0, Math.PI * 2);
+        ctx.ellipse(0, 10, 18, 6, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
         ctx.fill();
-        ctx.fillStyle = 'white';
+
+        // Cola peluda de zorro
+        ctx.beginPath();
+        ctx.moveTo(-10, -2);
+        ctx.quadraticCurveTo(-25 + tailWag, -18, -32 + tailWag, -8);
+        ctx.quadraticCurveTo(-20 + tailWag, 6, -10, 2);
+        ctx.fillStyle = '#D35400';
+        ctx.fill();
+
+        // Punta blanca de la cola
+        ctx.beginPath();
+        ctx.arc(-28 + tailWag, -9, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFF';
+        ctx.fill();
+
+        // Cuerpo
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 15, 9, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#E67E22';
+        ctx.fill();
+
+        // Vientre blanco
+        ctx.beginPath();
+        ctx.ellipse(2, 3, 10, 5, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFF';
+        ctx.fill();
+
+        // Cabeza de zorro
+        ctx.beginPath();
+        ctx.moveTo(10, -8);
+        ctx.lineTo(24, -2);
+        ctx.lineTo(10, 6);
+        ctx.fillStyle = '#D35400';
+        ctx.fill();
+
+        // Orejas
+        ctx.beginPath();
+        ctx.moveTo(8, -8); ctx.lineTo(12, -18); ctx.lineTo(15, -6);
+        ctx.fillStyle = '#2C3E50';
+        ctx.fill();
+
+        // Ojo acechante
+        ctx.beginPath();
+        ctx.arc(16, -3, 2, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFF';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(16.5, -3, 1, 0, Math.PI * 2);
+        ctx.fillStyle = '#000';
+        ctx.fill();
+
+        // Cartel indicador
+        ctx.fillStyle = '#E63946';
         ctx.font = 'bold 11px sans-serif';
-        ctx.fillText('🦊 Zorro', -20, -18);
+        ctx.fillText(`🦊 Tap! [${this.hp}]`, -16, -22);
+
         ctx.restore();
     }
 }
@@ -641,7 +710,6 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// --- SISTEMA DE GUARDADO EN LOCALSTORAGE ---
 function saveGame(manual = false) {
     try {
         const saveData = {
@@ -654,23 +722,15 @@ function saveGame(manual = false) {
             diet: state.diet,
             time: state.time,
             chickens: state.chickens.map(c => ({
-                name: c.name,
-                breed: c.breed,
-                gender: c.gender,
-                genLay: c.genLay,
-                genRes: c.genRes,
-                health: c.health,
-                happiness: c.happiness,
-                x: c.x,
-                y: c.y
+                name: c.name, breed: c.breed, gender: c.gender,
+                genLay: c.genLay, genRes: c.genRes, health: c.health,
+                happiness: c.happiness, x: c.x, y: c.y
             })),
             worldEggs: state.worldEggs
         };
         localStorage.setItem('proyecto_gallinero_save', JSON.stringify(saveData));
-        if (manual) logEvent('💾 Partida guardada con éxito.');
-    } catch(e) {
-        console.error('Error al guardar:', e);
-    }
+        if (manual) logEvent('💾 Partida guardada.');
+    } catch(e){}
 }
 
 function loadGame() {
@@ -678,34 +738,26 @@ function loadGame() {
     if (!raw) return false;
     try {
         const data = JSON.parse(raw);
-        state.money = data.money;
-        state.level = data.level;
-        state.capacity = data.capacity;
-        state.eggs = data.eggs;
-        state.eggPrice = data.eggPrice;
-        state.food = data.food;
-        state.diet = data.diet;
-        state.time = data.time || 8;
+        state.money = data.money; state.level = data.level;
+        state.capacity = data.capacity; state.eggs = data.eggs;
+        state.eggPrice = data.eggPrice; state.food = data.food;
+        state.diet = data.diet; state.time = data.time || 8;
         state.worldEggs = data.worldEggs || [];
         state.chickens = data.chickens.map(c => 
             new Chicken(c.name, c.breed, c.gender, c.genLay, c.genRes, c.health, c.happiness, c.x, c.y)
         );
-        logEvent('📂 Partida cargada automáticamente.');
+        logEvent('📂 Partida cargada.');
         return true;
-    } catch(e) {
-        console.error('Error al cargar guardado:', e);
-        return false;
-    }
+    } catch(e) { return false; }
 }
 
 function resetGame() {
-    if (confirm('¿Seguro que quieres borrar la partida y volver a empezar?')) {
+    if (confirm('¿Seguro que quieres borrar la partida?')) {
         localStorage.removeItem('proyecto_gallinero_save');
         location.reload();
     }
 }
 
-// Cargar estado o iniciar por defecto
 if (!loadGame()) {
     state.chickens.push(new Chicken('Clara', 'Leghorn', 'female'));
     state.chickens.push(new Chicken('Rojo', 'Rhode Island Red', 'male'));
@@ -714,46 +766,69 @@ if (!loadGame()) {
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Fondo / Pasto estilizado
-    ctx.fillStyle = '#a3c9a8';
+    // Fondo: Pasto con Gradiente
+    const grassGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grassGrad.addColorStop(0, '#8eb897');
+    grassGrad.addColorStop(1, '#6b9e78');
+    ctx.fillStyle = grassGrad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Gallinero Estructura Visual
-    ctx.fillStyle = '#6E2C00';
-    ctx.fillRect(12, 12, 100, 55);
-    ctx.fillStyle = '#B03A2E';
+    // Detalle de flores en el pasto
+    ctx.fillStyle = '#FFF';
     ctx.beginPath();
-    ctx.moveTo(2, 12); ctx.lineTo(62, -6); ctx.lineTo(122, 12);
+    ctx.arc(50, 120, 2, 0, Math.PI * 2);
+    ctx.arc(180, 220, 2, 0, Math.PI * 2);
+    ctx.arc(280, 90, 2, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = 'white';
+
+    // Gallinero Estructura
+    ctx.fillStyle = '#5c3d2e';
+    ctx.fillRect(10, 10, 105, 60);
+    ctx.fillStyle = '#a83232';
+    ctx.beginPath();
+    ctx.moveTo(0, 10); ctx.lineTo(62, -8); ctx.lineTo(125, 10);
+    ctx.fill();
+    ctx.fillStyle = '#FFF';
     ctx.font = 'bold 11px sans-serif';
     ctx.fillText('🏡 Gallinero', 22, 45);
 
-    // Huevos en el suelo
+    // Renderizado de Partículas
+    for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.x += p.vx; p.y += p.vy; p.life--;
+        ctx.fillStyle = '#5c3d2e';
+        ctx.fillRect(p.x, p.y, 2, 2);
+        if (p.life <= 0) state.particles.splice(i, 1);
+    }
+
+    // Huevos
     state.worldEggs.forEach((egg) => {
         ctx.beginPath();
         ctx.ellipse(egg.x, egg.y, 6, 8, 0, 0, Math.PI * 2);
         ctx.fillStyle = egg.type === 'Exótica' ? '#5DADE2' : (egg.type === 'Rica en Calcio' ? '#F4D03F' : '#FFFFFF');
         ctx.fill();
-        ctx.strokeStyle = '#7F8C8D';
+        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
         ctx.stroke();
     });
 
-    // Actualizar y Dibujar Aves
     state.chickens.forEach(c => { c.update(); c.draw(ctx); });
 
-    // Actualizar y Dibujar Depredadores
     state.predators.forEach((p, index) => {
         p.update();
         p.draw(ctx);
-        if (p.x > canvas.width + 20) state.predators.splice(index, 1);
+        if (p.x > canvas.width + 30) state.predators.splice(index, 1);
     });
+
+    // Filtro Noche (Ciclo de luz)
+    if (state.time >= 20 || state.time <= 5) {
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
     requestAnimationFrame(gameLoop);
 }
 requestAnimationFrame(gameLoop);
 
-// INTERACCIÓN TÁCTIL
 function handleCanvasInteraction(clientX, clientY) {
     initAudio();
     const rect = canvas.getBoundingClientRect();
@@ -762,10 +837,10 @@ function handleCanvasInteraction(clientX, clientY) {
 
     for (let i = state.worldEggs.length - 1; i >= 0; i--) {
         const egg = state.worldEggs[i];
-        if (Math.hypot(egg.x - clickX, egg.y - clickY) < 22) {
+        if (Math.hypot(egg.x - clickX, egg.y - clickY) < 24) {
             state.worldEggs.splice(i, 1);
             state.eggs++;
-            playSound(600, 'sine', 0.05);
+            playSound(650, 'sine', 0.05);
             logEvent('🥚 Huevo recolectado.');
             updateUI();
             saveGame();
@@ -775,30 +850,28 @@ function handleCanvasInteraction(clientX, clientY) {
 
     for (let i = state.predators.length - 1; i >= 0; i--) {
         const p = state.predators[i];
-        if (Math.hypot(p.x - clickX, p.y - clickY) < 30) {
+        if (Math.hypot(p.x - clickX, p.y - clickY) < 35) {
             p.hp--;
-            playSound(300, 'square', 0.1);
+            playSound(250, 'square', 0.1);
             if (p.hp <= 0) {
                 state.predators.splice(i, 1);
-                logEvent('⚔️ ¡Zorro espantado!');
+                logEvent('⚔️ ¡Espantaste al zorro!');
             }
             return;
         }
     }
 
     state.chickens.forEach((c, index) => {
-        if (Math.hypot(c.x - clickX, c.y - clickY) < 25) {
+        if (Math.hypot(c.x - clickX, c.y - clickY) < 28) {
             inspectChicken(index);
-            playSound(400, 'triangle', 0.1);
+            playSound(450, 'triangle', 0.1);
         }
     });
 }
 
 canvas.addEventListener('click', (e) => handleCanvasInteraction(e.clientX, e.clientY));
 canvas.addEventListener('touchstart', (e) => {
-    if (e.touches.length > 0) {
-        handleCanvasInteraction(e.touches[0].clientX, e.touches[0].clientY);
-    }
+    if (e.touches.length > 0) handleCanvasInteraction(e.touches[0].clientX, e.touches[0].clientY);
 }, { passive: true });
 
 function updateUI() {
@@ -959,15 +1032,14 @@ function upgradeFarm() {
     saveGame();
 }
 
-// Reloj y auto-guardado periódico
 setInterval(() => {
     state.time++;
     if (state.time >= 24) state.time = 0;
     document.getElementById('time-display').innerText = `${state.time.toString().padStart(2, '0')}:00`;
 
-    if ((state.time > 20 || state.time < 5) && Math.random() < 0.2 && state.predators.length === 0) {
+    if ((state.time > 20 || state.time < 5) && Math.random() < 0.25 && state.predators.length === 0) {
         state.predators.push(new Predator());
-        logEvent('⚠️ ¡UN ZORRO ACECHA! Tócale para espantarlo.');
+        logEvent('⚠️ ¡UN ZORRO ACECHA! Tócale rápido para espantarlo.');
     }
 
     saveGame();
