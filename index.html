@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Floating Overlay & Fixed Layout</title>
+    <title>Proyecto Gallinero - Fixed UI & Selectors Edition</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -123,7 +123,6 @@
             display: block;
         }
 
-        /* PANEL FLOTANTE ABSOLUTO (NO AFECTA AL CANVAS) */
         #controls-panel {
             position: absolute;
             bottom: 0;
@@ -214,16 +213,16 @@
             background: var(--accent);
             color: white;
             border: none;
-            padding: 10px 12px;
+            padding: 8px 10px;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 4px;
-            min-height: 40px;
+            min-height: 38px;
             touch-action: manipulation;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
@@ -1026,9 +1025,10 @@ function buyUpgrade(type) {
 }
 
 function enterContest() {
-    const idx = document.getElementById('select-contestant').value;
-    if (idx === "") return logEvent('❌ Selecciona un ave.');
-    if (state.money < 50) return logEvent('❌ Necesitas $50.');
+    const selectElem = document.getElementById('select-contestant');
+    const idx = selectElem ? selectElem.value : "";
+    if (idx === "" || idx === undefined) return logEvent('❌ Selecciona un ave para la feria.');
+    if (state.money < 50) return logEvent('❌ Necesitas $50 para la inscripción.');
 
     state.money -= 50;
     const c = state.chickens[idx];
@@ -1254,30 +1254,32 @@ function updateUI() {
     document.getElementById('price-exo').innerText = state.marketPrices.exotic;
     document.getElementById('market-trend').innerText = state.marketTrend;
 
+    // Actualizar lista de aves en pestaña Aves
     const list = document.getElementById('chickens-list');
     list.innerHTML = '';
     state.chickens.forEach((c, i) => {
         list.innerHTML += `
             <div class="card">
                 <h4 style="font-size:0.75rem;">${c.gender === 'female' ? '🐓' : '🐓♂️'} ${c.name}</h4>
-                <p style="font-size:0.65rem; color:#666;">${c.breed}</p>
+                <p style="font-size:0.65rem; color:#666;">${c.breed} ${c.isInside ? '(Adentro)' : '(Patio)'}</p>
                 <button class="btn btn-warning" style="width:100%; margin-top:2px; font-size:0.7rem;" onclick="inspectChicken(${i})">Ver</button>
             </div>
         `;
     });
 
+    // Actualizar selectores de Cruza y Feria
     const selectM = document.getElementById('select-mother');
     const selectF = document.getElementById('select-father');
     const selectContest = document.getElementById('select-contestant');
 
-    selectM.innerHTML = '<option value="">Madre</option>';
-    selectF.innerHTML = '<option value="">Padre</option>';
-    if (selectContest) selectContest.innerHTML = '<option value="">Elegir Ave</option>';
+    if (selectM) selectM.innerHTML = '<option value="">Seleccionar Madre</option>';
+    if (selectF) selectF.innerHTML = '<option value="">Seleccionar Padre</option>';
+    if (selectContest) selectContest.innerHTML = '<option value="">Seleccionar Ave de Exposición</option>';
 
     state.chickens.forEach((c, i) => {
-        const opt = `<option value="${i}">${c.name} (${c.breed})</option>`;
-        if (c.gender === 'female') selectM.innerHTML += opt;
-        else selectF.innerHTML += opt;
+        const opt = `<option value="${i}">${c.name} (${c.breed} - ${c.gender === 'female' ? 'Hembra' : 'Macho'})</option>`;
+        if (c.gender === 'female' && selectM) selectM.innerHTML += opt;
+        if (c.gender === 'male' && selectF) selectF.innerHTML += opt;
         if (selectContest) selectContest.innerHTML += opt;
     });
 }
@@ -1304,8 +1306,9 @@ function buyChicken(breed) {
     if (state.money < cost) return logEvent('❌ Sin dinero.');
 
     state.money -= cost;
-    state.chickens.push(new Chicken(`Ave #${state.chickens.length + 1}`, breed));
-    logEvent(`✅ Compraste ${breed}.`);
+    const gender = Math.random() > 0.3 ? 'female' : 'male';
+    state.chickens.push(new Chicken(`Ave #${state.chickens.length + 1}`, breed, gender));
+    logEvent(`✅ Compraste ${breed} (${gender === 'female' ? 'Hembra' : 'Macho'}).`);
     updateUI();
     saveGame();
 }
@@ -1313,9 +1316,9 @@ function buyChicken(breed) {
 function breedChickens() {
     const mIdx = document.getElementById('select-mother').value;
     const fIdx = document.getElementById('select-father').value;
-    if (mIdx === "" || fIdx === "") return logEvent('❌ Selecciona la pareja.');
+    if (mIdx === "" || fIdx === "") return logEvent('❌ Selecciona la madre y el padre.');
     if (state.money < 30) return logEvent('❌ Sin dinero.');
-    if (state.chickens.length >= state.capacity) return logEvent('❌ Sin espacio.');
+    if (state.chickens.length >= state.capacity) return logEvent('❌ Gallinero sin espacio.');
 
     const mother = state.chickens[mIdx];
     const father = state.chickens[fIdx];
@@ -1326,9 +1329,10 @@ function breedChickens() {
     const isHybrid = Math.random() < 0.4;
 
     const breed = isHybrid ? 'Híbrida' : mother.breed;
-    state.chickens.push(new Chicken(`Cría #${state.chickens.length + 1}`, breed, Math.random() > 0.5 ? 'female' : 'male', childLay, childRes));
+    const gender = Math.random() > 0.5 ? 'female' : 'male';
+    state.chickens.push(new Chicken(`Cría #${state.chickens.length + 1}`, breed, gender, childLay, childRes));
     
-    logEvent(`🐣 ¡Nació cría ${breed}!`);
+    logEvent(`🐣 ¡Nació cría ${breed} (${gender === 'female' ? 'Hembra' : 'Macho'})!`);
     updateUI();
     saveGame();
 }
