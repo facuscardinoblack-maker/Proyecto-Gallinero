@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Fixed Selectors & Touch Swipe</title>
+    <title>Proyecto Gallinero - Ultimate Fixed Edition</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -1027,7 +1027,7 @@ function buyUpgrade(type) {
 function enterContest() {
     const selectElem = document.getElementById('select-contestant');
     const idx = selectElem ? selectElem.value : "";
-    if (idx === "" || idx === undefined) return logEvent('❌ Selecciona un ave para la feria.');
+    if (idx === "" || idx === undefined || idx === null) return logEvent('❌ Selecciona un ave para la feria.');
     if (state.money < 50) return logEvent('❌ Necesitas $50 para la inscripción.');
 
     state.money -= 50;
@@ -1226,7 +1226,6 @@ function handleCanvasInteraction(clientX, clientY) {
     });
 }
 
-// Control táctil con detección de deslizamiento (Swipe vs Tap) para evitar aceleración de aves al deslizar el dedo
 let touchStartX = 0;
 let touchStartY = 0;
 
@@ -1244,7 +1243,6 @@ canvas.addEventListener('touchend', (e) => {
         const endY = e.changedTouches[0].clientY;
         const distance = Math.hypot(endX - touchStartX, endY - touchStartY);
         
-        // Solo ejecuta la acción si fue un toque corto (tap < 10px), ignorando los deslizamientos (swipes)
         if (distance < 10) {
             handleCanvasInteraction(endX, endY);
         }
@@ -1272,7 +1270,6 @@ function updateUI() {
     document.getElementById('price-exo').innerText = state.marketPrices.exotic;
     document.getElementById('market-trend').innerText = state.marketTrend;
 
-    // Actualizar lista de aves en pestaña Aves
     const list = document.getElementById('chickens-list');
     list.innerHTML = '';
     state.chickens.forEach((c, i) => {
@@ -1285,7 +1282,6 @@ function updateUI() {
         `;
     });
 
-    // Actualizar selectores de Cruza y Feria conservando la selección actual
     const selectM = document.getElementById('select-mother');
     const selectF = document.getElementById('select-father');
     const selectContest = document.getElementById('select-contestant');
