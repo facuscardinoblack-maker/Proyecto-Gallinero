@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Dynamic Economy & Market Edition</title>
+    <title>Proyecto Gallinero - Clean UI & Touch Fix Edition</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -52,10 +52,10 @@
             width: 300px;
             background-color: var(--primary);
             color: white;
-            padding: 12px;
+            padding: 10px 12px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             box-shadow: 2px 0 10px rgba(0,0,0,0.2);
             z-index: 10;
             flex-shrink: 0;
@@ -65,7 +65,7 @@
             #sidebar {
                 width: 100%;
                 height: auto;
-                padding: 8px 12px;
+                padding: 6px 12px;
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
                 gap: 6px;
@@ -77,13 +77,13 @@
 
         .stat-card {
             background: rgba(255, 255, 255, 0.12);
-            padding: 8px;
-            border-radius: 8px;
+            padding: 6px 8px;
+            border-radius: 6px;
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .stat-card h3 {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--warning);
@@ -91,7 +91,7 @@
         }
 
         .stat-value {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: bold;
         }
 
@@ -121,18 +121,46 @@
             display: block;
         }
 
+        /* PANEL RETRÁCTIL */
         #controls-panel {
-            height: 300px;
             background: var(--panel-bg);
             border-top: 2px solid var(--border-color);
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
+            transition: height 0.25s ease-in-out;
+            height: 280px;
+            z-index: 50;
+        }
+
+        #controls-panel.minimized {
+            height: 42px !important;
+        }
+
+        .panel-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #e6ded4;
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .toggle-panel-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
         }
 
         @media (max-width: 900px) {
             #controls-panel {
-                height: 50%;
+                height: 45vh;
             }
         }
 
@@ -147,11 +175,11 @@
         }
 
         .tab-btn {
-            padding: 10px 14px;
+            padding: 8px 12px;
             border: none;
             background: none;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--primary);
             cursor: pointer;
             display: inline-block;
@@ -163,7 +191,7 @@
         }
 
         .tab-content {
-            padding: 12px;
+            padding: 10px;
             flex: 1;
             overflow-y: auto;
             display: none;
@@ -203,15 +231,15 @@
 
         .grid-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px;
         }
 
         .card {
             background: white;
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 8px;
+            padding: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.04);
         }
 
@@ -248,9 +276,9 @@
         .log-item {
             background: rgba(0,0,0,0.8);
             color: white;
-            padding: 7px 12px;
+            padding: 6px 10px;
             border-radius: 6px;
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             backdrop-filter: blur(4px);
             animation: fadeIn 0.2s forwards;
         }
@@ -267,7 +295,7 @@
     <div id="sidebar">
         <div>
             <h2>🐓 Proj. Gallinero</h2>
-            <p style="font-size: 0.75rem; opacity: 0.8;">Niv <span id="level-display">1</span> - <span id="farm-name">Corral</span></p>
+            <p style="font-size: 0.75rem; opacity: 0.8;">Niv <span id="level-display">1</span></p>
         </div>
 
         <div class="stat-card">
@@ -309,49 +337,53 @@
             </div>
         </div>
 
+        <!-- PANEL INFERIOR DESPLEGABLE -->
         <div id="controls-panel">
+            <div class="panel-header-bar" onclick="togglePanel()">
+                <span style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">⚙️ Panel de Gestión</span>
+                <button class="toggle-panel-btn" id="toggle-btn-text">▲ Ocultar Panel</button>
+            </div>
+
             <div class="tab-buttons">
-                <button class="tab-btn active" onclick="switchTab('tab-mercado', event)">📈 Mercado & Contratos</button>
+                <button class="tab-btn active" onclick="switchTab('tab-mercado', event)">📈 Mercado</button>
                 <button class="tab-btn" onclick="switchTab('tab-gallinas', event)">🐔 Aves</button>
                 <button class="tab-btn" onclick="switchTab('tab-cruza', event)">🧬 Cruza</button>
-                <button class="tab-btn" onclick="switchTab('tab-feria', event)">🏆 Feria Rural</button>
+                <button class="tab-btn" onclick="switchTab('tab-feria', event)">🏆 Feria</button>
                 <button class="tab-btn" onclick="switchTab('tab-mejoras', event)">🏗️ Seguridad</button>
                 <button class="tab-btn" onclick="switchTab('tab-dieta', event)">🌾 Dieta</button>
                 <button class="tab-btn" onclick="switchTab('tab-ajustes', event)">⚙️ Sistema</button>
             </div>
 
             <div id="tab-mercado" class="tab-content active">
-                <div style="margin-bottom: 10px; background:#e6ded4; padding:8px; border-radius:8px;">
-                    <h5 style="font-size:0.8rem; color:var(--primary);">Almacén de Huevos:</h5>
-                    <p style="font-size:0.85rem;">Comunes: <b id="stock-std">0</b> | Calcio: <b id="stock-cal">0</b> | Exóticos: <b id="stock-exo">0</b></p>
+                <div style="margin-bottom: 8px; background:#e6ded4; padding:6px 8px; border-radius:6px;">
+                    <h5 style="font-size:0.75rem; color:var(--primary);">Almacén de Huevos:</h5>
+                    <p style="font-size:0.8rem;">Comunes: <b id="stock-std">0</b> | Calcio: <b id="stock-cal">0</b> | Exóticos: <b id="stock-exo">0</b></p>
                 </div>
 
                 <div class="grid-cards">
                     <div class="card">
-                        <h4 style="font-size: 0.8rem;">Cotización de Hoy</h4>
-                        <p style="font-size: 0.7rem; color:#666;" id="market-trend">Tendencia: Estable</p>
-                        <p style="font-size: 0.75rem; margin-top:2px;">Común: $<span id="price-std">10</span></p>
-                        <p style="font-size: 0.75rem;">Calcio: $<span id="price-cal">18</span></p>
-                        <p style="font-size: 0.75rem;">Exótico: $<span id="price-exo">35</span></p>
-                        <button class="btn btn-success" style="width:100%; margin-top:6px; font-size:0.75rem;" onclick="sellAllEggsMarket()">Vender Todo al Mercado</button>
+                        <h4 style="font-size: 0.75rem;">Mercado Libre</h4>
+                        <p style="font-size: 0.65rem; color:#666;" id="market-trend">Estable ➡️</p>
+                        <p style="font-size: 0.7rem; margin-top:2px;">Común: $<span id="price-std">10</span> | Calcio: $<span id="price-cal">18</span></p>
+                        <button class="btn btn-success" style="width:100%; margin-top:4px; font-size:0.7rem;" onclick="sellAllEggsMarket()">Vender Todo</button>
                     </div>
 
                     <div class="card">
-                        <h4 style="font-size: 0.85rem;">Comprar Aves</h4>
-                        <button class="btn" style="width:100%; margin-top:4px;" onclick="buyChicken('Leghorn')">Leghorn ($50)</button>
-                        <button class="btn" style="width:100%; margin-top:4px;" onclick="buyChicken('Rhode Island Red')">R. Island ($80)</button>
+                        <h4 style="font-size: 0.75rem;">Comprar Aves</h4>
+                        <button class="btn" style="width:100%; margin-top:2px; font-size:0.75rem;" onclick="buyChicken('Leghorn')">Leghorn ($50)</button>
+                        <button class="btn" style="width:100%; margin-top:2px; font-size:0.75rem;" onclick="buyChicken('Rhode Island Red')">R. Island ($80)</button>
                     </div>
 
-                    <div class="card" style="border: 2px solid var(--warning);">
-                        <h4 style="font-size: 0.8rem;">📝 Contrato: Panadería</h4>
-                        <p style="font-size: 0.7rem; color:#666;">Requiere 5 Huevos Comunes</p>
-                        <button class="btn btn-warning" style="width:100%; margin-top:6px; font-size:0.75rem;" onclick="fulfillContract('bakery')">Entregar ($80)</button>
+                    <div class="card" style="border: 1px solid var(--warning);">
+                        <h4 style="font-size: 0.75rem;">📝 Panadería</h4>
+                        <p style="font-size: 0.65rem; color:#666;">5x Comunes</p>
+                        <button class="btn btn-warning" style="width:100%; margin-top:4px; font-size:0.7rem;" onclick="fulfillContract('bakery')">Entregar ($80)</button>
                     </div>
 
-                    <div class="card" id="card-vip" style="display:none; border:2px solid var(--success);">
-                        <h4 style="font-size: 0.8rem;">🌟 Orden VIP Michelin</h4>
-                        <p style="font-size: 0.7rem; color:#666;">Requiere 3 Huevos Exóticos</p>
-                        <button class="btn btn-success" style="width:100%; margin-top:6px; font-size:0.75rem;" onclick="fulfillContract('gourmet')">Entregar ($250)</button>
+                    <div class="card" id="card-vip" style="display:none; border: 1px solid var(--success);">
+                        <h4 style="font-size: 0.75rem;">🌟 Orden Michelin</h4>
+                        <p style="font-size: 0.65rem; color:#666;">3x Exóticos</p>
+                        <button class="btn btn-success" style="width:100%; margin-top:4px; font-size:0.7rem;" onclick="fulfillContract('gourmet')">Entregar ($250)</button>
                     </div>
                 </div>
             </div>
@@ -361,61 +393,52 @@
             </div>
 
             <div id="tab-cruza" class="tab-content">
-                <h4 style="margin-bottom: 6px;">Laboratorio de Cruza de Élite</h4>
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    <select id="select-mother" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%;"></select>
-                    <select id="select-father" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%;"></select>
-                    <button class="btn btn-success" onclick="breedChickens()">Incubar Cría Mejorada ($30)</button>
+                <h4 style="margin-bottom: 4px; font-size:0.8rem;">Laboratorio de Cruza</h4>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <select id="select-mother" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%; font-size:0.75rem;"></select>
+                    <select id="select-father" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%; font-size:0.75rem;"></select>
+                    <button class="btn btn-success" style="font-size:0.75rem;" onclick="breedChickens()">Incubar Cría ($30)</button>
                 </div>
             </div>
 
             <div id="tab-feria" class="tab-content">
-                <h4 style="margin-bottom: 4px;">🏆 Exposición Rural Anual</h4>
-                <p style="font-size: 0.75rem; color:#666; margin-bottom: 10px;">Compite con tu mejor ejemplar para ganar prestigio y trofeos.</p>
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    <select id="select-contestant" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%;"></select>
-                    <button class="btn btn-warning" style="width:100%; font-weight:bold;" onclick="enterContest()">Inscribir Ave ($50)</button>
+                <h4 style="margin-bottom: 2px; font-size:0.8rem;">🏆 Exposición Rural</h4>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <select id="select-contestant" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%; font-size:0.75rem;"></select>
+                    <button class="btn btn-warning" style="font-size:0.75rem;" onclick="enterContest()">Inscribir Ave ($50)</button>
                 </div>
-                <div style="margin-top:12px; background:white; padding:10px; border-radius:8px; border:1px solid var(--border-color);">
-                    <h5 style="font-size:0.8rem; color:var(--primary);">Palmarés de Trofeos:</h5>
-                    <p style="font-size:0.9rem; margin-top:4px;">🥇 Oros: <b id="trophy-gold">0</b> | 🥈 Platas: <b id="trophy-silver">0</b> | 🥉 Bronces: <b id="trophy-bronze">0</b></p>
-                </div>
+                <p style="font-size:0.75rem; margin-top:4px;">🥇 Oros: <b id="trophy-gold">0</b> | 🥈 Platas: <b id="trophy-silver">0</b> | 🥉 Bronces: <b id="trophy-bronze">0</b></p>
             </div>
 
             <div id="tab-mejoras" class="tab-content">
                 <div class="grid-cards">
                     <div class="card">
-                        <h4 style="font-size:0.85rem;">Malla Reforzada</h4>
-                        <p style="font-size:0.75rem; color:#666; margin:4px 0;">Reduce la vida y ataques del zorro.</p>
-                        <button class="btn btn-warning" style="width:100%;" onclick="buyUpgrade('fence')" id="btn-fence">Comprar ($150)</button>
+                        <h4 style="font-size:0.75rem;">Malla Reforzada</h4>
+                        <button class="btn btn-warning" style="width:100%; margin-top:4px; font-size:0.7rem;" onclick="buyUpgrade('fence')" id="btn-fence">Comprar ($150)</button>
                     </div>
                     <div class="card">
-                        <h4 style="font-size:0.85rem;">Perro Guardián</h4>
-                        <p style="font-size:0.75rem; color:#666; margin:4px 0;">Bobby defiende tu granja automáticamente.</p>
-                        <button class="btn btn-success" style="width:100%;" onclick="buyUpgrade('dog')" id="btn-dog">Comprar ($300)</button>
+                        <h4 style="font-size:0.75rem;">Perro Guardián</h4>
+                        <button class="btn btn-success" style="width:100%; margin-top:4px; font-size:0.7rem;" onclick="buyUpgrade('dog')" id="btn-dog">Comprar ($300)</button>
                     </div>
                     <div class="card">
-                        <h4 style="font-size:0.85rem;">Gallinero</h4>
-                        <p style="font-size:0.75rem; color:#666; margin:4px 0;">Capacidad +5 aves.</p>
-                        <button class="btn btn-warning" style="width:100%;" onclick="upgradeFarm()">Ampliar ($200)</button>
+                        <h4 style="font-size:0.75rem;">Gallinero (+5)</h4>
+                        <button class="btn btn-warning" style="width:100%; margin-top:4px; font-size:0.7rem;" onclick="upgradeFarm()">Ampliar ($200)</button>
                     </div>
                 </div>
             </div>
 
             <div id="tab-dieta" class="tab-content">
-                <h4 style="margin-bottom: 8px;">Dieta Actual</h4>
-                <div style="display:flex; flex-direction:column; gap:6px;">
-                    <button class="btn" onclick="setDiet('Estándar')">Maíz Básico (Huevos Comunes)</button>
-                    <button class="btn btn-warning" onclick="setDiet('Rica en Calcio')">Rica en Calcio (Huevos Calcio)</button>
-                    <button class="btn btn-success" onclick="setDiet('Exótica')">Botánica Exótica (Huevos Exóticos)</button>
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <button class="btn" style="font-size:0.75rem;" onclick="setDiet('Estándar')">Maíz Básico</button>
+                    <button class="btn btn-warning" style="font-size:0.75rem;" onclick="setDiet('Rica en Calcio')">Rica en Calcio</button>
+                    <button class="btn btn-success" style="font-size:0.75rem;" onclick="setDiet('Exótica')">Botánica Exótica</button>
                 </div>
             </div>
 
             <div id="tab-ajustes" class="tab-content">
-                <h4 style="margin-bottom: 8px;">Gestión de Partida</h4>
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    <button class="btn btn-success" onclick="saveGame(true)">💾 Guardar Partida Ahora</button>
-                    <button class="btn btn-danger" onclick="resetGame()">⚠️ Reiniciar Partida desde Cero</button>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <button class="btn btn-success" style="font-size:0.75rem;" onclick="saveGame(true)">💾 Guardar Partida</button>
+                    <button class="btn btn-danger" style="font-size:0.75rem;" onclick="resetGame()">⚠️ Reiniciar Partida</button>
                 </div>
             </div>
         </div>
@@ -455,6 +478,18 @@ const BREEDS = {
     'Orpington': { base: '#2F3542', dark: '#1E272E', comb: '#FF4757', size: 20, layRate: 55, resistance: 70 },
     'Híbrida': { base: '#FFA502', dark: '#CC8E35', comb: '#FF6B81', size: 17, layRate: 85, resistance: 80 }
 };
+
+function togglePanel() {
+    const panel = document.getElementById('controls-panel');
+    const btnText = document.getElementById('toggle-btn-text');
+    panel.classList.toggle('minimized');
+    if (panel.classList.contains('minimized')) {
+        btnText.innerText = '▼ Mostrar Panel';
+    } else {
+        btnText.innerText = '▲ Ocultar Panel';
+    }
+    setTimeout(resizeCanvas, 300);
+}
 
 function initAudio() {
     if (!state.audioCtx) {
@@ -524,7 +559,7 @@ class Watchdog {
                 this.x += (dx / dist) * 2.2;
                 this.y += (dy / dist) * 2.2;
             } else {
-                logEvent('🐕 ¡Bobby el perro guardián echó al zorro a ladridos!');
+                logEvent('🐕 ¡Bobby echó al zorro a ladridos!');
                 playSound(400, 'square', 0.2);
                 state.predators = [];
             }
@@ -916,9 +951,9 @@ function updateUpgradeButtons() {
 }
 
 function updateMarketPrices() {
-    const factorStd = 8 + Math.floor(Math.random() * 7); // $8 a $14
-    const factorCal = 15 + Math.floor(Math.random() * 10); // $15 a $24
-    const factorExo = 30 + Math.floor(Math.random() * 15); // $30 a $44
+    const factorStd = 8 + Math.floor(Math.random() * 7);
+    const factorCal = 15 + Math.floor(Math.random() * 10);
+    const factorExo = 30 + Math.floor(Math.random() * 15);
 
     const isBull = Math.random() > 0.5;
     state.marketTrend = isBull ? 'En Suba 🟢' : 'En Baja 🔴';
@@ -936,10 +971,10 @@ function sellAllEggsMarket() {
     const totalExo = state.eggStock.exotic * state.marketPrices.exotic;
     const grandTotal = totalStd + totalCal + totalExo;
 
-    if (grandTotal <= 0) return logEvent('❌ No tienes huevos en stock para vender.');
+    if (grandTotal <= 0) return logEvent('❌ No tienes huevos para vender.');
 
     state.money += grandTotal;
-    logEvent(`💰 Vendiste tu stock total por $${grandTotal}!`);
+    logEvent(`💰 Vendiste tu stock por $${grandTotal}!`);
     state.eggStock.standard = 0;
     state.eggStock.calcium = 0;
     state.eggStock.exotic = 0;
@@ -949,15 +984,15 @@ function sellAllEggsMarket() {
 
 function fulfillContract(type) {
     if (type === 'bakery') {
-        if (state.eggStock.standard < 5) return logEvent('❌ Te faltan Huevos Comunes (requiere 5).');
+        if (state.eggStock.standard < 5) return logEvent('❌ Faltan Huevos Comunes (req. 5).');
         state.eggStock.standard -= 5;
         state.money += 80;
-        logEvent('🍞 ¡Contrato con la Panadería completado (+$80)!');
+        logEvent('🍞 ¡Contrato Panadería completado (+$80)!');
     } else if (type === 'gourmet') {
-        if (state.eggStock.exotic < 3) return logEvent('❌ Te faltan Huevos Exóticos (requiere 3).');
+        if (state.eggStock.exotic < 3) return logEvent('❌ Faltan Huevos Exóticos (req. 3).');
         state.eggStock.exotic -= 3;
         state.money += 250;
-        logEvent('👨‍🍳 ¡Orden VIP Gourmet entregada (+$250)!');
+        logEvent('👨‍🍳 ¡Orden Michelin entregada (+$250)!');
     }
     updateUI();
     saveGame();
@@ -976,7 +1011,7 @@ function buyUpgrade(type) {
         if (state.money < 300) return logEvent('❌ Sin dinero.');
         state.money -= 300;
         state.hasWatchdog = true;
-        logEvent('🐕 ¡Bobby el perro guardián se unió a la granja!');
+        logEvent('🐕 ¡Bobby el perro guardián se unió!');
         updateUpgradeButtons();
     }
     updateUI();
@@ -985,32 +1020,31 @@ function buyUpgrade(type) {
 
 function enterContest() {
     const idx = document.getElementById('select-contestant').value;
-    if (idx === "") return logEvent('❌ Selecciona un ave para competir.');
-    if (state.money < 50) return logEvent('❌ Necesitas $50 para la inscripción.');
+    if (idx === "") return logEvent('❌ Selecciona un ave.');
+    if (state.money < 50) return logEvent('❌ Necesitas $50.');
 
     state.money -= 50;
     const c = state.chickens[idx];
-
     const score = Math.round((c.genLay * 0.4) + (c.genRes * 0.3) + (c.health * 0.15) + (c.happiness * 0.15));
 
     if (score >= 80) {
         state.trophies.gold++;
         state.money += 500;
         state.hasVipAccess = true;
-        logEvent(`🥇 ¡1º PUESTO! ${c.name} ganó la Medalla de Oro y $500! ¡Contratos VIP Desbloqueados!`);
+        logEvent(`🥇 ¡1º PUESTO! ${c.name} ganó Oro y $500!`);
         playSound(800, 'triangle', 0.3);
     } else if (score >= 65) {
         state.trophies.silver++;
         state.money += 300;
         state.hasVipAccess = true;
-        logEvent(`🥈 ¡2º PUESTO! ${c.name} ganó Medalla de Plata y $300!`);
+        logEvent(`🥈 ¡2º PUESTO! ${c.name} ganó Plata y $300!`);
         playSound(650, 'triangle', 0.2);
     } else if (score >= 50) {
         state.trophies.bronze++;
         state.money += 150;
         logEvent(`🥉 3º Puesto para ${c.name}. Premio de $150.`);
     } else {
-        logEvent(`🎗️ ${c.name} obtuvo mención honorífica (Puntaje: ${score}/100). Sigue mejorando la genética.`);
+        logEvent(`🎗️ ${c.name} obtuvo mención honorífica.`);
     }
 
     updateUpgradeButtons();
@@ -1134,6 +1168,7 @@ function gameLoop() {
 }
 requestAnimationFrame(gameLoop);
 
+// MANEJO TÁCTICO LIMPIO (EVITA DOBLE TAP FANTASMA)
 function handleCanvasInteraction(clientX, clientY) {
     initAudio();
     const rect = canvas.getBoundingClientRect();
@@ -1143,21 +1178,21 @@ function handleCanvasInteraction(clientX, clientY) {
     if (clickX >= 25 && clickX <= 75 && clickY >= 40 && clickY <= 110) {
         state.coopDoorOpen = !state.coopDoorOpen;
         playSound(350, 'square', 0.15);
-        logEvent(state.coopDoorOpen ? '🚪 Puerta del gallinero ABIERTA.' : '🚪 Puerta del gallinero CERRADA.');
+        logEvent(state.coopDoorOpen ? '🚪 Puerta abierta.' : '🚪 Puerta cerrada.');
         saveGame();
         return;
     }
 
     for (let i = state.worldEggs.length - 1; i >= 0; i--) {
         const egg = state.worldEggs[i];
-        if (Math.hypot(egg.x - clickX, egg.y - clickY) < 25) {
+        if (Math.hypot(egg.x - clickX, egg.y - clickY) < 30) {
             if (egg.type === 'Exótica') state.eggStock.exotic++;
             else if (egg.type === 'Rica en Calcio') state.eggStock.calcium++;
             else state.eggStock.standard++;
 
             state.worldEggs.splice(i, 1);
             playSound(650, 'sine', 0.05);
-            logEvent(`🥚 Huevo recolectado (${egg.type}).`);
+            logEvent(`🥚 Huevo recolectado.`);
             updateUI();
             saveGame();
             return;
@@ -1171,7 +1206,7 @@ function handleCanvasInteraction(clientX, clientY) {
             playSound(250, 'square', 0.1);
             if (p.hp <= 0) {
                 state.predators.splice(i, 1);
-                logEvent('⚔️ ¡ESPANTASTE AL ZORRO!');
+                logEvent('⚔️ ¡Espantaste al zorro!');
             }
             return;
         }
@@ -1185,10 +1220,20 @@ function handleCanvasInteraction(clientX, clientY) {
     });
 }
 
-canvas.addEventListener('click', (e) => handleCanvasInteraction(e.clientX, e.clientY));
-canvas.addEventListener('touchstart', (e) => {
-    if (e.touches.length > 0) handleCanvasInteraction(e.touches[0].clientX, e.touches[0].clientY);
-}, { passive: true });
+// CORRECCIÓN TOUCH: Usar touchend con preventDefault para evitar doble registro
+canvas.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    if (e.changedTouches.length > 0) {
+        handleCanvasInteraction(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+    }
+}, { passive: false });
+
+canvas.addEventListener('click', (e) => {
+    // Si no es touch, procesar click normal de escritorio
+    if (!('ontouchstart' in window)) {
+        handleCanvasInteraction(e.clientX, e.clientY);
+    }
+});
 
 function updateUI() {
     document.getElementById('money-display').innerText = state.money;
@@ -1203,16 +1248,16 @@ function updateUI() {
     document.getElementById('price-std').innerText = state.marketPrices.standard;
     document.getElementById('price-cal').innerText = state.marketPrices.calcium;
     document.getElementById('price-exo').innerText = state.marketPrices.exotic;
-    document.getElementById('market-trend').innerText = `Tendencia: ${state.marketTrend}`;
+    document.getElementById('market-trend').innerText = state.marketTrend;
 
     const list = document.getElementById('chickens-list');
     list.innerHTML = '';
     state.chickens.forEach((c, i) => {
         list.innerHTML += `
             <div class="card">
-                <h4 style="font-size:0.8rem;">${c.gender === 'female' ? '🐓' : '🐓♂️'} ${c.name}</h4>
-                <p style="font-size:0.7rem; color:#666;">${c.breed} ${c.isInside ? '(Adentro)' : '(Patio)'}</p>
-                <button class="btn btn-warning" style="width:100%; margin-top:4px; font-size:0.75rem;" onclick="inspectChicken(${i})">Ver</button>
+                <h4 style="font-size:0.75rem;">${c.gender === 'female' ? '🐓' : '🐓♂️'} ${c.name}</h4>
+                <p style="font-size:0.65rem; color:#666;">${c.breed}</p>
+                <button class="btn btn-warning" style="width:100%; margin-top:2px; font-size:0.7rem;" onclick="inspectChicken(${i})">Ver</button>
             </div>
         `;
     });
@@ -1221,12 +1266,12 @@ function updateUI() {
     const selectF = document.getElementById('select-father');
     const selectContest = document.getElementById('select-contestant');
 
-    selectM.innerHTML = '<option value="">Seleccionar Madre</option>';
-    selectF.innerHTML = '<option value="">Seleccionar Padre</option>';
-    if (selectContest) selectContest.innerHTML = '<option value="">Seleccionar Ave de Exposición</option>';
+    selectM.innerHTML = '<option value="">Madre</option>';
+    selectF.innerHTML = '<option value="">Padre</option>';
+    if (selectContest) selectContest.innerHTML = '<option value="">Elegir Ave</option>';
 
     state.chickens.forEach((c, i) => {
-        const opt = `<option value="${i}">${c.name} (${c.breed}) - Gen:${c.genLay}</option>`;
+        const opt = `<option value="${i}">${c.name} (${c.breed})</option>`;
         if (c.gender === 'female') selectM.innerHTML += opt;
         else selectF.innerHTML += opt;
         if (selectContest) selectContest.innerHTML += opt;
@@ -1239,7 +1284,7 @@ function logEvent(msg) {
     item.className = 'log-item';
     item.innerText = msg;
     panel.appendChild(item);
-    setTimeout(() => item.remove(), 3500);
+    setTimeout(() => item.remove(), 3000);
 }
 
 function switchTab(tabId, e) {
@@ -1279,14 +1324,14 @@ function breedChickens() {
     const breed = isHybrid ? 'Híbrida' : mother.breed;
     state.chickens.push(new Chicken(`Cría #${state.chickens.length + 1}`, breed, Math.random() > 0.5 ? 'female' : 'male', childLay, childRes));
     
-    logEvent(`🐣 ¡Nació cría ${breed} (Gen Puesta: ${childLay})!`);
+    logEvent(`🐣 ¡Nació cría ${breed}!`);
     updateUI();
     saveGame();
 }
 
 function setDiet(dietName) {
     state.diet = dietName;
-    logEvent(`🌾 Dieta cambiada a: ${dietName}`);
+    logEvent(`🌾 Dieta: ${dietName}`);
     updateUI();
     saveGame();
 }
@@ -1296,7 +1341,7 @@ function inspectChicken(index) {
     const c = state.chickens[index];
     document.getElementById('inspect-name').innerText = c.name;
     document.getElementById('inspect-breed').innerText = `Raza: ${c.breed} (${c.gender === 'female' ? 'Hembra' : 'Macho'})`;
-    document.getElementById('inspect-inside').innerText = c.isInside ? 'Protegida en el gallinero' : 'En el patio';
+    document.getElementById('inspect-inside').innerText = c.isInside ? 'En el gallinero' : 'En el patio';
     document.getElementById('inspect-health').innerText = `${c.health}%`;
     document.getElementById('inspect-happy').innerText = `${c.happiness}%`;
     document.getElementById('inspect-gen-lay').innerText = c.genLay;
@@ -1334,7 +1379,7 @@ setInterval(() => {
     state.time++;
     if (state.time >= 24) {
         state.time = 0;
-        updateMarketPrices(); // Fluctuación diaria a las 00:00 hs
+        updateMarketPrices();
     }
     document.getElementById('time-display').innerText = `${state.time.toString().padStart(2, '0')}:00`;
 
@@ -1345,7 +1390,7 @@ setInterval(() => {
                     if (state.diet === 'Exótica') state.eggStock.exotic++;
                     else if (state.diet === 'Rica en Calcio') state.eggStock.calcium++;
                     else state.eggStock.standard++;
-                    logEvent(`🐔 ${c.name} puso un huevo en el gallinero (${state.diet}).`);
+                    logEvent(`🐔 ${c.name} puso un huevo adentro.`);
                 } else {
                     state.worldEggs.push({ x: c.x, y: c.y + 6, type: state.diet });
                     logEvent(`🐔 ${c.name} puso un huevo en el patio.`);
@@ -1366,7 +1411,7 @@ setInterval(() => {
         const outdoorChickens = state.chickens.filter(c => !c.isInside);
         if (outdoorChickens.length > 0) {
             state.predators.push(new Predator());
-            logEvent('⚠️ ¡UN ZORRO SE ACERCA AL GALLINERO!');
+            logEvent('⚠️ ¡Un zorro se acerca!');
         }
     }
 
