@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Fixed UI & Selectors Edition</title>
+    <title>Proyecto Gallinero - Fixed Selectors & Touch Swipe</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -1226,10 +1226,28 @@ function handleCanvasInteraction(clientX, clientY) {
     });
 }
 
+// Control táctil con detección de deslizamiento (Swipe vs Tap) para evitar aceleración de aves al deslizar el dedo
+let touchStartX = 0;
+let touchStartY = 0;
+
+canvas.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 0) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }
+}, { passive: true });
+
 canvas.addEventListener('touchend', (e) => {
     e.preventDefault();
     if (e.changedTouches.length > 0) {
-        handleCanvasInteraction(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+        const distance = Math.hypot(endX - touchStartX, endY - touchStartY);
+        
+        // Solo ejecuta la acción si fue un toque corto (tap < 10px), ignorando los deslizamientos (swipes)
+        if (distance < 10) {
+            handleCanvasInteraction(endX, endY);
+        }
     }
 }, { passive: false });
 
@@ -1267,10 +1285,14 @@ function updateUI() {
         `;
     });
 
-    // Actualizar selectores de Cruza y Feria
+    // Actualizar selectores de Cruza y Feria conservando la selección actual
     const selectM = document.getElementById('select-mother');
     const selectF = document.getElementById('select-father');
     const selectContest = document.getElementById('select-contestant');
+
+    const currentM = selectM ? selectM.value : "";
+    const currentF = selectF ? selectF.value : "";
+    const currentC = selectContest ? selectContest.value : "";
 
     if (selectM) selectM.innerHTML = '<option value="">Seleccionar Madre</option>';
     if (selectF) selectF.innerHTML = '<option value="">Seleccionar Padre</option>';
@@ -1282,6 +1304,10 @@ function updateUI() {
         if (c.gender === 'male' && selectF) selectF.innerHTML += opt;
         if (selectContest) selectContest.innerHTML += opt;
     });
+
+    if (selectM) selectM.value = currentM;
+    if (selectF) selectF.value = currentF;
+    if (selectContest) selectContest.value = currentC;
 }
 
 function logEvent(msg) {
