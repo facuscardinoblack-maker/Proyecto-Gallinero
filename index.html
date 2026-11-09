@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Clean UI & Touch Fix Edition</title>
+    <title>Proyecto Gallinero - Floating Overlay & Fixed Layout</title>
     <style>
         :root {
             --bg-color: #f4efe6;
@@ -40,6 +40,7 @@
             width: 100vw;
             height: 100dvh;
             flex-direction: row;
+            position: relative;
         }
 
         @media (max-width: 900px) {
@@ -108,7 +109,8 @@
             flex: 1;
             position: relative;
             background: #7ca982;
-            min-height: 180px;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
         }
 
@@ -121,20 +123,24 @@
             display: block;
         }
 
-        /* PANEL RETRÁCTIL */
+        /* PANEL FLOTANTE ABSOLUTO (NO AFECTA AL CANVAS) */
         #controls-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
             background: var(--panel-bg);
             border-top: 2px solid var(--border-color);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.25);
             display: flex;
             flex-direction: column;
-            flex-shrink: 0;
-            transition: height 0.25s ease-in-out;
-            height: 280px;
+            height: 290px;
             z-index: 50;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         #controls-panel.minimized {
-            height: 42px !important;
+            transform: translateY(calc(100% - 42px));
         }
 
         .panel-header-bar {
@@ -142,9 +148,11 @@
             justify-content: space-between;
             align-items: center;
             background: #e6ded4;
-            padding: 6px 12px;
+            padding: 8px 14px;
             border-bottom: 1px solid var(--border-color);
             cursor: pointer;
+            height: 42px;
+            flex-shrink: 0;
         }
 
         .toggle-panel-btn {
@@ -160,7 +168,7 @@
 
         @media (max-width: 900px) {
             #controls-panel {
-                height: 45vh;
+                height: 48vh;
             }
         }
 
@@ -337,7 +345,7 @@
             </div>
         </div>
 
-        <!-- PANEL INFERIOR DESPLEGABLE -->
+        <!-- PANEL FLOTANTE INFERIOR -->
         <div id="controls-panel">
             <div class="panel-header-bar" onclick="togglePanel()">
                 <span style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">⚙️ Panel de Gestión</span>
@@ -488,7 +496,6 @@ function togglePanel() {
     } else {
         btnText.innerText = '▲ Ocultar Panel';
     }
-    setTimeout(resizeCanvas, 300);
 }
 
 function initAudio() {
@@ -1168,7 +1175,6 @@ function gameLoop() {
 }
 requestAnimationFrame(gameLoop);
 
-// MANEJO TÁCTICO LIMPIO (EVITA DOBLE TAP FANTASMA)
 function handleCanvasInteraction(clientX, clientY) {
     initAudio();
     const rect = canvas.getBoundingClientRect();
@@ -1220,7 +1226,6 @@ function handleCanvasInteraction(clientX, clientY) {
     });
 }
 
-// CORRECCIÓN TOUCH: Usar touchend con preventDefault para evitar doble registro
 canvas.addEventListener('touchend', (e) => {
     e.preventDefault();
     if (e.changedTouches.length > 0) {
@@ -1229,7 +1234,6 @@ canvas.addEventListener('touchend', (e) => {
 }, { passive: false });
 
 canvas.addEventListener('click', (e) => {
-    // Si no es touch, procesar click normal de escritorio
     if (!('ontouchstart' in window)) {
         handleCanvasInteraction(e.clientX, e.clientY);
     }
