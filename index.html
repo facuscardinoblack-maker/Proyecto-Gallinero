@@ -2,27 +2,28 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Cozy Vector Edition</title>
-    <style>
-        :root {
-            --bg-canvas: #68a379;
-            --primary: #3d2314;
-            --secondary: #8c5830;
-            --accent: #e27d60;
-            --panel-bg: #fffcf8;
-            --border-color: #d8c8b8;
-            --text-dark: #2c221e;
-            --success: #5b9279;
-            --warning: #f4a261;
-            --danger: #d9534f;
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Proyecto Gallinero - Deluxe Cozy Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        wood: { 900: '#2c1810', 800: '#3e2723', 700: '#4e342e', 600: '#6d4c41', 500: '#8d6e63', 100: '#efebe9' },
+                        farm: { green: '#386641', lightgreen: '#6a994e', sun: '#ffb703', warmbg: '#fdfbf7' },
+                        cozy: { card: '#fffdf9', border: '#e6ccb2', accent: '#bc6c25', danger: '#e63946', success: '#2a9d8f', gold: '#e9c46a' }
+                    }
+                }
+            }
         }
-
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+        
         * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Fredoka', -apple-system, sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
@@ -32,1492 +33,1305 @@
             height: 100%;
             height: 100dvh;
             overflow: hidden;
-            background-color: #2c221e;
-            color: var(--text-dark);
+            background-color: #2c1810;
         }
 
-        #app-container {
-            display: flex;
-            width: 100vw;
-            height: 100dvh;
-            flex-direction: row;
-            position: relative;
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #efebe9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #b08968;
+            border-radius: 4px;
         }
 
-        @media (max-width: 900px) {
-            #app-container {
-                flex-direction: column;
-            }
+        .glass-panel {
+            background: rgba(255, 253, 249, 0.96);
+            backdrop-filter: blur(10px);
         }
 
-        /* BARRA LATERAL / SUPERIOR */
-        #sidebar {
-            width: 280px;
-            background: linear-gradient(180deg, #482b18, #321c0e);
-            color: #fdfbf7;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.3);
-            z-index: 10;
-            flex-shrink: 0;
-            border-right: 2px solid #5a3721;
+        .tab-active {
+            background-color: #bc6c25 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(188, 108, 37, 0.35);
         }
 
-        @media (max-width: 900px) {
-            #sidebar {
-                width: 100%;
-                height: auto;
-                padding: 6px 10px;
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 6px;
-                align-items: center;
-                border-right: none;
-                border-bottom: 2px solid #5a3721;
-            }
-            #sidebar h2 { font-size: 0.85rem; }
-            #sidebar p { display: none; }
+        .btn-press {
+            transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.15s ease;
+        }
+        .btn-press:active {
+            transform: scale(0.95);
         }
 
-        .stat-card {
-            background: rgba(255, 255, 255, 0.08);
-            padding: 8px 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-12px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .stat-card h3 {
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: var(--warning);
-            margin-bottom: 2px;
+        .toast-animate {
+            animation: toastIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        .stat-value {
-            font-size: 1rem;
-            font-weight: 800;
-            color: #fff;
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.85; }
         }
-
-        #main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-            height: 100%;
-        }
-
-        #viewport-container {
-            flex: 1;
-            position: relative;
-            background: var(--bg-canvas);
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* PANEL FLOTANTE INFERIOR */
-        #controls-panel {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: var(--panel-bg);
-            border-top: 3px solid var(--secondary);
-            box-shadow: 0 -8px 25px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            height: 310px;
-            z-index: 50;
-            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        #controls-panel.minimized {
-            transform: translateY(calc(100% - 46px));
-        }
-
-        .panel-header-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(90deg, #ede3d2, #dfd2bc);
-            padding: 8px 16px;
-            border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
-            height: 46px;
-            flex-shrink: 0;
-        }
-
-        .toggle-panel-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        @media (max-width: 900px) {
-            #controls-panel {
-                height: 50vh;
-            }
-        }
-
-        .tab-buttons {
-            display: flex;
-            background: #ede3d2;
-            border-bottom: 1px solid var(--border-color);
-            overflow-x: auto;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-            flex-shrink: 0;
-        }
-
-        .tab-btn {
-            padding: 9px 14px;
-            border: none;
-            background: none;
-            font-weight: bold;
-            font-size: 0.8rem;
-            color: var(--primary);
-            cursor: pointer;
-            display: inline-block;
-            transition: all 0.2s;
-        }
-
-        .tab-btn:hover {
-            background: rgba(255,255,255,0.4);
-        }
-
-        .tab-btn.active {
-            background: var(--panel-bg);
-            border-bottom: 3px solid var(--accent);
-            color: #a83822;
-        }
-
-        .tab-content {
-            padding: 12px;
-            flex: 1;
-            overflow-y: auto;
-            display: none;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 9px 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.8rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            min-height: 40px;
-            touch-action: manipulation;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-            transition: filter 0.1s, transform 0.1s;
-        }
-
-        .btn:active {
-            filter: brightness(0.9);
-            transform: scale(0.97);
-        }
-
-        .btn-success { background: var(--success); }
-        .btn-danger { background: var(--danger); }
-        .btn-warning { background: var(--warning); color: #2c221e; }
-
-        .grid-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
-        }
-
-        .card {
-            background: #fff;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-        }
-
-        /* MODAL INSPECTOR */
-        #inspector-modal {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
-            border: 3px solid var(--secondary);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-            display: none;
-            z-index: 100;
-            width: 88%;
-            max-width: 320px;
-        }
-
-        /* LOG TOASTS */
-        #log-panel {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            left: 10px;
-            max-height: 100px;
-            overflow: hidden;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            z-index: 20;
-        }
-
-        .log-item {
-            background: rgba(44, 34, 30, 0.85);
-            color: #fff;
-            padding: 7px 12px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            backdrop-filter: blur(6px);
-            border-left: 4px solid var(--accent);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            animation: fadeIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-8px); }
-            to { opacity: 1; transform: translateY(0); }
+        .pulse-glow {
+            animation: pulseGlow 1.8s infinite ease-in-out;
         }
     </style>
 </head>
-<body>
+<body class="text-slate-800 flex flex-col md:flex-row h-screen w-screen overflow-hidden select-none">
 
-<div id="app-container">
-    <div id="sidebar">
-        <div>
-            <h2>🐓 Proj. Gallinero</h2>
-            <p style="font-size: 0.75rem; opacity: 0.8;">Nivel <span id="level-display">1</span></p>
-        </div>
+    <div id="app" class="flex flex-col md:flex-row w-full h-full relative">
 
-        <div class="stat-card">
-            <h3>Dinero</h3>
-            <div class="stat-value">$<span id="money-display">500</span></div>
-        </div>
+        <!-- SIDEBAR DE ESTADÍSTICAS Y CONTROL -->
+        <header id="sidebar" class="bg-wood-900 text-amber-50 p-3 md:p-5 flex md:flex-col justify-between items-center md:items-start w-full md:w-80 shrink-0 z-20 shadow-xl border-b md:border-r border-wood-700">
+            <div class="flex items-center gap-2.5 md:mb-4">
+                <span class="text-3xl md:text-4xl">🐓</span>
+                <div>
+                    <h1 class="font-bold text-base md:text-2xl text-amber-200 leading-tight">Proyecto Gallinero</h1>
+                    <div class="flex items-center gap-2 text-xs text-amber-100/80">
+                        <span>Nivel Granja <b id="level-display" class="text-cozy-gold">1</b></span>
+                        <span>•</span>
+                        <span id="season-display" class="font-semibold text-emerald-400">🌸 Primavera</span>
+                    </div>
+                </div>
+            </div>
 
-        <div class="stat-card">
-            <h3>Aves</h3>
-            <div class="stat-value"><span id="chickens-count">0</span>/<span id="max-chickens">5</span></div>
-        </div>
+            <!-- Dashboard de Stats -->
+            <div class="flex md:flex-col gap-2 md:gap-3 w-auto md:w-full">
+                <!-- Dinero -->
+                <div class="bg-wood-800/80 border border-wood-700/60 rounded-xl px-3 py-1.5 md:p-3 flex items-center justify-between gap-2 min-w-[95px]">
+                    <div class="text-[10px] md:text-xs text-amber-200/80 uppercase font-semibold">Dinero</div>
+                    <div class="text-sm md:text-xl font-bold text-emerald-400">$<span id="money-display">500</span></div>
+                </div>
 
-        <div class="stat-card">
-            <h3>Hora</h3>
-            <div style="font-size: 0.9rem; font-weight: bold;" id="time-display">08:00 AM</div>
-        </div>
-    </div>
+                <!-- Capacidad Aves -->
+                <div class="bg-wood-800/80 border border-wood-700/60 rounded-xl px-3 py-1.5 md:p-3 flex items-center justify-between gap-2 min-w-[95px]">
+                    <div class="text-[10px] md:text-xs text-amber-200/80 uppercase font-semibold">Aves</div>
+                    <div class="text-sm md:text-xl font-bold text-amber-300"><span id="chickens-count">0</span>/<span id="max-chickens">5</span></div>
+                </div>
 
-    <div id="main-content">
-        <div id="viewport-container">
-            <canvas id="gameCanvas"></canvas>
+                <!-- Clima & Reloj (Desktop) -->
+                <div class="hidden md:flex flex-col gap-2 bg-wood-800/80 border border-wood-700/60 rounded-xl p-3 w-full">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-amber-200/80 uppercase font-semibold">Hora Solar</span>
+                        <div class="text-sm font-bold text-cozy-gold flex items-center gap-1">
+                            <span id="time-icon">☀️</span> <span id="time-display">08:00 AM</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-wood-700/60 pt-2">
+                        <span class="text-xs text-amber-200/80 uppercase font-semibold">Clima Actual</span>
+                        <span id="weather-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">☀️ Soleado</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clima Móvil -->
+            <div class="flex md:hidden items-center gap-1.5 bg-wood-800/90 px-2.5 py-1 rounded-lg text-xs font-bold text-cozy-gold border border-wood-700">
+                <span id="time-icon-mobile">☀️</span> <span id="time-display-mobile">08:00</span>
+                <span id="weather-icon-mobile">☀️</span>
+            </div>
+        </header>
+
+        <!-- ÁREA CENTRAL (CANVAS Y REGLAS DE INTERACCIÓN) -->
+        <main class="flex-1 flex flex-col relative h-full w-full overflow-hidden bg-farm-green">
             
-            <div id="log-panel"></div>
-
-            <div id="inspector-modal">
-                <h3 id="inspect-name" style="color: var(--primary); font-size:1.1rem; margin-bottom:4px;">Gallina</h3>
-                <p style="font-size:0.8rem; color:#666;" id="inspect-breed">Raza: Leghorn</p>
-                <hr style="margin:8px 0; border:0; border-top:1px solid var(--border-color);">
-                <div style="font-size:0.82rem; line-height: 1.5; display:flex; flex-direction:column; gap:4px;">
-                    <p>Ubicación: <b id="inspect-inside" style="color:var(--accent)">En el patio</b></p>
-                    <p>Salud: <b id="inspect-health" style="color:var(--success)">100%</b></p>
-                    <p>Felicidad: <b id="inspect-happy" style="color:var(--warning)">100%</b></p>
-                    <p>Genética Puesta: <b id="inspect-gen-lay">50</b></p>
-                    <p>Genética Resistencia: <b id="inspect-gen-res">50</b></p>
-                </div>
-                <div style="margin-top:14px; display:flex; gap:8px;">
-                    <button class="btn btn-danger" style="flex:1;" onclick="sellInspectedChicken()">Vender ($40)</button>
-                    <button class="btn" style="flex:1; background:#8c5830;" onclick="closeInspector()">Cerrar</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- PANEL FLOTANTE INFERIOR -->
-        <div id="controls-panel">
-            <div class="panel-header-bar" onclick="togglePanel()">
-                <span style="font-size: 0.85rem; font-weight: bold; color: var(--primary);">⚙️ Panel de Gestión de la Granja</span>
-                <button class="toggle-panel-btn" id="toggle-btn-text">▲ Ocultar Panel</button>
-            </div>
-
-            <div class="tab-buttons">
-                <button class="tab-btn active" onclick="switchTab('tab-mercado', event)">📈 Mercado</button>
-                <button class="tab-btn" onclick="switchTab('tab-gallinas', event)">🐔 Aves</button>
-                <button class="tab-btn" onclick="switchTab('tab-cruza', event)">🧬 Cruza</button>
-                <button class="tab-btn" onclick="switchTab('tab-feria', event)">🏆 Feria</button>
-                <button class="tab-btn" onclick="switchTab('tab-mejoras', event)">🏗️ Seguridad</button>
-                <button class="tab-btn" onclick="switchTab('tab-dieta', event)">🌾 Dieta</button>
-                <button class="tab-btn" onclick="switchTab('tab-ajustes', event)">⚙️ Sistema</button>
-            </div>
-
-            <div id="tab-mercado" class="tab-content active">
-                <div style="margin-bottom: 10px; background:#f4ebd0; padding:8px 10px; border-radius:8px; border:1px solid #e2d2b5;">
-                    <h5 style="font-size:0.75rem; color:var(--primary); text-transform:uppercase; margin-bottom:2px;">Almacén de Huevos:</h5>
-                    <p style="font-size:0.82rem;">Comunes: <b id="stock-std">0</b> | Calcio: <b id="stock-cal">0</b> | Exóticos: <b id="stock-exo">0</b></p>
-                </div>
-
-                <div class="grid-cards">
-                    <div class="card">
-                        <h4 style="font-size: 0.8rem; color:var(--primary);">Bolsa de Huevos</h4>
-                        <p style="font-size: 0.65rem; color:#666;" id="market-trend">Estable ➡️</p>
-                        <p style="font-size: 0.72rem; margin-top:3px;">Común: $<span id="price-std">10</span> | Calcio: $<span id="price-cal">18</span></p>
-                        <button class="btn btn-success" style="width:100%; margin-top:6px; font-size:0.75rem;" onclick="sellAllEggsMarket()">Vender Todo</button>
-                    </div>
-
-                    <div class="card">
-                        <h4 style="font-size: 0.8rem; color:var(--primary);">Adquirir Aves</h4>
-                        <button class="btn" style="width:100%; margin-top:3px; font-size:0.72rem;" onclick="buyChicken('Leghorn')">Leghorn ($50)</button>
-                        <button class="btn" style="width:100%; margin-top:3px; font-size:0.72rem;" onclick="buyChicken('Rhode Island Red')">R. Island ($80)</button>
-                    </div>
-
-                    <div class="card" style="border: 1px solid var(--warning);">
-                        <h4 style="font-size: 0.8rem; color:var(--primary);">📝 Panadería</h4>
-                        <p style="font-size: 0.65rem; color:#666;">Req: 5x Comunes</p>
-                        <button class="btn btn-warning" style="width:100%; margin-top:6px; font-size:0.75rem;" onclick="fulfillContract('bakery')">Entregar ($80)</button>
-                    </div>
-
-                    <div class="card" id="card-vip" style="display:none; border: 1px solid var(--success);">
-                        <h4 style="font-size: 0.8rem; color:var(--primary);">🌟 Orden Michelin</h4>
-                        <p style="font-size: 0.65rem; color:#666;">Req: 3x Exóticos</p>
-                        <button class="btn btn-success" style="width:100%; margin-top:6px; font-size:0.75rem;" onclick="fulfillContract('gourmet')">Entregar ($250)</button>
+            <!-- CONTENEDOR DEL CANVAS DE JUEGO -->
+            <div id="canvas-container" class="relative flex-1 w-full h-full overflow-hidden cursor-pointer">
+                <canvas id="gameCanvas" class="absolute inset-0 w-full h-full block"></canvas>
+                
+                <!-- BUSTER VENDEDOR AMBULANTE FLOATING BADGE -->
+                <div id="merchant-badge" class="hidden absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-amber-700 text-white px-3.5 py-1.5 rounded-2xl shadow-xl border-2 border-amber-200 cursor-pointer pulse-glow z-30 flex items-center gap-2" onclick="openMerchantModal()">
+                    <span class="text-xl">🎩</span>
+                    <div>
+                        <div class="text-xs font-bold leading-tight">¡Vendedor Ambulante!</div>
+                        <div class="text-[10px] text-amber-100">Ofertas por tiempo limitado</div>
                     </div>
                 </div>
-            </div>
 
-            <div id="tab-gallinas" class="tab-content">
-                <div class="grid-cards" id="chickens-list"></div>
-            </div>
+                <!-- NOTIFICACIONES TOAST SOBRE EL CANVAS -->
+                <div id="log-panel" class="absolute top-3 right-3 left-3 md:left-auto md:w-80 max-h-40 overflow-hidden pointer-events-none flex flex-col gap-1.5 z-30"></div>
 
-            <div id="tab-cruza" class="tab-content">
-                <h4 style="margin-bottom: 6px; font-size:0.85rem; color:var(--primary);">Laboratorio Genético</h4>
-                <div style="display:flex; flex-direction:column; gap:8px; max-width:300px;">
-                    <select id="select-mother" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%; font-size:0.78rem; text-align:left;"></select>
-                    <select id="select-father" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%; font-size:0.78rem; text-align:left;"></select>
-                    <button class="btn btn-success" style="font-size:0.78rem;" onclick="breedChickens()">Incubar Nueva Cría ($30)</button>
-                </div>
-            </div>
-
-            <div id="tab-feria" class="tab-content">
-                <h4 style="margin-bottom: 4px; font-size:0.85rem; color:var(--primary);">🏆 Exposición Rural</h4>
-                <div style="display:flex; flex-direction:column; gap:8px; max-width:300px;">
-                    <select id="select-contestant" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%; font-size:0.78rem; text-align:left;"></select>
-                    <button class="btn btn-warning" style="font-size:0.78rem;" onclick="enterContest()">Inscribir al Concurso ($50)</button>
-                </div>
-                <p style="font-size:0.78rem; margin-top:8px;">🥇 Oros: <b id="trophy-gold">0</b> | 🥈 Platas: <b id="trophy-silver">0</b> | 🥉 Bronces: <b id="trophy-bronze">0</b></p>
-            </div>
-
-            <div id="tab-mejoras" class="tab-content">
-                <div class="grid-cards">
-                    <div class="card">
-                        <h4 style="font-size:0.8rem;">Malla Reforzada</h4>
-                        <button class="btn btn-warning" style="width:100%; margin-top:6px; font-size:0.72rem;" onclick="buyUpgrade('fence')" id="btn-fence">Comprar ($150)</button>
+                <!-- MODAL INSPECTOR DE AVE -->
+                <div id="inspector-modal" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-sm glass-panel p-5 rounded-2xl border-2 border-wood-600 shadow-2xl z-40">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 id="inspect-name" class="text-lg font-bold text-wood-900">Gallina Clara</h3>
+                            <p id="inspect-breed" class="text-xs text-wood-600 font-semibold">Raza: Leghorn</p>
+                        </div>
+                        <span id="inspect-gender-badge" class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-pink-100 text-pink-700 border border-pink-200">♀️ Hembra</span>
                     </div>
-                    <div class="card">
-                        <h4 style="font-size:0.8rem;">Perro Guardián</h4>
-                        <button class="btn btn-success" style="width:100%; margin-top:6px; font-size:0.72rem;" onclick="buyUpgrade('dog')" id="btn-dog">Comprar ($300)</button>
+                    
+                    <div class="space-y-2.5 text-xs text-slate-700 mb-4 bg-amber-50/70 p-3 rounded-xl border border-amber-200/80">
+                        <div class="flex justify-between"><span>Ubicación:</span> <b id="inspect-inside" class="text-cozy-accent">En el patio</b></div>
+                        <div class="flex justify-between"><span>Estado de Salud:</span> <b id="inspect-sick" class="text-emerald-600">Sana ✅</b></div>
+                        <div>
+                            <div class="flex justify-between mb-0.5"><span>Salud:</span><b id="inspect-health-val">100%</b></div>
+                            <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden"><div id="inspect-health-bar" class="bg-emerald-500 h-full w-full transition-all duration-300"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-0.5"><span>Felicidad:</span><b id="inspect-happy-val">100%</b></div>
+                            <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden"><div id="inspect-happy-bar" class="bg-amber-400 h-full w-full transition-all duration-300"></div></div>
+                        </div>
+                        <div class="pt-1.5 grid grid-cols-2 gap-2 text-center border-t border-amber-200/80 mt-1">
+                            <div class="bg-white p-1.5 rounded-lg border border-amber-200/60 shadow-sm">
+                                <span class="text-[10px] text-gray-500 block">Gen Puesta</span>
+                                <b id="inspect-gen-lay" class="text-sm text-wood-900">50</b>
+                            </div>
+                            <div class="bg-white p-1.5 rounded-lg border border-amber-200/60 shadow-sm">
+                                <span class="text-[10px] text-gray-500 block">Gen Resistencia</span>
+                                <b id="inspect-gen-res" class="text-sm text-wood-900">50</b>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card">
-                        <h4 style="font-size:0.8rem;">Gallinero (+5)</h4>
-                        <button class="btn btn-warning" style="width:100%; margin-top:6px; font-size:0.72rem;" onclick="upgradeFarm()">Ampliar ($200)</button>
+
+                    <div class="flex gap-2">
+                        <button onclick="sellInspectedChicken()" class="flex-1 btn-press bg-cozy-danger hover:bg-red-600 text-white font-bold py-2 px-3 text-xs rounded-xl shadow-md">Vender Ave ($40)</button>
+                        <button onclick="closeInspector()" class="flex-1 btn-press bg-wood-600 hover:bg-wood-700 text-white font-bold py-2 px-3 text-xs rounded-xl shadow-md">Cerrar</button>
                     </div>
                 </div>
+
+                <!-- MODAL INTERACTIVO FERIA RURAL JUECES -->
+                <div id="contest-modal" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md glass-panel p-5 rounded-2xl border-2 border-cozy-gold shadow-2xl z-50 text-center">
+                    <h3 class="text-xl font-bold text-wood-900 mb-1">🏆 Exposición Rural Anual</h3>
+                    <p class="text-xs text-gray-600 mb-3">Los jueces están evaluando la genética, plumaje y estado del ave...</p>
+                    
+                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-4">
+                        <div id="contest-chicken-name" class="font-bold text-base text-wood-800">Gallina Leghorn</div>
+                        <div id="contest-stars" class="text-3xl my-2 tracking-widest text-gray-300">⭐⭐⭐⭐⭐</div>
+                        <div id="contest-status" class="text-xs font-semibold text-amber-700 animate-pulse">Evaluando salud y plumas...</div>
+                    </div>
+
+                    <div id="contest-rewards" class="hidden mb-4 p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-800 font-bold"></div>
+
+                    <button id="contest-close-btn" onclick="closeContestModal()" class="hidden w-full btn-press bg-cozy-accent text-white font-bold py-2.5 rounded-xl text-xs shadow-md">¡Recoger Premio y Continuar!</button>
+                </div>
+
+                <!-- MODAL VENDEDOR AMBULANTE -->
+                <div id="merchant-modal" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-sm glass-panel p-5 rounded-2xl border-2 border-amber-500 shadow-2xl z-50">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-base font-bold text-wood-900 flex items-center gap-1.5">🎩 Vendedor Ambulante</h3>
+                        <button onclick="closeMerchantModal()" class="text-gray-400 hover:text-gray-600 font-bold">✕</button>
+                    </div>
+                    <p class="text-xs text-gray-600 mb-3">"¡Tengo ofertas exclusivas de la ciudad que no verás en otro lado!"</p>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="bg-white p-2.5 rounded-xl border border-amber-200 flex justify-between items-center text-xs">
+                            <div>
+                                <div class="font-bold text-wood-800">🐣 Ave Híbrida VIP</div>
+                                <div class="text-[10px] text-gray-500">Alta Puesta + Resistencia</div>
+                            </div>
+                            <button onclick="buyMerchantOffer('hybrid')" class="btn-press bg-amber-500 hover:bg-amber-600 text-white font-bold py-1 px-2.5 rounded-lg text-xs">$120</button>
+                        </div>
+                        <div class="bg-white p-2.5 rounded-xl border border-amber-200 flex justify-between items-center text-xs">
+                            <div>
+                                <div class="font-bold text-wood-800">🧪 Super Vacuna Multidosis</div>
+                                <div class="text-[10px] text-gray-500">Cura a TODAS las aves enfermas</div>
+                            </div>
+                            <button onclick="buyMerchantOffer('cureAll')" class="btn-press bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1 px-2.5 rounded-lg text-xs">$90</button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
-            <div id="tab-dieta" class="tab-content">
-                <div style="display:flex; flex-direction:column; gap:6px; max-width:250px;">
-                    <button class="btn" style="font-size:0.78rem;" onclick="setDiet('Estándar')">Maíz Básico</button>
-                    <button class="btn btn-warning" style="font-size:0.78rem;" onclick="setDiet('Rica en Calcio')">Rica en Calcio</button>
-                    <button class="btn btn-success" style="font-size:0.78rem;" onclick="setDiet('Exótica')">Botánica Exótica</button>
+            <!-- PANEL DESPLEGABLE INFERIOR DE GESTIÓN -->
+            <div id="controls-panel" class="relative w-full bg-cozy-card border-t-2 border-cozy-border shadow-2xl flex flex-col z-20 transition-all duration-300 ease-in-out h-72 md:h-80">
+                
+                <!-- BARRITA SUPERIOR DE INTERACCIÓN DEL PANEL -->
+                <div onclick="togglePanel()" class="w-full bg-stone-200/90 hover:bg-stone-300/70 px-4 py-2 flex items-center justify-between cursor-pointer border-b border-cozy-border shrink-0">
+                    <span class="text-xs font-bold text-wood-900 flex items-center gap-1.5">
+                        <span>⚙️</span> Panel de Gestión y Granja
+                    </span>
+                    <button id="toggle-btn-text" class="text-[11px] font-bold bg-wood-800 text-amber-100 px-2.5 py-0.5 rounded-md">
+                        ▲ Ocultar Panel
+                    </button>
                 </div>
-            </div>
 
-            <div id="tab-ajustes" class="tab-content">
-                <div style="display:flex; flex-direction:column; gap:8px; max-width:250px;">
-                    <button class="btn btn-success" style="font-size:0.78rem;" onclick="saveGame(true)">💾 Guardar Partida</button>
-                    <button class="btn btn-danger" style="font-size:0.78rem;" onclick="resetGame()">⚠️ Reiniciar Partida</button>
+                <!-- NAVEGACIÓN DE PESTAÑAS (SCROLL HORIZONTAL) -->
+                <div class="flex bg-stone-100 border-b border-cozy-border overflow-x-auto whitespace-nowrap scrollbar-none shrink-0 px-2 pt-1.5 gap-1">
+                    <button class="tab-btn tab-active px-3 py-1.5 text-xs font-bold rounded-t-xl text-wood-800 hover:bg-stone-200 transition" onclick="switchTab('tab-mercado', event)">📈 Mercado</button>
+                    <button class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t-xl text-wood-800 hover:bg-stone-200 transition" onclick="switchTab('tab-gallinas', event)">🐔 Mis Aves</button>
+                    <button class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t-xl text-wood-800 hover:bg-stone-200 transition" onclick="switchTab('tab-cruza', event)">🧬 Cruza</button>
+                    <button class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t-xl text-wood-800 hover:bg-stone-200 transition" onclick="switchTab('tab-feria', event)">🏆 Feria Rural</button>
+                    <button class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t-xl text-wood-800 hover:bg-stone-200 transition" onclick="switchTab('tab-construccion', event)">🔨 Construcción</button>
+                    <button class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t-xl text-wood-800 hover:bg-stone-200 transition" onclick="switchTab('tab-veterinaria', event)">🩺 Vet & Salud</button>
+                    <button class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t-xl text-wood-800 hover:bg-stone-200 transition" onclick="switchTab('tab-dieta', event)">🌾 Dieta</button>
+                    <button class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t-xl text-wood-800 hover:bg-stone-200 transition" onclick="switchTab('tab-ajustes', event)">⚙️ Sistema</button>
+                </div>
+
+                <!-- CONTENIDO DE PESTAÑAS -->
+                <div class="flex-1 overflow-y-auto p-3 md:p-4 relative">
+                    
+                    <!-- PESTAÑA: MERCADO -->
+                    <div id="tab-mercado" class="tab-content block space-y-3">
+                        <div class="bg-amber-100/70 border border-amber-300/80 p-2.5 rounded-xl flex items-center justify-between text-xs">
+                            <div>
+                                <span class="font-bold text-wood-900 block">📦 Almacén de Huevos</span>
+                                <span class="text-stone-600">Común: <b id="stock-std" class="text-wood-900">0</b> | Calcio: <b id="stock-cal" class="text-amber-800">0</b> | Exótico: <b id="stock-exo" class="text-sky-800">0</b></span>
+                            </div>
+                            <button onclick="sellAllEggsMarket()" class="btn-press bg-cozy-success hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow-md">Vender Todo</button>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                            <div class="bg-white p-2.5 rounded-xl border border-cozy-border shadow-sm">
+                                <div class="text-[11px] font-bold text-stone-500">Mercado Libre</div>
+                                <div class="text-xs mt-1">Tendencia: <b id="market-trend" class="text-emerald-600">Estable ➡️</b></div>
+                                <div class="text-[11px] text-stone-600 mt-0.5">P. Común: $<span id="price-std">10</span></div>
+                            </div>
+
+                            <div class="bg-white p-2.5 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-wood-900">Comprar Leghorn</div>
+                                    <div class="text-[10px] text-stone-500">Puesta alta | $50</div>
+                                </div>
+                                <button onclick="buyChicken('Leghorn')" class="btn-press bg-cozy-accent hover:bg-amber-700 text-white text-xs font-bold py-1 px-2 rounded-lg mt-2 shadow-sm">Comprar ($50)</button>
+                            </div>
+
+                            <div class="bg-white p-2.5 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-wood-900">Comprar R. Island</div>
+                                    <div class="text-[10px] text-stone-500">Resistente | $80</div>
+                                </div>
+                                <button onclick="buyChicken('Rhode Island Red')" class="btn-press bg-cozy-accent hover:bg-amber-700 text-white text-xs font-bold py-1 px-2 rounded-lg mt-2 shadow-sm">Comprar ($80)</button>
+                            </div>
+
+                            <div class="bg-white p-2.5 rounded-xl border border-amber-300 shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-amber-800">🍞 Panadería</div>
+                                    <div class="text-[10px] text-stone-500">Req: 5x Comunes</div>
+                                </div>
+                                <button onclick="fulfillContract('bakery')" class="btn-press bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-1 px-2 rounded-lg mt-2 shadow-sm">Entregar ($80)</button>
+                            </div>
+
+                            <div id="card-vip" class="hidden bg-white p-2.5 rounded-xl border border-emerald-300 shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-emerald-800">🌟 Orden Michelin</div>
+                                    <div class="text-[10px] text-stone-500">Req: 3x Exóticos</div>
+                                </div>
+                                <button onclick="fulfillContract('gourmet')" class="btn-press bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1 px-2 rounded-lg mt-2 shadow-sm">Entregar ($250)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PESTAÑA: MIS AVES -->
+                    <div id="tab-gallinas" class="tab-content hidden">
+                        <div id="chickens-list" class="grid grid-cols-2 md:grid-cols-4 gap-2.5"></div>
+                    </div>
+
+                    <!-- PESTAÑA: CRUZA -->
+                    <div id="tab-cruza" class="tab-content hidden max-w-md mx-auto space-y-3">
+                        <div class="text-xs text-stone-600 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+                            🧬 <b>Laboratorio de Cruza:</b> Combina estadísticas genéticas de tus especímenes masculinos y femeninos.
+                        </div>
+                        <div class="space-y-2">
+                            <div>
+                                <label class="text-[11px] font-bold text-wood-700 block mb-1">Madre (Gallina):</label>
+                                <select id="select-mother" class="w-full bg-white border border-stone-300 rounded-xl p-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-cozy-accent outline-none">
+                                    <option value="">Seleccionar Madre...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-bold text-wood-700 block mb-1">Padre (Gallo):</label>
+                                <select id="select-father" class="w-full bg-white border border-stone-300 rounded-xl p-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-cozy-accent outline-none">
+                                    <option value="">Seleccionar Padre...</option>
+                                </select>
+                            </div>
+                            <button onclick="breedChickens()" class="w-full btn-press bg-cozy-success hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs shadow-md mt-2">Incubar Cría ($30)</button>
+                        </div>
+                    </div>
+
+                    <!-- PESTAÑA: FERIA RURAL -->
+                    <div id="tab-feria" class="tab-content hidden max-w-md mx-auto space-y-3">
+                        <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-xs">
+                            🏆 <b>Exposición de Calidad:</b> Compite en tiempo real para obtener medallas y reconocimiento.
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[11px] font-bold text-wood-700 block mb-1">Ave participante:</label>
+                            <select id="select-contestant" class="w-full bg-white border border-stone-300 rounded-xl p-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-cozy-accent outline-none">
+                                <option value="">Seleccionar Ave...</option>
+                            </select>
+                            <button onclick="enterContest()" class="w-full btn-press bg-cozy-gold hover:bg-amber-600 text-wood-900 font-bold py-2 rounded-xl text-xs shadow-md">Inscribir ($50)</button>
+                        </div>
+                        <div class="flex justify-around bg-white p-2 rounded-xl border border-cozy-border text-center text-xs">
+                            <div>🥇 Oros: <b id="trophy-gold" class="text-amber-600">0</b></div>
+                            <div>🥈 Platas: <b id="trophy-silver" class="text-slate-500">0</b></div>
+                            <div>🥉 Bronces: <b id="trophy-bronze" class="text-amber-800">0</b></div>
+                        </div>
+                    </div>
+
+                    <!-- PESTAÑA: CONSTRUCCIÓN Y MEJORAS -->
+                    <div id="tab-construccion" class="tab-content hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div class="bg-white p-3 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <h4 class="font-bold text-xs text-wood-900">🌧️ Cobertizo de Patio</h4>
+                                    <p class="text-[10px] text-stone-500 mt-1">Protege a las aves de la lluvia y la nieve cuando están afuera.</p>
+                                </div>
+                                <button id="btn-shelter" onclick="buyStructure('shelter')" class="btn-press bg-cozy-accent hover:bg-amber-700 text-white font-bold py-1.5 text-xs rounded-xl mt-3 shadow-sm">Comprar ($120)</button>
+                            </div>
+
+                            <div class="bg-white p-3 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <h4 class="font-bold text-xs text-wood-900">🌽 Comedero Automático</h4>
+                                    <p class="text-[10px] text-stone-500 mt-1">Mantiene a las aves alimentadas automáticamente.</p>
+                                </div>
+                                <button id="btn-feeder" onclick="buyStructure('feeder')" class="btn-press bg-cozy-accent hover:bg-amber-700 text-white font-bold py-1.5 text-xs rounded-xl mt-3 shadow-sm">Comprar ($100)</button>
+                            </div>
+
+                            <div class="bg-white p-3 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <h4 class="font-bold text-xs text-wood-900">💧 Bebedero Automático</h4>
+                                    <p class="text-[10px] text-stone-500 mt-1">Previene enfermedades asociadas a deshidratación.</p>
+                                </div>
+                                <button id="btn-drinker" onclick="buyStructure('drinker')" class="btn-press bg-cozy-accent hover:bg-amber-700 text-white font-bold py-1.5 text-xs rounded-xl mt-3 shadow-sm">Comprar ($100)</button>
+                            </div>
+
+                            <div class="bg-white p-3 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <h4 class="font-bold text-xs text-wood-900">🛡️ Malla Reforzada</h4>
+                                    <p class="text-[10px] text-stone-500 mt-1">Debilita a los zorros cazadores instantáneamente.</p>
+                                </div>
+                                <button id="btn-fence" onclick="buyUpgrade('fence')" class="btn-press bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 text-xs rounded-xl mt-3 shadow-sm">Comprar ($150)</button>
+                            </div>
+
+                            <div class="bg-white p-3 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <h4 class="font-bold text-xs text-wood-900">🐕 Perro Guardián (Bobby)</h4>
+                                    <p class="text-[10px] text-stone-500 mt-1">Ahuyenta zorros automáticamente en el patio.</p>
+                                </div>
+                                <button id="btn-dog" onclick="buyUpgrade('dog')" class="btn-press bg-cozy-success hover:bg-emerald-700 text-white font-bold py-1.5 text-xs rounded-xl mt-3 shadow-sm">Comprar ($300)</button>
+                            </div>
+
+                            <div class="bg-white p-3 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <h4 class="font-bold text-xs text-wood-900">🏗️ Ampliar Gallinero (+5)</h4>
+                                    <p class="text-[10px] text-stone-500 mt-1">Incrementa el límite de espacio para tus aves.</p>
+                                </div>
+                                <button onclick="upgradeFarm()" class="btn-press bg-cozy-accent hover:bg-amber-700 text-white font-bold py-1.5 text-xs rounded-xl mt-3 shadow-sm">Ampliar ($200)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PESTAÑA: VETERINARIA Y SALUD -->
+                    <div id="tab-veterinaria" class="tab-content hidden max-w-md mx-auto space-y-3">
+                        <div class="bg-red-50 p-2.5 rounded-xl border border-red-200 text-xs text-red-800">
+                            🩺 <b>Gabinete Veterinario:</b> Cura enfermedades respiratorias provocadas por la intemperie o falta de vacunas.
+                        </div>
+                        <div id="sick-chickens-list" class="space-y-2"></div>
+                        <div class="pt-2 border-t border-cozy-border flex gap-2">
+                            <button onclick="buyMedicineBatch()" class="flex-1 btn-press bg-emerald-600 text-white font-bold py-2 rounded-xl text-xs shadow-sm">Comprar Lote Medicina ($35)</button>
+                        </div>
+                    </div>
+
+                    <!-- PESTAÑA: DIETA -->
+                    <div id="tab-dieta" class="tab-content hidden max-w-md mx-auto space-y-2">
+                        <div class="text-xs text-stone-600 bg-amber-50 p-2.5 rounded-xl border border-amber-200 mb-2">
+                            🌾 La alimentación influye en la calidad del huevo y resistencia biológica.
+                        </div>
+                        <button onclick="setDiet('Estándar')" class="w-full btn-press text-left bg-white p-2.5 rounded-xl border border-cozy-border text-xs font-bold text-wood-900 hover:bg-amber-50 flex justify-between">
+                            <span>🌽 Maíz Básico (Común)</span> <span>Gratis</span>
+                        </button>
+                        <button onclick="setDiet('Rica en Calcio')" class="w-full btn-press text-left bg-white p-2.5 rounded-xl border border-amber-300 text-xs font-bold text-amber-800 hover:bg-amber-50 flex justify-between">
+                            <span>🦴 Dieta de Calcio (Resistencia +)</span> <span>$5/día</span>
+                        </button>
+                        <button onclick="setDiet('Exótica')" class="w-full btn-press text-left bg-white p-2.5 rounded-xl border border-sky-300 text-xs font-bold text-sky-800 hover:bg-amber-50 flex justify-between">
+                            <span>🌿 Botánica Exótica (Huevos Exóticos)</span> <span>$15/día</span>
+                        </button>
+                    </div>
+
+                    <!-- PESTAÑA: SISTEMA -->
+                    <div id="tab-ajustes" class="tab-content hidden max-w-md mx-auto space-y-3">
+                        <button onclick="saveGame(true)" class="w-full btn-press bg-cozy-success hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-sm">💾 Guardar Partida</button>
+                        <div class="flex gap-2">
+                            <button onclick="exportSave()" class="flex-1 btn-press bg-wood-600 text-white font-bold py-2 rounded-xl text-xs shadow-sm">📥 Exportar Partida</button>
+                            <button onclick="importSavePrompt()" class="flex-1 btn-press bg-wood-600 text-white font-bold py-2 rounded-xl text-xs shadow-sm">📤 Importar Partida</button>
+                        </div>
+                        <button onclick="resetGame()" class="w-full btn-press bg-cozy-danger hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-sm">⚠️ Reiniciar Partida</button>
+                    </div>
+
                 </div>
             </div>
-        </div>
+        </main>
     </div>
-</div>
 
-<script>
-let state = {
-    money: 500,
-    level: 1,
-    capacity: 5,
-    eggStock: { standard: 0, calcium: 0, exotic: 0 },
-    marketPrices: { standard: 10, calcium: 18, exotic: 35 },
-    marketTrend: 'Estable ➡️',
-    food: 50,
-    chickens: [],
-    worldEggs: [],
-    predators: [],
-    particles: [],
-    grassTufts: [],
-    flowers: [],
-    coopDoorOpen: true,
-    hasReinforcedFence: false,
-    hasWatchdog: false,
-    trophies: { gold: 0, silver: 0, bronze: 0 },
-    hasVipAccess: false,
-    diet: 'Estándar',
-    inspectedIndex: null,
-    time: 8,
-    globalFrame: 0,
-    audioCtx: null
-};
+    <!-- MOTOR DE JUEGO Y LÓGICA COMPLETA -->
+    <script>
+        // --- ESTADO GLOBAL COMPLETO ---
+        const state = {
+            money: 500,
+            level: 1,
+            capacity: 5,
+            eggStock: { standard: 0, calcium: 0, exotic: 0 },
+            marketPrices: { standard: 10, calcium: 18, exotic: 35 },
+            marketTrend: 'Estable ➡️',
+            chickens: [],
+            worldEggs: [],
+            predators: [],
+            particles: [],
+            weatherParticles: [],
+            grassTufts: [],
+            coopDoorOpen: true,
+            hasReinforcedFence: false,
+            hasWatchdog: false,
+            hasShelter: false,
+            hasFeeder: false,
+            hasDrinker: false,
+            trophies: { gold: 0, silver: 0, bronze: 0 },
+            hasVipAccess: false,
+            diet: 'Estándar',
+            inspectedIndex: null,
+            time: 8,
+            season: 'Primavera', // Primavera, Verano, Otoño, Invierno
+            weather: 'Soleado',  // Soleado, Lluvia, Tormenta, Nieve
+            globalFrame: 0,
+            lightningFlash: 0,
+            audioCtx: null,
+            merchantActive: false
+        };
 
-const BREEDS = {
-    'Leghorn': { base: '#F4F4F4', dark: '#D2D6DC', comb: '#E63946', size: 16, layRate: 70, resistance: 40 },
-    'Rhode Island Red': { base: '#B83B27', dark: '#832214', comb: '#E63946', size: 18, layRate: 60, resistance: 60 },
-    'Brahma': { base: '#EAEAEA', dark: '#959A9F', comb: '#C0392B', size: 22, layRate: 40, resistance: 80 },
-    'Orpington': { base: '#3B4048', dark: '#21252B', comb: '#E63946', size: 20, layRate: 55, resistance: 70 },
-    'Híbrida': { base: '#F4A261', dark: '#C67D3A', comb: '#E76F51', size: 17, layRate: 85, resistance: 80 }
-};
+        const BREEDS = {
+            'Leghorn': { base: '#FFFFFF', dark: '#E2E8F0', comb: '#FF4757', size: 16, layRate: 70, resistance: 40 },
+            'Rhode Island Red': { base: '#B33923', dark: '#7A1C0B', comb: '#FF4757', size: 18, layRate: 60, resistance: 60 },
+            'Brahma': { base: '#F1F2F6', dark: '#747D8C', comb: '#C0392B', size: 22, layRate: 40, resistance: 80 },
+            'Orpington': { base: '#2F3542', dark: '#1E272E', comb: '#FF4757', size: 20, layRate: 55, resistance: 70 },
+            'Híbrida': { base: '#FFA502', dark: '#CC8E35', comb: '#FF6B81', size: 17, layRate: 85, resistance: 80 }
+        };
 
-function togglePanel() {
-    const panel = document.getElementById('controls-panel');
-    const btnText = document.getElementById('toggle-btn-text');
-    panel.classList.toggle('minimized');
-    if (panel.classList.contains('minimized')) {
-        btnText.innerText = '▼ Mostrar Panel';
-    } else {
-        btnText.innerText = '▲ Ocultar Panel';
-    }
-}
+        // --- SISTEMA WEB AUDIO SINTETIZADO COMPLETO ---
+        function initAudio() {
+            if (!state.audioCtx) {
+                state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (state.audioCtx.state === 'suspended') {
+                state.audioCtx.resume();
+            }
+        }
 
-function initAudio() {
-    if (!state.audioCtx) {
-        state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-}
+        function playSound(type) {
+            if (!state.audioCtx) return;
+            try {
+                const now = state.audioCtx.currentTime;
+                const osc = state.audioCtx.createOscillator();
+                const gain = state.audioCtx.createGain();
 
-function playSound(freq, type = 'sine', duration = 0.1) {
-    if (!state.audioCtx) return;
-    try {
-        const osc = state.audioCtx.createOscillator();
-        const gain = state.audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, state.audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.06, state.audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.005, state.audioCtx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(state.audioCtx.destination);
-        osc.start();
-        osc.stop(state.audioCtx.currentTime + duration);
-    } catch(e){}
-}
+                if (type === 'cluck') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(320, now);
+                    osc.frequency.exponentialRampToValueAtTime(140, now + 0.12);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                } else if (type === 'egg') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(520, now);
+                    osc.frequency.exponentialRampToValueAtTime(780, now + 0.1);
+                    gain.gain.setValueAtTime(0.07, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                } else if (type === 'thunder') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(70, now);
+                    osc.frequency.exponentialRampToValueAtTime(30, now + 0.4);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                } else if (type === 'win') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.25);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                } else {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                }
 
-function createDirtParticles(x, y) {
-    for (let i = 0; i < 4; i++) {
-        state.particles.push({
-            x: x + (Math.random() - 0.5) * 6,
-            y: y + (Math.random() - 0.5) * 6,
-            vx: (Math.random() - 0.5) * 1.5,
-            vy: -Math.random() * 1.5,
-            life: 25,
-            color: '#4f7942'
-        });
-    }
-}
+                osc.connect(gain);
+                gain.connect(state.audioCtx.destination);
+                osc.start();
+                osc.stop(now + 0.4);
+            } catch (e) {}
+        }
 
-function generateEnvironment() {
-    state.grassTufts = [];
-    state.flowers = [];
-    for (let i = 0; i < 100; i++) {
-        state.grassTufts.push({
-            x: Math.random() * 1400,
-            y: 80 + Math.random() * 800,
-            size: 6 + Math.random() * 8,
-            blades: 3 + Math.floor(Math.random() * 3),
-            swaySpeed: 0.04 + Math.random() * 0.04,
-            offset: Math.random() * Math.PI,
-            color: Math.random() > 0.3 ? '#589a69' : '#65a876'
-        });
-    }
-    for (let i = 0; i < 25; i++) {
-        state.flowers.push({
-            x: Math.random() * 1400,
-            y: 90 + Math.random() * 750,
-            color: ['#ffdd59', '#ff6b6b', '#ff9ff3', '#ffffff'][Math.floor(Math.random() * 4)]
-        });
-    }
-}
-
-class Watchdog {
-    constructor() {
-        this.x = 120; this.y = 140; this.vx = 0.9; this.walkCycle = 0;
-    }
-    update(predators) {
-        this.walkCycle += 0.15;
-        this.x += this.vx;
-        if (this.x < 50 || this.x > 210) this.vx *= -1;
-
-        if (predators.length > 0) {
-            const predator = predators[0];
-            const dx = predator.x - this.x;
-            const dy = predator.y - this.y;
-            const dist = Math.hypot(dx, dy);
-
-            if (dist > 18) {
-                this.x += (dx / dist) * 2.5;
-                this.y += (dy / dist) * 2.5;
+        // --- MANEJO PANEL Y NAVEGACIÓN ---
+        function togglePanel() {
+            const panel = document.getElementById('controls-panel');
+            const btnText = document.getElementById('toggle-btn-text');
+            if (panel.classList.contains('h-10')) {
+                panel.classList.remove('h-10');
+                panel.classList.add('h-72', 'md:h-80');
+                btnText.innerText = '▲ Ocultar Panel';
             } else {
-                logEvent('🐕 ¡Bobby ahuyentó al zorro a ladridos!');
-                playSound(380, 'square', 0.25);
-                state.predators = [];
+                panel.classList.remove('h-72', 'md:h-80');
+                panel.classList.add('h-10');
+                btnText.innerText = '▼ Mostrar Panel';
             }
         }
-    }
-    draw(ctx) {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        if (this.vx < 0) ctx.scale(-1, 1);
 
-        // Sombra
-        ctx.beginPath();
-        ctx.ellipse(0, 10, 16, 6, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0,0,0,0.2)';
-        ctx.fill();
-
-        // Cuerpo Canino Vectorial
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 16, 10, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#c86d34';
-        ctx.fill(); ctx.strokeStyle = '#2c221e'; ctx.lineWidth = 2; ctx.stroke();
-
-        // Cabeza
-        ctx.beginPath();
-        ctx.arc(12, -5, 9, 0, Math.PI * 2);
-        ctx.fillStyle = '#c86d34';
-        ctx.fill(); ctx.stroke();
-
-        // Oreja
-        ctx.beginPath();
-        ctx.ellipse(9, -12, 4, 7, 0.3, 0, Math.PI * 2);
-        ctx.fillStyle = '#8c481b';
-        ctx.fill(); ctx.stroke();
-
-        ctx.restore();
-    }
-}
-
-const watchdogInstance = new Watchdog();
-
-class Chicken {
-    constructor(name, breed, gender = 'female', genLay = null, genRes = null, health = 100, happiness = 100, x = null, y = null, isInside = false) {
-        this.name = name;
-        this.breed = breed;
-        this.gender = gender;
-        this.health = health;
-        this.happiness = happiness;
-        this.genLay = genLay || BREEDS[breed].layRate;
-        this.genRes = genRes || BREEDS[breed].resistance;
-        this.isInside = isInside;
-        
-        this.x = x !== null ? x : (80 + Math.random() * (canvas.width - 160));
-        this.y = y !== null ? y : (120 + Math.random() * (canvas.height - 200));
-        this.vx = (Math.random() - 0.5) * 1.1;
-        this.vy = (Math.random() - 0.5) * 1.1;
-        
-        this.walkCycle = Math.random() * Math.PI * 2;
-        this.isPecking = false;
-        this.peckTimer = 0;
-    }
-
-    update() {
-        const isNight = state.time >= 20 || state.time <= 5;
-        const coopDoorX = 45; const coopDoorY = 70;
-
-        if (this.isInside) {
-            if (isNight) this.happiness = Math.min(100, this.happiness + 0.05);
-            
-            if (!isNight && state.coopDoorOpen && Math.random() < 0.005) {
-                this.isInside = false;
-                this.x = coopDoorX + 15;
-                this.y = coopDoorY + 30;
-                logEvent(`🐔 ${this.name} salió al patio.`);
+        function switchTab(tabId, event) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+            document.getElementById(tabId).classList.remove('hidden');
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('tab-active');
             }
-            return;
         }
 
-        if (this.isPecking) {
-            this.peckTimer--;
-            if (this.peckTimer === 20) createDirtParticles(this.x + (this.vx >= 0 ? 16 : -16), this.y + 10);
-            if (this.peckTimer <= 0) this.isPecking = false;
-            return;
+        // --- CLASES DEL JUEGO ---
+        function generateGrassTufts() {
+            state.grassTufts = [];
+            for (let i = 0; i < 75; i++) {
+                state.grassTufts.push({
+                    x: Math.random() * (canvas.width || 800),
+                    y: 80 + Math.random() * ((canvas.height || 600) - 100),
+                    size: 5 + Math.random() * 6,
+                    blades: 3 + Math.floor(Math.random() * 3),
+                    swaySpeed: 0.04 + Math.random() * 0.04,
+                    offset: Math.random() * Math.PI,
+                    color: Math.random() > 0.4 ? '#40916c' : '#52b788'
+                });
+            }
         }
 
-        this.x += this.vx;
-        this.y += this.vy;
-        this.walkCycle += 0.22;
-
-        if (this.x < 40 || this.x > canvas.width - 40) this.vx *= -1;
-        if (this.y < 100 || this.y > canvas.height - 40) this.vy *= -1;
-
-        if (state.coopDoorOpen && Math.hypot(this.x - coopDoorX, this.y - coopDoorY) < 30) {
-            if (isNight || Math.random() < 0.003) {
-                this.isInside = true;
-                logEvent(`🏠 ${this.name} entró al gallinero.`);
+        function updateWeatherParticles() {
+            if (state.weather === 'Soleado') {
+                state.weatherParticles = [];
                 return;
             }
+
+            const targetCount = state.weather === 'Nieve' ? 40 : 60;
+            while (state.weatherParticles.length < targetCount) {
+                state.weatherParticles.push({
+                    x: Math.random() * canvas.width,
+                    y: -10,
+                    speed: state.weather === 'Nieve' ? 1 + Math.random() * 1.5 : 6 + Math.random() * 4,
+                    size: state.weather === 'Nieve' ? 2 + Math.random() * 3 : 1.5,
+                    drift: Math.random() - 0.5
+                });
+            }
+
+            state.weatherParticles.forEach(p => {
+                p.y += p.speed;
+                p.x += p.drift;
+                if (p.y > canvas.height) {
+                    p.y = -10;
+                    p.x = Math.random() * canvas.width;
+                }
+            });
         }
 
-        if (Math.random() < 0.003) {
-            if (Math.random() < 0.4) {
-                this.isPecking = true;
-                this.peckTimer = 40;
-            } else {
-                this.vx = (Math.random() - 0.5) * 1.3;
-                this.vy = (Math.random() - 0.5) * 1.3;
+        class Watchdog {
+            constructor() { this.x = 110; this.y = 130; this.vx = 0.8; this.walkCycle = 0; }
+            update(predators) {
+                this.walkCycle += 0.15;
+                this.x += this.vx;
+                if (this.x < 50 || this.x > 190) this.vx *= -1;
+
+                if (predators.length > 0) {
+                    const predator = predators[0];
+                    const dx = predator.x - this.x;
+                    const dy = predator.y - this.y;
+                    const dist = Math.hypot(dx, dy);
+
+                    if (dist > 15) {
+                        this.x += (dx / dist) * 2.5;
+                        this.y += (dy / dist) * 2.5;
+                    } else {
+                        logEvent('🐕 ¡Bobby espantó al zorro!');
+                        playSound('cluck');
+                        state.predators = [];
+                    }
+                }
+            }
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                if (this.vx < 0) ctx.scale(-1, 1);
+                ctx.beginPath(); ctx.ellipse(0, 8, 14, 5, 0, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fill();
+                ctx.beginPath(); ctx.ellipse(0, 0, 14, 9, 0, 0, Math.PI * 2); ctx.fillStyle = '#D35400'; ctx.fill(); ctx.stroke();
+                ctx.beginPath(); ctx.arc(10, -4, 8, 0, Math.PI * 2); ctx.fillStyle = '#D35400'; ctx.fill(); ctx.stroke();
+                ctx.restore();
             }
         }
-    }
 
-    draw(ctx) {
-        if (this.isInside) return;
+        const watchdogInstance = new Watchdog();
 
-        const info = BREEDS[this.breed] || BREEDS['Leghorn'];
-        const isMale = this.gender === 'male';
-        const r = info.size;
-
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        if (this.vx < 0) ctx.scale(-1, 1);
-
-        // Sombra en el suelo
-        ctx.beginPath();
-        ctx.ellipse(0, 10, r * 0.85, r * 0.35, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0,0,0,0.22)';
-        ctx.fill();
-
-        // Patas vectoriales
-        const legSwing = Math.sin(this.walkCycle) * 4;
-        ctx.strokeStyle = '#2c221e';
-        ctx.lineWidth = 2.5;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(-r * 0.2, 4); ctx.lineTo(-r * 0.2 + legSwing, 12);
-        ctx.moveTo(r * 0.2, 4); ctx.lineTo(r * 0.2 - legSwing, 12);
-        ctx.stroke();
-
-        const bodyBob = Math.sin(this.walkCycle * 2) * 1.5;
-        const peckY = this.isPecking ? 10 : 0;
-
-        // Cuerpo / Plumas traseras
-        ctx.fillStyle = info.dark;
-        ctx.strokeStyle = '#2c221e';
-        ctx.lineWidth = 2;
-        if (isMale) {
-            ctx.beginPath();
-            ctx.moveTo(-r * 0.5, -r * 0.3 + bodyBob);
-            ctx.bezierCurveTo(-r * 1.8, -r * 1.6, -r * 1.4, -r * 2.2, -r * 0.9, -r * 2.1);
-            ctx.bezierCurveTo(-r * 0.7, -r * 1.5, -r * 0.4, -r * 0.8, -r * 0.2, -r * 0.2);
-            ctx.fill(); ctx.stroke();
-        } else {
-            ctx.beginPath();
-            ctx.ellipse(-r * 0.7, -r * 0.4 + bodyBob, r * 0.48, r * 0.32, -0.4, 0, Math.PI * 2);
-            ctx.fill(); ctx.stroke();
-        }
-
-        // Cuerpo principal
-        ctx.beginPath();
-        ctx.ellipse(0, -r * 0.3 + bodyBob, r * 0.95, r * 0.75, 0, 0, Math.PI * 2);
-        ctx.fillStyle = info.base;
-        ctx.fill(); ctx.stroke();
-
-        // Cabeza y Cuello
-        ctx.save();
-        ctx.translate(r * 0.65, -r * 0.75 + bodyBob + peckY);
-
-        ctx.beginPath();
-        ctx.arc(0, 0, r * 0.52, 0, Math.PI * 2);
-        ctx.fillStyle = info.base;
-        ctx.fill(); ctx.stroke();
-
-        // Pico vectorial
-        ctx.beginPath();
-        ctx.moveTo(r * 0.3, -r * 0.05); ctx.lineTo(r * 0.75, 0.05); ctx.lineTo(r * 0.3, r * 0.22);
-        ctx.fillStyle = '#f4a261';
-        ctx.fill(); ctx.stroke();
-
-        // Ojo brillante
-        ctx.beginPath();
-        ctx.arc(r * 0.18, -r * 0.15, r * 0.08, 0, Math.PI * 2);
-        ctx.fillStyle = '#2c221e';
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(r * 0.2, -r * 0.17, r * 0.03, 0, Math.PI * 2);
-        ctx.fillStyle = '#fff';
-        ctx.fill();
-
-        // Cresta vectorial
-        const combSize = isMale ? r * 0.6 : r * 0.35;
-        ctx.fillStyle = info.comb;
-        ctx.beginPath();
-        ctx.ellipse(-r * 0.05, -combSize, combSize * 0.7, combSize * 0.45, -0.2, 0, Math.PI * 2);
-        ctx.fill(); ctx.stroke();
-
-        ctx.restore();
-        ctx.restore();
-    }
-}
-
-class Predator {
-    constructor() {
-        this.x = Math.random() < 0.5 ? -35 : canvas.width + 35;
-        this.y = 110 + Math.random() * (canvas.height - 180);
-        this.hp = state.hasReinforcedFence ? 1 : 3;
-        this.anim = 0;
-        this.speed = 1.4;
-        
-        const outdoorChickens = state.chickens.filter(c => !c.isInside);
-        this.target = outdoorChickens.length > 0 ? outdoorChickens[Math.floor(Math.random() * outdoorChickens.length)] : null;
-    }
-
-    update() {
-        this.anim += 0.2;
-
-        if (this.target && !this.target.isInside && state.chickens.includes(this.target)) {
-            const dx = this.target.x - this.x;
-            const dy = this.target.y - this.y;
-            const dist = Math.hypot(dx, dy);
-
-            if (dist > 18) {
-                this.x += (dx / dist) * this.speed;
-                this.y += (dy / dist) * this.speed;
-            } else {
-                logEvent(`🚨 ¡EL ZORRO ATACÓ Y CAPTURÓ A ${this.target.name.toUpperCase()}! 😭`);
-                const idx = state.chickens.indexOf(this.target);
-                if (idx !== -1) state.chickens.splice(idx, 1);
-                state.predators = [];
-                playSound(130, 'sawtooth', 0.4);
-                updateUI();
-                saveGame();
+        class Chicken {
+            constructor(name, breed, gender = 'female', genLay = null, genRes = null, health = 100, happiness = 100, x = null, y = null, isInside = false) {
+                this.name = name;
+                this.breed = breed;
+                this.gender = gender;
+                this.health = health;
+                this.happiness = happiness;
+                this.genLay = genLay || BREEDS[breed].layRate;
+                this.genRes = genRes || BREEDS[breed].resistance;
+                this.isInside = isInside;
+                this.isSick = false;
+                
+                this.x = x !== null ? x : (60 + Math.random() * (canvas.width - 120));
+                this.y = y !== null ? y : (100 + Math.random() * (canvas.height - 150));
+                this.vx = (Math.random() - 0.5) * 0.9;
+                this.vy = (Math.random() - 0.5) * 0.9;
+                
+                this.walkCycle = Math.random() * Math.PI * 2;
+                this.isPecking = false;
+                this.peckTimer = 0;
             }
-        } else {
-            this.x += this.speed;
+
+            update() {
+                const isNight = state.time >= 20 || state.time <= 5;
+                const coopDoorX = 45;
+                const coopDoorY = 70;
+
+                // Impacto de clima e intemperie
+                if (!this.isInside && (state.weather === 'Lluvia' || state.weather === 'Tormenta' || state.weather === 'Nieve')) {
+                    if (!state.hasShelter && Math.random() < 0.002) {
+                        this.happiness = Math.max(0, this.happiness - 0.1);
+                        if (Math.random() < 0.001) this.isSick = true;
+                    }
+                }
+
+                if (this.isInside) {
+                    if (isNight) this.happiness = Math.min(100, this.happiness + 0.04);
+                    if (!isNight && state.coopDoorOpen && Math.random() < 0.005) {
+                        this.isInside = false;
+                        this.x = coopDoorX + 10;
+                        this.y = coopDoorY + 25;
+                    }
+                    return;
+                }
+
+                if (this.isPecking) {
+                    this.peckTimer--;
+                    if (this.peckTimer <= 0) this.isPecking = false;
+                    return;
+                }
+
+                const moveMult = this.isSick ? 0.4 : 1.0;
+                this.x += this.vx * moveMult;
+                this.y += this.vy * moveMult;
+                this.walkCycle += 0.18;
+
+                if (this.x < 30 || this.x > canvas.width - 30) this.vx *= -1;
+                if (this.y < 85 || this.y > canvas.height - 30) this.vy *= -1;
+
+                if (state.coopDoorOpen && Math.hypot(this.x - coopDoorX, this.y - coopDoorY) < 28) {
+                    if (isNight || (state.weather !== 'Soleado' && Math.random() < 0.01)) {
+                        this.isInside = true;
+                        return;
+                    }
+                }
+
+                if (Math.random() < 0.003) {
+                    if (Math.random() < 0.35) {
+                        this.isPecking = true;
+                        this.peckTimer = 35;
+                    } else {
+                        this.vx = (Math.random() - 0.5) * 1.1;
+                        this.vy = (Math.random() - 0.5) * 1.1;
+                    }
+                }
+            }
+
+            draw(ctx) {
+                if (this.isInside) return;
+
+                const info = BREEDS[this.breed] || BREEDS['Leghorn'];
+                const isMale = this.gender === 'male';
+                const r = info.size;
+
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                if (this.vx < 0) ctx.scale(-1, 1);
+
+                // Sombra
+                ctx.beginPath(); ctx.ellipse(0, 10, r * 0.8, r * 0.35, 0, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fill();
+
+                // Cuerpo
+                ctx.beginPath();
+                ctx.ellipse(0, -r * 0.3, r * 0.9, r * 0.7, 0, 0, Math.PI * 2);
+                ctx.fillStyle = this.isSick ? '#94a3b8' : info.base;
+                ctx.fill(); ctx.strokeStyle = '#2F3542'; ctx.lineWidth = 2; ctx.stroke();
+
+                // Cabeza
+                ctx.beginPath(); ctx.arc(r * 0.6, -r * 0.7, r * 0.5, 0, Math.PI * 2); ctx.fillStyle = info.base; ctx.fill(); ctx.stroke();
+                
+                // Pico
+                ctx.beginPath(); ctx.moveTo(r * 0.9, -r * 0.7); ctx.lineTo(r * 1.3, -r * 0.6); ctx.lineTo(r * 0.9, -r * 0.4); ctx.fillStyle = '#FFA502'; ctx.fill(); ctx.stroke();
+
+                // Cresta
+                ctx.fillStyle = info.comb;
+                ctx.beginPath(); ctx.ellipse(r * 0.55, -r * 1.2, r * 0.3, r * 0.2, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+                // Estado Enfermo (Burbuja)
+                if (this.isSick) {
+                    ctx.fillStyle = '#ef4444';
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.fillText('🤒', -5, -r * 1.5);
+                }
+
+                ctx.restore();
+            }
         }
-    }
 
-    draw(ctx) {
-        ctx.save();
-        ctx.translate(this.x, this.y);
+        class Predator {
+            constructor() {
+                this.x = Math.random() < 0.5 ? -30 : canvas.width + 30;
+                this.y = 90 + Math.random() * (canvas.height - 150);
+                this.hp = state.hasReinforcedFence ? 1 : 3;
+                this.speed = 1.3;
+                const outdoorChickens = state.chickens.filter(c => !c.isInside);
+                this.target = outdoorChickens.length > 0 ? outdoorChickens[Math.floor(Math.random() * outdoorChickens.length)] : null;
+            }
 
-        const tailWag = Math.sin(this.anim) * 7;
+            update() {
+                if (this.target && !this.target.isInside && state.chickens.includes(this.target)) {
+                    const dx = this.target.x - this.x;
+                    const dy = this.target.y - this.y;
+                    const dist = Math.hypot(dx, dy);
 
-        // Sombra
-        ctx.beginPath();
-        ctx.ellipse(0, 12, 20, 7, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0,0,0,0.25)';
-        ctx.fill();
+                    if (dist > 15) {
+                        this.x += (dx / dist) * this.speed;
+                        this.y += (dy / dist) * this.speed;
+                    } else {
+                        logEvent(`🚨 ¡Un zorro atrapó a ${this.target.name}! 😭`);
+                        const idx = state.chickens.indexOf(this.target);
+                        if (idx !== -1) state.chickens.splice(idx, 1);
+                        state.predators = [];
+                        updateUI();
+                        saveGame();
+                    }
+                } else {
+                    this.x += this.speed;
+                }
+            }
 
-        // Cola zorro
-        ctx.beginPath();
-        ctx.moveTo(-12, -2);
-        ctx.quadraticCurveTo(-28 + tailWag, -20, -36 + tailWag, -10);
-        ctx.quadraticCurveTo(-22 + tailWag, 8, -10, 3);
-        ctx.fillStyle = '#e76f51';
-        ctx.fill(); ctx.strokeStyle = '#2c221e'; ctx.lineWidth = 2; ctx.stroke();
-
-        // Punta blanca cola
-        ctx.beginPath();
-        ctx.arc(-32 + tailWag, -11, 4, 0, Math.PI * 2);
-        ctx.fillStyle = '#fff';
-        ctx.fill();
-
-        // Cuerpo zorro
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 18, 11, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#e76f51';
-        ctx.fill(); ctx.stroke();
-
-        // Cabeza y hocico
-        ctx.beginPath();
-        ctx.moveTo(10, -9); ctx.lineTo(26, -2); ctx.lineTo(10, 7);
-        ctx.fillStyle = '#e76f51';
-        ctx.fill(); ctx.stroke();
-
-        // Oreja
-        ctx.beginPath();
-        ctx.moveTo(9, -9); ctx.lineTo(14, -20); ctx.lineTo(17, -7);
-        ctx.fillStyle = '#2c221e';
-        ctx.fill();
-
-        // Ojo
-        ctx.beginPath();
-        ctx.arc(18, -4, 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#f4a261';
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(19, -4, 1.3, 0, Math.PI * 2);
-        ctx.fillStyle = '#000';
-        ctx.fill();
-
-        // HP Badge
-        ctx.fillStyle = '#d9534f';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.fillText(`⚡ ¡CLIC! [${this.hp}]`, -18, -26);
-
-        ctx.restore();
-    }
-}
-
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
-function resizeCanvas() {
-    const container = canvas.parentElement;
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
-    generateEnvironment();
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-function saveGame(manual = false) {
-    try {
-        const saveData = {
-            money: state.money,
-            level: state.level,
-            capacity: state.capacity,
-            eggStock: state.eggStock,
-            marketPrices: state.marketPrices,
-            marketTrend: state.marketTrend,
-            food: state.food,
-            diet: state.diet,
-            time: state.time,
-            coopDoorOpen: state.coopDoorOpen,
-            hasReinforcedFence: state.hasReinforcedFence,
-            hasWatchdog: state.hasWatchdog,
-            trophies: state.trophies,
-            hasVipAccess: state.hasVipAccess,
-            chickens: state.chickens.map(c => ({
-                name: c.name, breed: c.breed, gender: c.gender,
-                genLay: c.genLay, genRes: c.genRes, health: c.health,
-                happiness: c.happiness, x: c.x, y: c.y, isInside: c.isInside
-            })),
-            worldEggs: state.worldEggs
-        };
-        localStorage.setItem('proyecto_gallinero_cozy_save', JSON.stringify(saveData));
-        if (manual) logEvent('💾 Partida guardada con éxito.');
-    } catch(e){}
-}
-
-function loadGame() {
-    const raw = localStorage.getItem('proyecto_gallinero_cozy_save');
-    if (!raw) return false;
-    try {
-        const data = JSON.parse(raw);
-        state.money = data.money; state.level = data.level;
-        state.capacity = data.capacity; 
-        state.eggStock = data.eggStock || { standard: data.eggs || 0, calcium: 0, exotic: 0 };
-        state.marketPrices = data.marketPrices || { standard: 10, calcium: 18, exotic: 35 };
-        state.marketTrend = data.marketTrend || 'Estable ➡️';
-        state.food = data.food;
-        state.diet = data.diet; state.time = data.time || 8;
-        state.coopDoorOpen = data.coopDoorOpen !== undefined ? data.coopDoorOpen : true;
-        state.hasReinforcedFence = data.hasReinforcedFence || false;
-        state.hasWatchdog = data.hasWatchdog || false;
-        state.trophies = data.trophies || { gold: 0, silver: 0, bronze: 0 };
-        state.hasVipAccess = data.hasVipAccess || false;
-        state.worldEggs = data.worldEggs || [];
-        state.chickens = data.chickens.map(c => 
-            new Chicken(c.name, c.breed, c.gender, c.genLay, c.genRes, c.health, c.happiness, c.x, c.y, c.isInside)
-        );
-        logEvent('📂 Partida cargada.');
-        updateUpgradeButtons();
-        return true;
-    } catch(e) { return false; }
-}
-
-function resetGame() {
-    if (confirm('¿Seguro que quieres borrar todo el progreso?')) {
-        localStorage.removeItem('proyecto_gallinero_cozy_save');
-        location.reload();
-    }
-}
-
-if (!loadGame()) {
-    state.chickens.push(new Chicken('Clara', 'Leghorn', 'female'));
-    state.chickens.push(new Chicken('Rojo', 'Rhode Island Red', 'male'));
-}
-
-function updateUpgradeButtons() {
-    if (state.hasReinforcedFence) {
-        const btn = document.getElementById('btn-fence');
-        if(btn) { btn.innerText = 'Adquirido ✅'; btn.disabled = true; btn.style.background = '#5b9279'; }
-    }
-    if (state.hasWatchdog) {
-        const btn = document.getElementById('btn-dog');
-        if(btn) { btn.innerText = 'Adquirido ✅'; btn.disabled = true; btn.style.background = '#5b9279'; }
-    }
-    if (state.hasVipAccess) {
-        document.getElementById('card-vip').style.display = 'block';
-    }
-    document.getElementById('trophy-gold').innerText = state.trophies.gold;
-    document.getElementById('trophy-silver').innerText = state.trophies.silver;
-    document.getElementById('trophy-bronze').innerText = state.trophies.bronze;
-}
-
-function updateMarketPrices() {
-    const factorStd = 8 + Math.floor(Math.random() * 7);
-    const factorCal = 15 + Math.floor(Math.random() * 10);
-    const factorExo = 30 + Math.floor(Math.random() * 15);
-
-    const isBull = Math.random() > 0.5;
-    state.marketTrend = isBull ? 'En Suba 🟢' : 'En Baja 🔴';
-
-    state.marketPrices.standard = factorStd;
-    state.marketPrices.calcium = factorCal;
-    state.marketPrices.exotic = factorExo;
-
-    logEvent(`📈 Actualización Mercado: ${state.marketTrend}`);
-}
-
-function sellAllEggsMarket() {
-    const totalStd = state.eggStock.standard * state.marketPrices.standard;
-    const totalCal = state.eggStock.calcium * state.marketPrices.calcium;
-    const totalExo = state.eggStock.exotic * state.marketPrices.exotic;
-    const grandTotal = totalStd + totalCal + totalExo;
-
-    if (grandTotal <= 0) return logEvent('❌ No tienes huevos almacenados.');
-
-    state.money += grandTotal;
-    logEvent(`💰 ¡Huevos vendidos por un total de $${grandTotal}!`);
-    state.eggStock.standard = 0;
-    state.eggStock.calcium = 0;
-    state.eggStock.exotic = 0;
-    updateUI();
-    saveGame();
-}
-
-function fulfillContract(type) {
-    if (type === 'bakery') {
-        if (state.eggStock.standard < 5) return logEvent('❌ Faltan Huevos Comunes (req. 5).');
-        state.eggStock.standard -= 5;
-        state.money += 80;
-        logEvent('🍞 ¡Contrato con Panadería completado (+$80)!');
-    } else if (type === 'gourmet') {
-        if (state.eggStock.exotic < 3) return logEvent('❌ Faltan Huevos Exóticos (req. 3).');
-        state.eggStock.exotic -= 3;
-        state.money += 250;
-        logEvent('👨‍🍳 ¡Orden Michelin entregada con éxito (+$250)!');
-    }
-    updateUI();
-    saveGame();
-}
-
-function buyUpgrade(type) {
-    if (type === 'fence') {
-        if (state.hasReinforcedFence) return;
-        if (state.money < 150) return logEvent('❌ Sin dinero suficiente.');
-        state.money -= 150;
-        state.hasReinforcedFence = true;
-        logEvent('🛡️ ¡Malla reforzada instalada!');
-        updateUpgradeButtons();
-    } else if (type === 'dog') {
-        if (state.hasWatchdog) return;
-        if (state.money < 300) return logEvent('❌ Sin dinero suficiente.');
-        state.money -= 300;
-        state.hasWatchdog = true;
-        logEvent('🐕 ¡Bobby el perro guardián vigila la granja!');
-        updateUpgradeButtons();
-    }
-    updateUI();
-    saveGame();
-}
-
-function enterContest() {
-    const selectElem = document.getElementById('select-contestant');
-    const idx = selectElem ? selectElem.value : "";
-    if (idx === "" || idx === undefined || idx === null) return logEvent('❌ Selecciona un ave para la feria.');
-    if (state.money < 50) return logEvent('❌ Necesitas $50 para la inscripción.');
-
-    state.money -= 50;
-    const c = state.chickens[idx];
-    const score = Math.round((c.genLay * 0.4) + (c.genRes * 0.3) + (c.health * 0.15) + (c.happiness * 0.15));
-
-    if (score >= 80) {
-        state.trophies.gold++;
-        state.money += 500;
-        state.hasVipAccess = true;
-        logEvent(`🥇 ¡1º PUESTO! ${c.name} ganó Medalla de Oro y $500!`);
-        playSound(850, 'triangle', 0.3);
-    } else if (score >= 65) {
-        state.trophies.silver++;
-        state.money += 300;
-        state.hasVipAccess = true;
-        logEvent(`🥈 ¡2º PUESTO! ${c.name} ganó Medalla de Plata y $300!`);
-        playSound(680, 'triangle', 0.2);
-    } else if (score >= 50) {
-        state.trophies.bronze++;
-        state.money += 150;
-        logEvent(`🥉 3º Puesto para ${c.name}. Premio de $150.`);
-    } else {
-        logEvent(`🎗️ ${c.name} obtuvo mención honorífica en la exposición.`);
-    }
-
-    updateUpgradeButtons();
-    updateUI();
-    saveGame();
-}
-
-function gameLoop() {
-    state.globalFrame++;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Fondo de pastizal con gradiente estético
-    const grassGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grassGrad.addColorStop(0, '#74b283');
-    grassGrad.addColorStop(1, '#518e61');
-    ctx.fillStyle = grassGrad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Flores vectoriales en el suelo
-    state.flowers.forEach(f => {
-        ctx.beginPath();
-        ctx.arc(f.x, f.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = f.color;
-        ctx.fill();
-    });
-
-    // Briznas de pasto oscilantes
-    state.grassTufts.forEach((tuft) => {
-        const sway = Math.sin(state.globalFrame * tuft.swaySpeed + tuft.offset) * 3.5;
-        ctx.strokeStyle = tuft.color;
-        ctx.lineWidth = 1.8;
-        ctx.lineCap = 'round';
-        for (let i = 0; i < tuft.blades; i++) {
-            ctx.beginPath();
-            const angle = (i - (tuft.blades - 1) / 2) * 0.25;
-            ctx.moveTo(tuft.x, tuft.y);
-            ctx.lineTo(tuft.x + Math.sin(angle) * tuft.size + sway, tuft.y - Math.cos(angle) * tuft.size);
-            ctx.stroke();
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.beginPath(); ctx.ellipse(0, 0, 16, 10, 0, 0, Math.PI * 2); ctx.fillStyle = '#EE5253'; ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#FF4757'; ctx.font = 'bold 11px sans-serif'; ctx.fillText(`⚡ ¡TAP! [${this.hp}]`, -16, -18);
+                ctx.restore();
+            }
         }
-    });
 
-    // --- GALLINERO VECTORIAL ISOMÉTRICO ---
-    ctx.save();
-    ctx.translate(20, 20);
-    
-    // Sombra gallinero
-    ctx.beginPath();
-    ctx.ellipse(70, 92, 75, 14, 0, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0,0,0,0.2)';
-    ctx.fill();
+        // --- CANVAS INIT & RESIZE ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-    // Estructura de Madera
-    ctx.fillStyle = '#8c5830';
-    ctx.fillRect(0, 20, 140, 80);
-    ctx.strokeStyle = '#2c221e';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(0, 20, 140, 80);
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            generateGrassTufts();
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
-    // Tablas de madera horizontales
-    ctx.beginPath();
-    ctx.moveTo(0, 45); ctx.lineTo(140, 45);
-    ctx.moveTo(0, 72); ctx.lineTo(140, 72);
-    ctx.stroke();
+        // --- PERSISTENCIA Y GUARDADO ---
+        function saveGame(manual = false) {
+            try {
+                const saveData = {
+                    money: state.money, level: state.level, capacity: state.capacity,
+                    eggStock: state.eggStock, marketPrices: state.marketPrices,
+                    diet: state.diet, time: state.time, season: state.season, weather: state.weather,
+                    hasReinforcedFence: state.hasReinforcedFence, hasWatchdog: state.hasWatchdog,
+                    hasShelter: state.hasShelter, hasFeeder: state.hasFeeder, hasDrinker: state.hasDrinker,
+                    trophies: state.trophies, hasVipAccess: state.hasVipAccess,
+                    chickens: state.chickens.map(c => ({
+                        name: c.name, breed: c.breed, gender: c.gender, genLay: c.genLay, genRes: c.genRes,
+                        health: c.health, happiness: c.happiness, x: c.x, y: c.y, isInside: c.isInside, isSick: c.isSick
+                    })),
+                    worldEggs: state.worldEggs
+                };
+                localStorage.setItem('proyecto_gallinero_deluxe_save', JSON.stringify(saveData));
+                if (manual) logEvent('💾 Partida guardada.');
+            } catch (e) {}
+        }
 
-    // Techo a dos aguas vectorial
-    ctx.fillStyle = '#c0392b';
-    ctx.beginPath();
-    ctx.moveTo(-15, 20); ctx.lineTo(70, -12); ctx.lineTo(155, 20);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
+        function loadGame() {
+            const raw = localStorage.getItem('proyecto_gallinero_deluxe_save');
+            if (!raw) return false;
+            try {
+                const data = JSON.parse(raw);
+                state.money = data.money; state.level = data.level; state.capacity = data.capacity;
+                state.eggStock = data.eggStock || { standard: 0, calcium: 0, exotic: 0 };
+                state.marketPrices = data.marketPrices || { standard: 10, calcium: 18, exotic: 35 };
+                state.diet = data.diet; state.time = data.time || 8;
+                state.season = data.season || 'Primavera'; state.weather = data.weather || 'Soleado';
+                state.hasReinforcedFence = data.hasReinforcedFence || false;
+                state.hasWatchdog = data.hasWatchdog || false;
+                state.hasShelter = data.hasShelter || false;
+                state.hasFeeder = data.hasFeeder || false;
+                state.hasDrinker = data.hasDrinker || false;
+                state.trophies = data.trophies || { gold: 0, silver: 0, bronze: 0 };
+                state.hasVipAccess = data.hasVipAccess || false;
+                state.worldEggs = data.worldEggs || [];
+                state.chickens = (data.chickens || []).map(c => {
+                    const ch = new Chicken(c.name, c.breed, c.gender, c.genLay, c.genRes, c.health, c.happiness, c.x, c.y, c.isInside);
+                    ch.isSick = c.isSick || false;
+                    return ch;
+                });
+                updateUpgradeButtons();
+                return true;
+            } catch (e) { return false; }
+        }
 
-    // Sombra del techo
-    ctx.fillStyle = 'rgba(0,0,0,0.15)';
-    ctx.beginPath();
-    ctx.moveTo(-15, 20); ctx.lineTo(70, -12); ctx.lineTo(70, 20); ctx.closePath();
-    ctx.fill();
+        function exportSave() {
+            const data = localStorage.getItem('proyecto_gallinero_deluxe_save');
+            if (!data) return logEvent('❌ No hay partida guardada.');
+            navigator.clipboard.writeText(data).then(() => logEvent('📥 Código copiado al portapapeles.'));
+        }
 
-    // Ventana circular estilo granero
-    ctx.fillStyle = '#f4a261';
-    ctx.beginPath();
-    ctx.arc(95, 38, 15, 0, Math.PI * 2);
-    ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#2c221e';
-    ctx.fillRect(93, 23, 4, 30);
-    ctx.fillRect(80, 36, 30, 4);
+        function importSavePrompt() {
+            const code = prompt('Pega tu código de partida guardada:');
+            if (code) {
+                try {
+                    localStorage.setItem('proyecto_gallinero_deluxe_save', code);
+                    location.reload();
+                } catch(e) { alert('Código inválido'); }
+            }
+        }
 
-    // Puerta del gallinero
-    ctx.fillStyle = state.coopDoorOpen ? '#1e1816' : '#522f1c';
-    ctx.fillRect(22, 45, 34, 55);
-    ctx.strokeRect(22, 45, 34, 55);
+        function resetGame() {
+            if (confirm('¿Reiniciar todo de cero?')) {
+                localStorage.removeItem('proyecto_gallinero_deluxe_save');
+                location.reload();
+            }
+        }
 
-    // Etiqueta estado puerta
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.fillText(state.coopDoorOpen ? 'Puerta Abierta' : 'Puerta Cerrada', 15, 12);
+        if (!loadGame()) {
+            state.chickens.push(new Chicken('Clara', 'Leghorn', 'female'));
+            state.chickens.push(new Chicken('Rojo', 'Rhode Island Red', 'male'));
+        }
 
-    ctx.restore();
-
-    if (state.hasWatchdog) {
-        watchdogInstance.update(state.predators);
-        watchdogInstance.draw(ctx);
-    }
-
-    // Partículas de tierra / polvo
-    for (let i = state.particles.length - 1; i >= 0; i--) {
-        const p = state.particles[i];
-        p.x += p.vx; p.y += p.vy; p.life--;
-        ctx.fillStyle = '#4f7942';
-        ctx.fillRect(p.x, p.y, 3, 3);
-        if (p.life <= 0) state.particles.splice(i, 1);
-    }
-
-    // Huevos puestos en el suelo
-    state.worldEggs.forEach((egg) => {
-        ctx.beginPath();
-        ctx.ellipse(egg.x, egg.y, 7, 9, 0, 0, Math.PI * 2);
-        ctx.fillStyle = egg.type === 'Exótica' ? '#4cc9f0' : (egg.type === 'Rica en Calcio' ? '#ffd166' : '#ffffff');
-        ctx.fill();
-        ctx.strokeStyle = '#2c221e';
-        ctx.lineWidth = 1.8;
-        ctx.stroke();
-    });
-
-    // Renderizar ordenado por profundidad (Eje Y)
-    const renderables = [...state.chickens, ...state.predators];
-    renderables.sort((a, b) => a.y - b.y);
-
-    renderables.forEach(item => {
-        item.update();
-        item.draw(ctx);
-    });
-
-    // Ciclo Nocturno
-    if (state.time >= 20 || state.time <= 5) {
-        ctx.fillStyle = 'rgba(18, 24, 38, 0.55)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    requestAnimationFrame(gameLoop);
-}
-requestAnimationFrame(gameLoop);
-
-function handleCanvasInteraction(clientX, clientY) {
-    initAudio();
-    const rect = canvas.getBoundingClientRect();
-    const clickX = clientX - rect.left;
-    const clickY = clientY - rect.top;
-
-    // Clic en puerta del gallinero
-    if (clickX >= 35 && clickX <= 95 && clickY >= 60 && clickY <= 130) {
-        state.coopDoorOpen = !state.coopDoorOpen;
-        playSound(320, 'square', 0.15);
-        logEvent(state.coopDoorOpen ? '🚪 Puerta del gallinero abierta.' : '🚪 Puerta del gallinero cerrada.');
-        saveGame();
-        return;
-    }
-
-    // Recolectar huevos
-    for (let i = state.worldEggs.length - 1; i >= 0; i--) {
-        const egg = state.worldEggs[i];
-        if (Math.hypot(egg.x - clickX, egg.y - clickY) < 32) {
-            if (egg.type === 'Exótica') state.eggStock.exotic++;
-            else if (egg.type === 'Rica en Calcio') state.eggStock.calcium++;
-            else state.eggStock.standard++;
-
-            state.worldEggs.splice(i, 1);
-            playSound(620, 'sine', 0.06);
-            logEvent(`🥚 ¡Huevo recolectado con éxito!`);
+        // --- SISTEMA DE ESTRUCTURAS Y COMPRAS ---
+        function buyStructure(type) {
+            if (type === 'shelter') {
+                if (state.hasShelter) return;
+                if (state.money < 120) return logEvent('❌ Dinero insuficiente ($120).');
+                state.money -= 120; state.hasShelter = true;
+                logEvent('🌧️ Cobertizo de patio construido.');
+            } else if (type === 'feeder') {
+                if (state.hasFeeder) return;
+                if (state.money < 100) return logEvent('❌ Dinero insuficiente ($100).');
+                state.money -= 100; state.hasFeeder = true;
+                logEvent('🌽 Comedero automático listo.');
+            } else if (type === 'drinker') {
+                if (state.hasDrinker) return;
+                if (state.money < 100) return logEvent('❌ Dinero insuficiente ($100).');
+                state.money -= 100; state.hasDrinker = true;
+                logEvent('💧 Bebedero automático listo.');
+            }
+            playSound('win');
+            updateUpgradeButtons();
             updateUI();
             saveGame();
-            return;
         }
-    }
 
-    // Atacar zorros
-    for (let i = state.predators.length - 1; i >= 0; i--) {
-        const p = state.predators[i];
-        if (Math.hypot(p.x - clickX, p.y - clickY) < 45) {
-            p.hp--;
-            playSound(240, 'square', 0.1);
-            if (p.hp <= 0) {
-                state.predators.splice(i, 1);
-                logEvent('⚔️ ¡Espantaste al zorro exitosamente!');
+        function buyUpgrade(type) {
+            if (type === 'fence') {
+                if (state.hasReinforcedFence) return;
+                if (state.money < 150) return logEvent('❌ Dinero insuficiente ($150).');
+                state.money -= 150; state.hasReinforcedFence = true;
+                logEvent('🛡️ Malla reforzada colocada.');
+            } else if (type === 'dog') {
+                if (state.hasWatchdog) return;
+                if (state.money < 300) return logEvent('❌ Dinero insuficiente ($300).');
+                state.money -= 300; state.hasWatchdog = true;
+                logEvent('🐕 Bobby listo en el patio.');
             }
-            return;
+            playSound('win');
+            updateUpgradeButtons();
+            updateUI();
+            saveGame();
         }
-    }
 
-    // Inspeccionar ave
-    state.chickens.forEach((c, index) => {
-        if (!c.isInside && Math.hypot(c.x - clickX, c.y - clickY) < 32) {
-            inspectChicken(index);
-            playSound(440, 'triangle', 0.1);
+        function updateUpgradeButtons() {
+            const setDisabled = (id) => {
+                const b = document.getElementById(id);
+                if (b) { b.innerText = 'Construido ✅'; b.disabled = true; b.className = 'btn-press bg-stone-400 text-white font-bold py-1.5 text-xs rounded-xl mt-3'; }
+            };
+            if (state.hasShelter) setDisabled('btn-shelter');
+            if (state.hasFeeder) setDisabled('btn-feeder');
+            if (state.hasDrinker) setDisabled('btn-drinker');
+            if (state.hasReinforcedFence) setDisabled('btn-fence');
+            if (state.hasWatchdog) setDisabled('btn-dog');
+            if (state.hasVipAccess) document.getElementById('card-vip')?.classList.remove('hidden');
         }
-    });
-}
 
-// Control táctil limpio (Filtro Tap vs Swipe para evitar acelerar aves al deslizar)
-let touchStartX = 0;
-let touchStartY = 0;
+        // --- MINIJUEGO FERIA RURAL INTERACTIVA ---
+        function enterContest() {
+            const selectElem = document.getElementById('select-contestant');
+            const idx = selectElem ? selectElem.value : "";
+            if (idx === "") return logEvent('❌ Selecciona un ave.');
+            if (state.money < 50) return logEvent('❌ Requiere $50 de inscripción.');
 
-canvas.addEventListener('touchstart', (e) => {
-    if (e.touches.length > 0) {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-    }
-}, { passive: true });
+            state.money -= 50;
+            const c = state.chickens[idx];
 
-canvas.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    if (e.changedTouches.length > 0) {
-        const endX = e.changedTouches[0].clientX;
-        const endY = e.changedTouches[0].clientY;
-        const distance = Math.hypot(endX - touchStartX, endY - touchStartY);
-        
-        if (distance < 10) {
-            handleCanvasInteraction(endX, endY);
-        }
-    }
-}, { passive: false });
+            document.getElementById('contest-chicken-name').innerText = `${c.name} (${c.breed})`;
+            document.getElementById('contest-stars').innerText = '⭐⭐⭐⭐⭐';
+            document.getElementById('contest-status').innerText = 'Evaluando plumas y genética...';
+            document.getElementById('contest-rewards').classList.add('hidden');
+            document.getElementById('contest-close-btn').classList.add('hidden');
+            document.getElementById('contest-modal').classList.remove('hidden');
 
-canvas.addEventListener('click', (e) => {
-    if (!('ontouchstart' in window)) {
-        handleCanvasInteraction(e.clientX, e.clientY);
-    }
-});
+            setTimeout(() => {
+                const score = Math.round((c.genLay * 0.4) + (c.genRes * 0.3) + (c.health * 0.15) + (c.happiness * 0.15));
+                let stars = '⭐';
+                let prize = 0;
+                let rewardText = '';
 
-function updateUI() {
-    document.getElementById('money-display').innerText = state.money;
-    document.getElementById('level-display').innerText = state.level;
-    document.getElementById('chickens-count').innerText = state.chickens.length;
-    document.getElementById('max-chickens').innerText = state.capacity;
-    
-    document.getElementById('stock-std').innerText = state.eggStock.standard;
-    document.getElementById('stock-cal').innerText = state.eggStock.calcium;
-    document.getElementById('stock-exo').innerText = state.eggStock.exotic;
-
-    document.getElementById('price-std').innerText = state.marketPrices.standard;
-    document.getElementById('price-cal').innerText = state.marketPrices.calcium;
-    document.getElementById('price-exo').innerText = state.marketPrices.exotic;
-    document.getElementById('market-trend').innerText = state.marketTrend;
-
-    const list = document.getElementById('chickens-list');
-    list.innerHTML = '';
-    state.chickens.forEach((c, i) => {
-        list.innerHTML += `
-            <div class="card">
-                <h4 style="font-size:0.8rem; color:var(--primary);">${c.gender === 'female' ? '🐓' : '🐓♂️'} ${c.name}</h4>
-                <p style="font-size:0.68rem; color:#666; margin-top:2px;">${c.breed}</p>
-                <p style="font-size:0.65rem; color:${c.isInside ? '#8c5830' : '#5b9279'}; font-weight:bold;">${c.isInside ? 'En Gallinero' : 'En el Patio'}</p>
-                <button class="btn btn-warning" style="width:100%; margin-top:5px; font-size:0.7rem; min-height:30px;" onclick="inspectChicken(${i})">Inspeccionar</button>
-            </div>
-        `;
-    });
-
-    const selectM = document.getElementById('select-mother');
-    const selectF = document.getElementById('select-father');
-    const selectContest = document.getElementById('select-contestant');
-
-    const currentM = selectM ? selectM.value : "";
-    const currentF = selectF ? selectF.value : "";
-    const currentC = selectContest ? selectContest.value : "";
-
-    if (selectM) selectM.innerHTML = '<option value="">Seleccionar Madre</option>';
-    if (selectF) selectF.innerHTML = '<option value="">Seleccionar Padre</option>';
-    if (selectContest) selectContest.innerHTML = '<option value="">Seleccionar Ave para Feria</option>';
-
-    state.chickens.forEach((c, i) => {
-        const opt = `<option value="${i}">${c.name} (${c.breed} - ${c.gender === 'female' ? 'Hembra' : 'Macho'})</option>`;
-        if (c.gender === 'female' && selectM) selectM.innerHTML += opt;
-        if (c.gender === 'male' && selectF) selectF.innerHTML += opt;
-        if (selectContest) selectContest.innerHTML += opt;
-    });
-
-    if (selectM) selectM.value = currentM;
-    if (selectF) selectF.value = currentF;
-    if (selectContest) selectContest.value = currentC;
-}
-
-function logEvent(msg) {
-    const panel = document.getElementById('log-panel');
-    const item = document.createElement('div');
-    item.className = 'log-item';
-    item.innerText = msg;
-    panel.appendChild(item);
-    setTimeout(() => item.remove(), 3200);
-}
-
-function switchTab(tabId, e) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    if (e) e.target.classList.add('active');
-}
-
-function buyChicken(breed) {
-    if (state.chickens.length >= state.capacity) return logEvent('❌ ¡Gallinero lleno! Amplía su capacidad.');
-    const cost = breed === 'Leghorn' ? 50 : 80;
-    if (state.money < cost) return logEvent('❌ Dinero insuficiente.');
-
-    state.money -= cost;
-    const gender = Math.random() > 0.3 ? 'female' : 'male';
-    state.chickens.push(new Chicken(`Ave #${state.chickens.length + 1}`, breed, gender));
-    logEvent(`✅ Adquiriste un/a ${breed} (${gender === 'female' ? 'Hembra' : 'Macho'}).`);
-    updateUI();
-    saveGame();
-}
-
-function breedChickens() {
-    const mIdx = document.getElementById('select-mother').value;
-    const fIdx = document.getElementById('select-father').value;
-    if (mIdx === "" || fIdx === "") return logEvent('❌ Selecciona la madre y el padre para la cruza.');
-    if (state.money < 30) return logEvent('❌ Necesitas $30 para la incubación.');
-    if (state.chickens.length >= state.capacity) return logEvent('❌ Gallinero sin espacio disponible.');
-
-    const mother = state.chickens[mIdx];
-    const father = state.chickens[fIdx];
-
-    state.money -= 30;
-    const childLay = Math.round((mother.genLay + father.genLay) / 2 + (Math.random() * 12 - 4));
-    const childRes = Math.round((mother.genRes + father.genRes) / 2 + (Math.random() * 12 - 4));
-    const isHybrid = Math.random() < 0.45;
-
-    const breed = isHybrid ? 'Híbrida' : mother.breed;
-    const gender = Math.random() > 0.5 ? 'female' : 'male';
-    state.chickens.push(new Chicken(`Cría #${state.chickens.length + 1}`, breed, gender, childLay, childRes));
-    
-    logEvent(`🐣 ¡Incubación exitosa! Nació cría ${breed} (${gender === 'female' ? 'Hembra' : 'Macho'})!`);
-    updateUI();
-    saveGame();
-}
-
-function setDiet(dietName) {
-    state.diet = dietName;
-    logEvent(`🌾 Dieta actualizada: ${dietName}`);
-    updateUI();
-    saveGame();
-}
-
-function inspectChicken(index) {
-    state.inspectedIndex = index;
-    const c = state.chickens[index];
-    document.getElementById('inspect-name').innerText = c.name;
-    document.getElementById('inspect-breed').innerText = `Raza: ${c.breed} (${c.gender === 'female' ? 'Hembra' : 'Macho'})`;
-    document.getElementById('inspect-inside').innerText = c.isInside ? 'En el gallinero' : 'En el patio';
-    document.getElementById('inspect-health').innerText = `${c.health}%`;
-    document.getElementById('inspect-happy').innerText = `${c.happiness}%`;
-    document.getElementById('inspect-gen-lay').innerText = c.genLay;
-    document.getElementById('inspect-gen-res').innerText = c.genRes;
-    document.getElementById('inspector-modal').style.display = 'block';
-}
-
-function closeInspector() {
-    document.getElementById('inspector-modal').style.display = 'none';
-}
-
-function sellInspectedChicken() {
-    if (state.inspectedIndex !== null) {
-        state.chickens.splice(state.inspectedIndex, 1);
-        state.money += 40;
-        closeInspector();
-        logEvent('💰 Ave vendida por $40.');
-        updateUI();
-        saveGame();
-    }
-}
-
-function upgradeFarm() {
-    const cost = state.level * 200;
-    if (state.money < cost) return logEvent(`❌ Necesitas $${cost} para ampliar el gallinero.`);
-    state.money -= cost;
-    state.level++;
-    state.capacity += 5;
-    logEvent(`🏗️ ¡Gallinero ampliado a Nivel ${state.level}! Capacidad: +5.`);
-    updateUI();
-    saveGame();
-}
-
-// Bucle de tiempo y producción de la granja
-setInterval(() => {
-    state.time++;
-    if (state.time >= 24) {
-        state.time = 0;
-        updateMarketPrices();
-    }
-    const timeFormatted = state.time === 0 ? '12:00 AM' : (state.time < 12 ? `${state.time.toString().padStart(2, '0')}:00 AM` : (state.time === 12 ? '12:00 PM' : `${(state.time-12).toString().padStart(2, '0')}:00 PM`));
-    document.getElementById('time-display').innerText = timeFormatted;
-
-    state.chickens.forEach(c => {
-        if (c.gender === 'female') {
-            if (Math.random() < (c.genLay / 2300)) {
-                if (c.isInside) {
-                    if (state.diet === 'Exótica') state.eggStock.exotic++;
-                    else if (state.diet === 'Rica en Calcio') state.eggStock.calcium++;
-                    else state.eggStock.standard++;
-                    logEvent(`🐔 ${c.name} puso un huevo dentro del gallinero.`);
+                if (score >= 80) {
+                    stars = '⭐⭐⭐⭐⭐ (1º Puesto)';
+                    prize = 500; state.trophies.gold++; state.hasVipAccess = true;
+                    rewardText = '🥇 ORO: ¡Premio de $500 y pase Gourmet Michelin!';
+                    playSound('win');
+                } else if (score >= 65) {
+                    stars = '⭐⭐⭐⭐ (2º Puesto)';
+                    prize = 300; state.trophies.silver++; state.hasVipAccess = true;
+                    rewardText = '🥈 PLATA: ¡Premio de $300!';
+                    playSound('win');
+                } else if (score >= 50) {
+                    stars = '⭐⭐⭐ (3º Puesto)';
+                    prize = 150; state.trophies.bronze++;
+                    rewardText = '🥉 BRONCE: ¡Premio de $150!';
                 } else {
-                    state.worldEggs.push({ x: c.x, y: c.y + 6, type: state.diet });
-                    logEvent(`🐔 ${c.name} puso un huevo en el pastizal.`);
+                    stars = '⭐⭐ (Mención)';
+                    rewardText = '🎗️ Mención Honorífica.';
                 }
+
+                state.money += prize;
+                document.getElementById('contest-stars').innerText = stars;
+                document.getElementById('contest-status').innerText = '¡Evaluación Completada!';
+                const rew = document.getElementById('contest-rewards');
+                rew.innerText = rewardText; rew.classList.remove('hidden');
+                document.getElementById('contest-close-btn').classList.remove('hidden');
                 updateUI();
+                saveGame();
+            }, 2000);
+        }
+
+        function closeContestModal() { document.getElementById('contest-modal').classList.add('hidden'); }
+
+        // --- VENDEDOR AMBULANTE ---
+        function triggerRandomMerchant() {
+            if (Math.random() < 0.2 && !state.merchantActive) {
+                state.merchantActive = true;
+                document.getElementById('merchant-badge').classList.remove('hidden');
+                logEvent('🎩 ¡Llegó el Vendedor Ambulante!');
             }
         }
-    });
-
-    if ((state.time >= 20 || state.time <= 5) && state.coopDoorOpen) {
-        state.chickens.forEach(c => {
-            if (!c.isInside && Math.random() < 0.45) c.isInside = true;
-        });
-        updateUI();
-    }
-
-    if ((state.time > 20 || state.time < 5) && Math.random() < 0.22 && state.predators.length === 0) {
-        const outdoorChickens = state.chickens.filter(c => !c.isInside);
-        if (outdoorChickens.length > 0) {
-            state.predators.push(new Predator());
-            logEvent('⚠️ ¡Alerta! ¡Un zorro se acerca sigilosamente!');
+        function openMerchantModal() { document.getElementById('merchant-modal').classList.remove('hidden'); }
+        function closeMerchantModal() { document.getElementById('merchant-modal').classList.add('hidden'); }
+        function buyMerchantOffer(type) {
+            if (type === 'hybrid') {
+                if (state.money < 120) return logEvent('❌ Sin dinero.');
+                state.money -= 120;
+                state.chickens.push(new Chicken('VIP Híbrida', 'Híbrida', 'female', 95, 90));
+                logEvent('🐣 ¡Ave Híbrida VIP adquirida!');
+            } else if (type === 'cureAll') {
+                if (state.money < 90) return logEvent('❌ Sin dinero.');
+                state.money -= 90;
+                state.chickens.forEach(c => c.isSick = false);
+                logEvent('🧪 ¡Todas las aves sanadas!');
+            }
+            closeMerchantModal();
+            updateUI();
+            saveGame();
         }
-    }
 
-    saveGame();
-}, 5000);
+        // --- SISTEMA VETERINARIO ---
+        function buyMedicineBatch() {
+            const sickList = state.chickens.filter(c => c.isSick);
+            if (sickList.length === 0) return logEvent('✅ No hay aves enfermas.');
+            if (state.money < 35) return logEvent('❌ Dinero insuficiente ($35).');
+            state.money -= 35;
+            sickList[0].isSick = false;
+            logEvent(`🩺 ${sickList[0].name} ha sido curada.`);
+            updateUI();
+            saveGame();
+        }
 
-updateUI();
-</script>
+        // --- BUCLE PRINCIPAL DE RENDERIZADO CANVAS ---
+        function gameLoop() {
+            state.globalFrame++;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Color de Fondo según Estación/Clima
+            let grassGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            if (state.season === 'Invierno' || state.weather === 'Nieve') {
+                grassGrad.addColorStop(0, '#e2e8f0'); grassGrad.addColorStop(1, '#cbd5e1');
+            } else if (state.weather === 'Tormenta') {
+                grassGrad.addColorStop(0, '#2d3748'); grassGrad.addColorStop(1, '#1a202c');
+            } else {
+                grassGrad.addColorStop(0, '#386641'); grassGrad.addColorStop(1, '#2a4d30');
+            }
+            ctx.fillStyle = grassGrad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Hierba
+            state.grassTufts.forEach((tuft) => {
+                const sway = Math.sin(state.globalFrame * tuft.swaySpeed + tuft.offset) * 2.5;
+                ctx.strokeStyle = tuft.color; ctx.lineWidth = 1.8;
+                for (let i = 0; i < tuft.blades; i++) {
+                    ctx.beginPath();
+                    const angle = (i - (tuft.blades - 1) / 2) * 0.25;
+                    ctx.moveTo(tuft.x, tuft.y);
+                    ctx.lineTo(tuft.x + Math.sin(angle) * tuft.size + sway, tuft.y - Math.cos(angle) * tuft.size);
+                    ctx.stroke();
+                }
+            });
+
+            // 3. Estructura Gallinero
+            ctx.save(); ctx.translate(15, 15);
+            ctx.fillStyle = '#4e342e'; ctx.fillRect(0, 15, 125, 75);
+            ctx.fillStyle = state.coopDoorOpen ? '#1a202c' : '#2c1810'; ctx.fillRect(20, 40, 30, 50);
+            ctx.restore();
+
+            // 4. Cobertizo de Patio (si se construyó)
+            if (state.hasShelter) {
+                ctx.fillStyle = '#6d4c41'; ctx.fillRect(canvas.width - 140, 80, 110, 40);
+                ctx.fillStyle = '#bc6c25'; ctx.beginPath(); ctx.moveTo(canvas.width - 150, 80); ctx.lineTo(canvas.width - 85, 55); ctx.lineTo(canvas.width - 20, 80); ctx.fill();
+            }
+
+            // 5. Entidades
+            if (state.hasWatchdog) { watchdogInstance.update(state.predators); watchdogInstance.draw(ctx); }
+            
+            const renderables = [...state.chickens, ...state.predators];
+            renderables.sort((a, b) => a.y - b.y);
+            renderables.forEach(item => { item.update(); item.draw(ctx); });
+
+            // 6. Efectos Climáticos
+            updateWeatherParticles();
+            ctx.fillStyle = state.weather === 'Nieve' ? '#ffffff' : '#38bdf8';
+            state.weatherParticles.forEach(p => {
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+            });
+
+            // Relámpagos
+            if (state.weather === 'Tormenta' && Math.random() < 0.01) {
+                state.lightningFlash = 5;
+                playSound('thunder');
+            }
+            if (state.lightningFlash > 0) {
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                state.lightningFlash--;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+        requestAnimationFrame(gameLoop);
+
+        // --- TOUCH Y EVENTOS DESACOPLADOS ---
+        let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+
+        function handleCanvasInteraction(clientX, clientY) {
+            initAudio();
+            const rect = canvas.getBoundingClientRect();
+            const clickX = clientX - rect.left;
+            const clickY = clientY - rect.top;
+
+            if (clickX >= 25 && clickX <= 80 && clickY >= 40 && clickY <= 110) {
+                state.coopDoorOpen = !state.coopDoorOpen;
+                logEvent(state.coopDoorOpen ? '🚪 Puerta abierta.' : '🚪 Puerta cerrada.');
+                saveGame(); return;
+            }
+
+            state.chickens.forEach((c, index) => {
+                if (!c.isInside && Math.hypot(c.x - clickX, c.y - clickY) < 30) {
+                    inspectChicken(index);
+                }
+            });
+        }
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 0) {
+                touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; touchStartTime = Date.now();
+            }
+        }, { passive: true });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (e.changedTouches.length > 0) {
+                const dist = Math.hypot(e.changedTouches[0].clientX - touchStartX, e.changedTouches[0].clientY - touchStartY);
+                if (dist < 8 && (Date.now() - touchStartTime) < 400) {
+                    handleCanvasInteraction(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+                }
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('click', (e) => {
+            if (!('ontouchstart' in window)) handleCanvasInteraction(e.clientX, e.clientY);
+        });
+
+        // --- UI Y ESTADOS DE INTERFAZ REACTIVA ---
+        function updateUI() {
+            document.getElementById('money-display').innerText = state.money;
+            document.getElementById('level-display').innerText = state.level;
+            document.getElementById('chickens-count').innerText = state.chickens.length;
+            document.getElementById('max-chickens').innerText = state.capacity;
+            document.getElementById('season-display').innerText = `${state.season === 'Primavera' ? '🌸' : '❄️'} ${state.season}`;
+
+            const list = document.getElementById('chickens-list');
+            list.innerHTML = '';
+            state.chickens.forEach((c, i) => {
+                list.innerHTML += `
+                    <div class="bg-white p-2.5 rounded-xl border ${c.isSick ? 'border-red-400 bg-red-50' : 'border-cozy-border'} shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="text-xs font-bold text-wood-900 flex justify-between">
+                                <span>${c.gender === 'female' ? '🐓' : '🐓♂️'} ${c.name}</span>
+                                <span class="text-[10px] text-stone-400">${c.isInside ? 'Coop' : 'Patio'}</span>
+                            </div>
+                            <div class="text-[10px] text-stone-500">${c.breed} ${c.isSick ? '⚠️ Enferma' : ''}</div>
+                        </div>
+                        <button onclick="inspectChicken(${i})" class="btn-press bg-amber-500 hover:bg-amber-600 text-white font-bold py-1 px-2 text-[11px] rounded-lg mt-2">Ver Stats</button>
+                    </div>
+                `;
+            });
+
+            // Lista Veterinaria
+            const sickListElem = document.getElementById('sick-chickens-list');
+            const sickChickens = state.chickens.filter(c => c.isSick);
+            if (sickChickens.length === 0) {
+                sickListElem.innerHTML = '<div class="text-xs text-emerald-700 bg-emerald-50 p-2 rounded-lg">✅ ¡Todas tus aves están sanas!</div>';
+            } else {
+                sickListElem.innerHTML = sickChickens.map(c => `
+                    <div class="bg-white p-2 rounded-lg border border-red-200 text-xs flex justify-between items-center">
+                        <span>🤒 ${c.name} (${c.breed})</span>
+                        <span class="text-red-600 font-bold">Respiratorio</span>
+                    </div>
+                `).join('');
+            }
+
+            // Selectores Blindados
+            const selectM = document.getElementById('select-mother');
+            const selectF = document.getElementById('select-father');
+            const selectContest = document.getElementById('select-contestant');
+
+            if (document.activeElement !== selectM && document.activeElement !== selectF && document.activeElement !== selectContest) {
+                const valM = selectM ? selectM.value : "";
+                const valF = selectF ? selectF.value : "";
+                const valC = selectContest ? selectContest.value : "";
+
+                if (selectM) selectM.innerHTML = '<option value="">Seleccionar Madre...</option>';
+                if (selectF) selectF.innerHTML = '<option value="">Seleccionar Padre...</option>';
+                if (selectContest) selectContest.innerHTML = '<option value="">Seleccionar Ave...</option>';
+
+                state.chickens.forEach((c, i) => {
+                    const opt = `<option value="${i}">${c.name} (${c.breed})</option>`;
+                    if (c.gender === 'female' && selectM) selectM.innerHTML += opt;
+                    if (c.gender === 'male' && selectF) selectF.innerHTML += opt;
+                    if (selectContest) selectContest.innerHTML += opt;
+                });
+
+                if (selectM) selectM.value = valM;
+                if (selectF) selectF.value = valF;
+                if (selectContest) selectContest.value = valC;
+            }
+        }
+
+        function logEvent(msg) {
+            const panel = document.getElementById('log-panel');
+            const item = document.createElement('div');
+            item.className = 'toast-animate bg-stone-900/90 text-amber-100 text-xs px-3 py-1.5 rounded-xl border border-amber-300/30 shadow-lg backdrop-blur-sm';
+            item.innerText = msg;
+            panel.appendChild(item);
+            setTimeout(() => item.remove(), 3200);
+        }
+
+        function inspectChicken(index) {
+            state.inspectedIndex = index;
+            const c = state.chickens[index];
+            if (!c) return;
+            document.getElementById('inspect-name').innerText = c.name;
+            document.getElementById('inspect-breed').innerText = `Raza: ${c.breed}`;
+            document.getElementById('inspect-sick').innerText = c.isSick ? 'Enferma 🤒' : 'Sana ✅';
+            document.getElementById('inspect-sick').className = c.isSick ? 'text-red-600' : 'text-emerald-600';
+            document.getElementById('inspect-health-val').innerText = `${Math.round(c.health)}%`;
+            document.getElementById('inspect-health-bar').style.width = `${c.health}%`;
+            document.getElementById('inspect-happy-val').innerText = `${Math.round(c.happiness)}%`;
+            document.getElementById('inspect-happy-bar').style.width = `${c.happiness}%`;
+            document.getElementById('inspect-gen-lay').innerText = c.genLay;
+            document.getElementById('inspect-gen-res').innerText = c.genRes;
+            document.getElementById('inspector-modal').classList.remove('hidden');
+        }
+
+        function closeInspector() { document.getElementById('inspector-modal').classList.add('hidden'); }
+        function sellInspectedChicken() {
+            if (state.inspectedIndex !== null && state.chickens[state.inspectedIndex]) {
+                state.chickens.splice(state.inspectedIndex, 1);
+                state.money += 40; closeInspector(); updateUI(); saveGame();
+            }
+        }
+
+        function buyChicken(breed) {
+            if (state.chickens.length >= state.capacity) return logEvent('❌ Gallinero lleno.');
+            const cost = breed === 'Leghorn' ? 50 : 80;
+            if (state.money < cost) return logEvent('❌ Dinero insuficiente.');
+            state.money -= cost;
+            const gender = Math.random() > 0.3 ? 'female' : 'male';
+            state.chickens.push(new Chicken(`Ave #${state.chickens.length + 1}`, breed, gender));
+            updateUI(); saveGame();
+        }
+
+        function breedChickens() {
+            const mIdx = document.getElementById('select-mother').value;
+            const fIdx = document.getElementById('select-father').value;
+            if (mIdx === "" || fIdx === "") return logEvent('❌ Selecciona madre y padre.');
+            if (state.money < 30) return logEvent('❌ Dinero insuficiente ($30).');
+            if (state.chickens.length >= state.capacity) return logEvent('❌ Espacio máximo alcanzado.');
+
+            state.money -= 30;
+            const mother = state.chickens[mIdx]; const father = state.chickens[fIdx];
+            const breed = Math.random() < 0.4 ? 'Híbrida' : mother.breed;
+            state.chickens.push(new Chicken(`Cría #${state.chickens.length + 1}`, breed, Math.random() > 0.5 ? 'female' : 'male'));
+            updateUI(); saveGame();
+        }
+
+        function setDiet(d) { state.diet = d; logEvent(`🌾 Dieta: ${d}`); saveGame(); }
+        function upgradeFarm() {
+            if (state.money < 200) return logEvent('❌ Sin dinero.');
+            state.money -= 200; state.level++; state.capacity += 5; updateUI(); saveGame();
+        }
+
+        // --- RELOJ AUTOMÁTICO Y BUCLE CLIMÁTICO ---
+        setInterval(() => {
+            state.time++;
+            if (state.time >= 24) {
+                state.time = 0;
+                // Cambio de Clima Aleatorio
+                const weathers = ['Soleado', 'Soleado', 'Lluvia', 'Tormenta', 'Nieve'];
+                state.weather = weathers[Math.floor(Math.random() * weathers.length)];
+                document.getElementById('weather-badge').innerText = `${state.weather === 'Soleado' ? '☀️' : '🌧️'} ${state.weather}`;
+                triggerRandomMerchant();
+            }
+
+            const formattedTime = `${state.time.toString().padStart(2, '0')}:00`;
+            document.getElementById('time-display').innerText = formattedTime;
+            document.getElementById('time-display-mobile').innerText = formattedTime;
+
+            // Puesta de huevos
+            state.chickens.forEach(c => {
+                if (c.gender === 'female' && Math.random() < (c.genLay / 2300)) {
+                    state.eggStock.standard++;
+                    updateUI();
+                }
+            });
+
+            saveGame();
+        }, 5000);
+
+        updateUI();
+    </script>
 </body>
 </html>
+```
