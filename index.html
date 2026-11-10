@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Proyecto Gallinero - Ultimate Fixed Edition</title>
+    <title>Proyecto Gallinero - Cozy Vector Edition</title>
     <style>
         :root {
-            --bg-color: #f4efe6;
-            --primary: #4a2e1b;
-            --accent: #e07a5f;
-            --panel-bg: #fffbf4;
-            --border-color: #d4c5b9;
-            --text-dark: #2b2d42;
-            --success: #6b9080;
-            --warning: #f2cc8f;
-            --danger: #e63946;
+            --bg-canvas: #68a379;
+            --primary: #3d2314;
+            --secondary: #8c5830;
+            --accent: #e27d60;
+            --panel-bg: #fffcf8;
+            --border-color: #d8c8b8;
+            --text-dark: #2c221e;
+            --success: #5b9279;
+            --warning: #f4a261;
+            --danger: #d9534f;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
@@ -31,7 +32,7 @@
             height: 100%;
             height: 100dvh;
             overflow: hidden;
-            background-color: var(--bg-color);
+            background-color: #2c221e;
             color: var(--text-dark);
         }
 
@@ -49,51 +50,57 @@
             }
         }
 
+        /* BARRA LATERAL / SUPERIOR */
         #sidebar {
-            width: 300px;
-            background-color: var(--primary);
-            color: white;
-            padding: 10px 12px;
+            width: 280px;
+            background: linear-gradient(180deg, #482b18, #321c0e);
+            color: #fdfbf7;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+            gap: 10px;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.3);
             z-index: 10;
             flex-shrink: 0;
+            border-right: 2px solid #5a3721;
         }
 
         @media (max-width: 900px) {
             #sidebar {
                 width: 100%;
                 height: auto;
-                padding: 6px 12px;
+                padding: 6px 10px;
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
                 gap: 6px;
                 align-items: center;
+                border-right: none;
+                border-bottom: 2px solid #5a3721;
             }
             #sidebar h2 { font-size: 0.85rem; }
             #sidebar p { display: none; }
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.12);
-            padding: 6px 8px;
-            border-radius: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.08);
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
         }
 
         .stat-card h3 {
             font-size: 0.6rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             color: var(--warning);
             margin-bottom: 2px;
         }
 
         .stat-value {
-            font-size: 0.9rem;
-            font-weight: bold;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #fff;
         }
 
         #main-content {
@@ -108,7 +115,7 @@
         #viewport-container {
             flex: 1;
             position: relative;
-            background: #7ca982;
+            background: var(--bg-canvas);
             width: 100%;
             height: 100%;
             overflow: hidden;
@@ -123,34 +130,35 @@
             display: block;
         }
 
+        /* PANEL FLOTANTE INFERIOR */
         #controls-panel {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
             background: var(--panel-bg);
-            border-top: 2px solid var(--border-color);
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.25);
+            border-top: 3px solid var(--secondary);
+            box-shadow: 0 -8px 25px rgba(0,0,0,0.3);
             display: flex;
             flex-direction: column;
-            height: 290px;
+            height: 310px;
             z-index: 50;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         #controls-panel.minimized {
-            transform: translateY(calc(100% - 42px));
+            transform: translateY(calc(100% - 46px));
         }
 
         .panel-header-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #e6ded4;
-            padding: 8px 14px;
+            background: linear-gradient(90deg, #ede3d2, #dfd2bc);
+            padding: 8px 16px;
             border-bottom: 1px solid var(--border-color);
             cursor: pointer;
-            height: 42px;
+            height: 46px;
             flex-shrink: 0;
         }
 
@@ -158,22 +166,23 @@
             background: var(--primary);
             color: white;
             border: none;
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 6px;
             font-size: 0.75rem;
             font-weight: bold;
             cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         @media (max-width: 900px) {
             #controls-panel {
-                height: 48vh;
+                height: 50vh;
             }
         }
 
         .tab-buttons {
             display: flex;
-            background: #e6ded4;
+            background: #ede3d2;
             border-bottom: 1px solid var(--border-color);
             overflow-x: auto;
             white-space: nowrap;
@@ -182,7 +191,7 @@
         }
 
         .tab-btn {
-            padding: 8px 12px;
+            padding: 9px 14px;
             border: none;
             background: none;
             font-weight: bold;
@@ -190,15 +199,21 @@
             color: var(--primary);
             cursor: pointer;
             display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.4);
         }
 
         .tab-btn.active {
             background: var(--panel-bg);
             border-bottom: 3px solid var(--accent);
+            color: #a83822;
         }
 
         .tab-content {
-            padding: 10px;
+            padding: 12px;
             flex: 1;
             overflow-y: auto;
             display: none;
@@ -213,7 +228,7 @@
             background: var(--accent);
             color: white;
             border: none;
-            padding: 8px 10px;
+            padding: 9px 12px;
             border-radius: 8px;
             font-weight: bold;
             font-size: 0.8rem;
@@ -221,77 +236,87 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            min-height: 38px;
+            gap: 6px;
+            min-height: 40px;
             touch-action: manipulation;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            transition: filter 0.1s, transform 0.1s;
         }
 
         .btn:active {
             filter: brightness(0.9);
-            transform: scale(0.98);
+            transform: scale(0.97);
         }
 
         .btn-success { background: var(--success); }
         .btn-danger { background: var(--danger); }
-        .btn-warning { background: var(--warning); color: #000; }
+        .btn-warning { background: var(--warning); color: #2c221e; }
 
         .grid-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
         }
 
         .card {
-            background: white;
+            background: #fff;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
         }
 
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* MODAL INSPECTOR */
         #inspector-modal {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 18px;
-            border-radius: 14px;
-            border: 2px solid var(--primary);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 16px;
+            border: 3px solid var(--secondary);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
             display: none;
             z-index: 100;
-            width: 85%;
-            max-width: 310px;
+            width: 88%;
+            max-width: 320px;
         }
 
+        /* LOG TOASTS */
         #log-panel {
             position: absolute;
-            top: 8px;
-            right: 8px;
-            left: 8px;
-            max-height: 90px;
+            top: 10px;
+            right: 10px;
+            left: 10px;
+            max-height: 100px;
             overflow: hidden;
             pointer-events: none;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
             z-index: 20;
         }
 
         .log-item {
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 6px 10px;
-            border-radius: 6px;
+            background: rgba(44, 34, 30, 0.85);
+            color: #fff;
+            padding: 7px 12px;
+            border-radius: 8px;
             font-size: 0.75rem;
-            backdrop-filter: blur(4px);
-            animation: fadeIn 0.2s forwards;
+            backdrop-filter: blur(6px);
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            animation: fadeIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-4px); }
+            from { opacity: 0; transform: translateY(-8px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
@@ -302,7 +327,7 @@
     <div id="sidebar">
         <div>
             <h2>🐓 Proj. Gallinero</h2>
-            <p style="font-size: 0.75rem; opacity: 0.8;">Niv <span id="level-display">1</span></p>
+            <p style="font-size: 0.75rem; opacity: 0.8;">Nivel <span id="level-display">1</span></p>
         </div>
 
         <div class="stat-card">
@@ -316,8 +341,8 @@
         </div>
 
         <div class="stat-card">
-            <h3>Tiempo</h3>
-            <div style="font-size: 0.8rem;" id="time-display">08:00 AM</div>
+            <h3>Hora</h3>
+            <div style="font-size: 0.9rem; font-weight: bold;" id="time-display">08:00 AM</div>
         </div>
     </div>
 
@@ -328,18 +353,19 @@
             <div id="log-panel"></div>
 
             <div id="inspector-modal">
-                <h3 id="inspect-name" style="color: var(--primary);">Gallina</h3>
+                <h3 id="inspect-name" style="color: var(--primary); font-size:1.1rem; margin-bottom:4px;">Gallina</h3>
                 <p style="font-size:0.8rem; color:#666;" id="inspect-breed">Raza: Leghorn</p>
-                <hr style="margin:6px 0;">
-                <div style="font-size:0.8rem; line-height: 1.4;">
-                    <p>Estado: <b id="inspect-inside" style="color:var(--accent)">En el patio</b></p>
-                    <p>Salud: <b id="inspect-health">100%</b></p>
-                    <p>Felicidad: <b id="inspect-happy">100%</b></p>
-                    <p>Genética Puesta: <b id="inspect-gen-lay">50</b> | Resistencia: <b id="inspect-gen-res">50</b></p>
+                <hr style="margin:8px 0; border:0; border-top:1px solid var(--border-color);">
+                <div style="font-size:0.82rem; line-height: 1.5; display:flex; flex-direction:column; gap:4px;">
+                    <p>Ubicación: <b id="inspect-inside" style="color:var(--accent)">En el patio</b></p>
+                    <p>Salud: <b id="inspect-health" style="color:var(--success)">100%</b></p>
+                    <p>Felicidad: <b id="inspect-happy" style="color:var(--warning)">100%</b></p>
+                    <p>Genética Puesta: <b id="inspect-gen-lay">50</b></p>
+                    <p>Genética Resistencia: <b id="inspect-gen-res">50</b></p>
                 </div>
-                <div style="margin-top:12px; display:flex; gap:6px;">
-                    <button class="btn btn-danger" style="flex:1;" onclick="sellInspectedChicken()">Vender</button>
-                    <button class="btn" style="flex:1;" onclick="closeInspector()">Cerrar</button>
+                <div style="margin-top:14px; display:flex; gap:8px;">
+                    <button class="btn btn-danger" style="flex:1;" onclick="sellInspectedChicken()">Vender ($40)</button>
+                    <button class="btn" style="flex:1; background:#8c5830;" onclick="closeInspector()">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -347,7 +373,7 @@
         <!-- PANEL FLOTANTE INFERIOR -->
         <div id="controls-panel">
             <div class="panel-header-bar" onclick="togglePanel()">
-                <span style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">⚙️ Panel de Gestión</span>
+                <span style="font-size: 0.85rem; font-weight: bold; color: var(--primary);">⚙️ Panel de Gestión de la Granja</span>
                 <button class="toggle-panel-btn" id="toggle-btn-text">▲ Ocultar Panel</button>
             </div>
 
@@ -362,35 +388,35 @@
             </div>
 
             <div id="tab-mercado" class="tab-content active">
-                <div style="margin-bottom: 8px; background:#e6ded4; padding:6px 8px; border-radius:6px;">
-                    <h5 style="font-size:0.75rem; color:var(--primary);">Almacén de Huevos:</h5>
-                    <p style="font-size:0.8rem;">Comunes: <b id="stock-std">0</b> | Calcio: <b id="stock-cal">0</b> | Exóticos: <b id="stock-exo">0</b></p>
+                <div style="margin-bottom: 10px; background:#f4ebd0; padding:8px 10px; border-radius:8px; border:1px solid #e2d2b5;">
+                    <h5 style="font-size:0.75rem; color:var(--primary); text-transform:uppercase; margin-bottom:2px;">Almacén de Huevos:</h5>
+                    <p style="font-size:0.82rem;">Comunes: <b id="stock-std">0</b> | Calcio: <b id="stock-cal">0</b> | Exóticos: <b id="stock-exo">0</b></p>
                 </div>
 
                 <div class="grid-cards">
                     <div class="card">
-                        <h4 style="font-size: 0.75rem;">Mercado Libre</h4>
+                        <h4 style="font-size: 0.8rem; color:var(--primary);">Bolsa de Huevos</h4>
                         <p style="font-size: 0.65rem; color:#666;" id="market-trend">Estable ➡️</p>
-                        <p style="font-size: 0.7rem; margin-top:2px;">Común: $<span id="price-std">10</span> | Calcio: $<span id="price-cal">18</span></p>
-                        <button class="btn btn-success" style="width:100%; margin-top:4px; font-size:0.7rem;" onclick="sellAllEggsMarket()">Vender Todo</button>
+                        <p style="font-size: 0.72rem; margin-top:3px;">Común: $<span id="price-std">10</span> | Calcio: $<span id="price-cal">18</span></p>
+                        <button class="btn btn-success" style="width:100%; margin-top:6px; font-size:0.75rem;" onclick="sellAllEggsMarket()">Vender Todo</button>
                     </div>
 
                     <div class="card">
-                        <h4 style="font-size: 0.75rem;">Comprar Aves</h4>
-                        <button class="btn" style="width:100%; margin-top:2px; font-size:0.75rem;" onclick="buyChicken('Leghorn')">Leghorn ($50)</button>
-                        <button class="btn" style="width:100%; margin-top:2px; font-size:0.75rem;" onclick="buyChicken('Rhode Island Red')">R. Island ($80)</button>
+                        <h4 style="font-size: 0.8rem; color:var(--primary);">Adquirir Aves</h4>
+                        <button class="btn" style="width:100%; margin-top:3px; font-size:0.72rem;" onclick="buyChicken('Leghorn')">Leghorn ($50)</button>
+                        <button class="btn" style="width:100%; margin-top:3px; font-size:0.72rem;" onclick="buyChicken('Rhode Island Red')">R. Island ($80)</button>
                     </div>
 
                     <div class="card" style="border: 1px solid var(--warning);">
-                        <h4 style="font-size: 0.75rem;">📝 Panadería</h4>
-                        <p style="font-size: 0.65rem; color:#666;">5x Comunes</p>
-                        <button class="btn btn-warning" style="width:100%; margin-top:4px; font-size:0.7rem;" onclick="fulfillContract('bakery')">Entregar ($80)</button>
+                        <h4 style="font-size: 0.8rem; color:var(--primary);">📝 Panadería</h4>
+                        <p style="font-size: 0.65rem; color:#666;">Req: 5x Comunes</p>
+                        <button class="btn btn-warning" style="width:100%; margin-top:6px; font-size:0.75rem;" onclick="fulfillContract('bakery')">Entregar ($80)</button>
                     </div>
 
                     <div class="card" id="card-vip" style="display:none; border: 1px solid var(--success);">
-                        <h4 style="font-size: 0.75rem;">🌟 Orden Michelin</h4>
-                        <p style="font-size: 0.65rem; color:#666;">3x Exóticos</p>
-                        <button class="btn btn-success" style="width:100%; margin-top:4px; font-size:0.7rem;" onclick="fulfillContract('gourmet')">Entregar ($250)</button>
+                        <h4 style="font-size: 0.8rem; color:var(--primary);">🌟 Orden Michelin</h4>
+                        <p style="font-size: 0.65rem; color:#666;">Req: 3x Exóticos</p>
+                        <button class="btn btn-success" style="width:100%; margin-top:6px; font-size:0.75rem;" onclick="fulfillContract('gourmet')">Entregar ($250)</button>
                     </div>
                 </div>
             </div>
@@ -400,52 +426,52 @@
             </div>
 
             <div id="tab-cruza" class="tab-content">
-                <h4 style="margin-bottom: 4px; font-size:0.8rem;">Laboratorio de Cruza</h4>
-                <div style="display:flex; flex-direction:column; gap:6px;">
-                    <select id="select-mother" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%; font-size:0.75rem;"></select>
-                    <select id="select-father" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%; font-size:0.75rem;"></select>
-                    <button class="btn btn-success" style="font-size:0.75rem;" onclick="breedChickens()">Incubar Cría ($30)</button>
+                <h4 style="margin-bottom: 6px; font-size:0.85rem; color:var(--primary);">Laboratorio Genético</h4>
+                <div style="display:flex; flex-direction:column; gap:8px; max-width:300px;">
+                    <select id="select-mother" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%; font-size:0.78rem; text-align:left;"></select>
+                    <select id="select-father" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%; font-size:0.78rem; text-align:left;"></select>
+                    <button class="btn btn-success" style="font-size:0.78rem;" onclick="breedChickens()">Incubar Nueva Cría ($30)</button>
                 </div>
             </div>
 
             <div id="tab-feria" class="tab-content">
-                <h4 style="margin-bottom: 2px; font-size:0.8rem;">🏆 Exposición Rural</h4>
-                <div style="display:flex; flex-direction:column; gap:6px;">
-                    <select id="select-contestant" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%; font-size:0.75rem;"></select>
-                    <button class="btn btn-warning" style="font-size:0.75rem;" onclick="enterContest()">Inscribir Ave ($50)</button>
+                <h4 style="margin-bottom: 4px; font-size:0.85rem; color:var(--primary);">🏆 Exposición Rural</h4>
+                <div style="display:flex; flex-direction:column; gap:8px; max-width:300px;">
+                    <select id="select-contestant" class="btn" style="background:white; color:black; border:1px solid #ccc; width:100%; font-size:0.78rem; text-align:left;"></select>
+                    <button class="btn btn-warning" style="font-size:0.78rem;" onclick="enterContest()">Inscribir al Concurso ($50)</button>
                 </div>
-                <p style="font-size:0.75rem; margin-top:4px;">🥇 Oros: <b id="trophy-gold">0</b> | 🥈 Platas: <b id="trophy-silver">0</b> | 🥉 Bronces: <b id="trophy-bronze">0</b></p>
+                <p style="font-size:0.78rem; margin-top:8px;">🥇 Oros: <b id="trophy-gold">0</b> | 🥈 Platas: <b id="trophy-silver">0</b> | 🥉 Bronces: <b id="trophy-bronze">0</b></p>
             </div>
 
             <div id="tab-mejoras" class="tab-content">
                 <div class="grid-cards">
                     <div class="card">
-                        <h4 style="font-size:0.75rem;">Malla Reforzada</h4>
-                        <button class="btn btn-warning" style="width:100%; margin-top:4px; font-size:0.7rem;" onclick="buyUpgrade('fence')" id="btn-fence">Comprar ($150)</button>
+                        <h4 style="font-size:0.8rem;">Malla Reforzada</h4>
+                        <button class="btn btn-warning" style="width:100%; margin-top:6px; font-size:0.72rem;" onclick="buyUpgrade('fence')" id="btn-fence">Comprar ($150)</button>
                     </div>
                     <div class="card">
-                        <h4 style="font-size:0.75rem;">Perro Guardián</h4>
-                        <button class="btn btn-success" style="width:100%; margin-top:4px; font-size:0.7rem;" onclick="buyUpgrade('dog')" id="btn-dog">Comprar ($300)</button>
+                        <h4 style="font-size:0.8rem;">Perro Guardián</h4>
+                        <button class="btn btn-success" style="width:100%; margin-top:6px; font-size:0.72rem;" onclick="buyUpgrade('dog')" id="btn-dog">Comprar ($300)</button>
                     </div>
                     <div class="card">
-                        <h4 style="font-size:0.75rem;">Gallinero (+5)</h4>
-                        <button class="btn btn-warning" style="width:100%; margin-top:4px; font-size:0.7rem;" onclick="upgradeFarm()">Ampliar ($200)</button>
+                        <h4 style="font-size:0.8rem;">Gallinero (+5)</h4>
+                        <button class="btn btn-warning" style="width:100%; margin-top:6px; font-size:0.72rem;" onclick="upgradeFarm()">Ampliar ($200)</button>
                     </div>
                 </div>
             </div>
 
             <div id="tab-dieta" class="tab-content">
-                <div style="display:flex; flex-direction:column; gap:4px;">
-                    <button class="btn" style="font-size:0.75rem;" onclick="setDiet('Estándar')">Maíz Básico</button>
-                    <button class="btn btn-warning" style="font-size:0.75rem;" onclick="setDiet('Rica en Calcio')">Rica en Calcio</button>
-                    <button class="btn btn-success" style="font-size:0.75rem;" onclick="setDiet('Exótica')">Botánica Exótica</button>
+                <div style="display:flex; flex-direction:column; gap:6px; max-width:250px;">
+                    <button class="btn" style="font-size:0.78rem;" onclick="setDiet('Estándar')">Maíz Básico</button>
+                    <button class="btn btn-warning" style="font-size:0.78rem;" onclick="setDiet('Rica en Calcio')">Rica en Calcio</button>
+                    <button class="btn btn-success" style="font-size:0.78rem;" onclick="setDiet('Exótica')">Botánica Exótica</button>
                 </div>
             </div>
 
             <div id="tab-ajustes" class="tab-content">
-                <div style="display:flex; flex-direction:column; gap:6px;">
-                    <button class="btn btn-success" style="font-size:0.75rem;" onclick="saveGame(true)">💾 Guardar Partida</button>
-                    <button class="btn btn-danger" style="font-size:0.75rem;" onclick="resetGame()">⚠️ Reiniciar Partida</button>
+                <div style="display:flex; flex-direction:column; gap:8px; max-width:250px;">
+                    <button class="btn btn-success" style="font-size:0.78rem;" onclick="saveGame(true)">💾 Guardar Partida</button>
+                    <button class="btn btn-danger" style="font-size:0.78rem;" onclick="resetGame()">⚠️ Reiniciar Partida</button>
                 </div>
             </div>
         </div>
@@ -466,6 +492,7 @@ let state = {
     predators: [],
     particles: [],
     grassTufts: [],
+    flowers: [],
     coopDoorOpen: true,
     hasReinforcedFence: false,
     hasWatchdog: false,
@@ -479,11 +506,11 @@ let state = {
 };
 
 const BREEDS = {
-    'Leghorn': { base: '#FFFFFF', dark: '#E2E8F0', comb: '#FF4757', size: 16, layRate: 70, resistance: 40 },
-    'Rhode Island Red': { base: '#B33923', dark: '#7A1C0B', comb: '#FF4757', size: 18, layRate: 60, resistance: 60 },
-    'Brahma': { base: '#F1F2F6', dark: '#747D8C', comb: '#C0392B', size: 22, layRate: 40, resistance: 80 },
-    'Orpington': { base: '#2F3542', dark: '#1E272E', comb: '#FF4757', size: 20, layRate: 55, resistance: 70 },
-    'Híbrida': { base: '#FFA502', dark: '#CC8E35', comb: '#FF6B81', size: 17, layRate: 85, resistance: 80 }
+    'Leghorn': { base: '#F4F4F4', dark: '#D2D6DC', comb: '#E63946', size: 16, layRate: 70, resistance: 40 },
+    'Rhode Island Red': { base: '#B83B27', dark: '#832214', comb: '#E63946', size: 18, layRate: 60, resistance: 60 },
+    'Brahma': { base: '#EAEAEA', dark: '#959A9F', comb: '#C0392B', size: 22, layRate: 40, resistance: 80 },
+    'Orpington': { base: '#3B4048', dark: '#21252B', comb: '#E63946', size: 20, layRate: 55, resistance: 70 },
+    'Híbrida': { base: '#F4A261', dark: '#C67D3A', comb: '#E76F51', size: 17, layRate: 85, resistance: 80 }
 };
 
 function togglePanel() {
@@ -510,8 +537,8 @@ function playSound(freq, type = 'sine', duration = 0.1) {
         const gain = state.audioCtx.createGain();
         osc.type = type;
         osc.frequency.setValueAtTime(freq, state.audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.08, state.audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, state.audioCtx.currentTime + duration);
+        gain.gain.setValueAtTime(0.06, state.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.005, state.audioCtx.currentTime + duration);
         osc.connect(gain);
         gain.connect(state.audioCtx.destination);
         osc.start();
@@ -526,34 +553,43 @@ function createDirtParticles(x, y) {
             y: y + (Math.random() - 0.5) * 6,
             vx: (Math.random() - 0.5) * 1.5,
             vy: -Math.random() * 1.5,
-            life: 20
+            life: 25,
+            color: '#4f7942'
         });
     }
 }
 
-function generateGrassTufts() {
+function generateEnvironment() {
     state.grassTufts = [];
-    for (let i = 0; i < 80; i++) {
+    state.flowers = [];
+    for (let i = 0; i < 100; i++) {
         state.grassTufts.push({
-            x: Math.random() * 1200,
-            y: 80 + Math.random() * 700,
-            size: 5 + Math.random() * 7,
+            x: Math.random() * 1400,
+            y: 80 + Math.random() * 800,
+            size: 6 + Math.random() * 8,
             blades: 3 + Math.floor(Math.random() * 3),
-            swaySpeed: 0.05 + Math.random() * 0.05,
+            swaySpeed: 0.04 + Math.random() * 0.04,
             offset: Math.random() * Math.PI,
-            color: Math.random() > 0.4 ? '#52b788' : '#74c69d'
+            color: Math.random() > 0.3 ? '#589a69' : '#65a876'
+        });
+    }
+    for (let i = 0; i < 25; i++) {
+        state.flowers.push({
+            x: Math.random() * 1400,
+            y: 90 + Math.random() * 750,
+            color: ['#ffdd59', '#ff6b6b', '#ff9ff3', '#ffffff'][Math.floor(Math.random() * 4)]
         });
     }
 }
 
 class Watchdog {
     constructor() {
-        this.x = 100; this.y = 120; this.vx = 0.8; this.walkCycle = 0;
+        this.x = 120; this.y = 140; this.vx = 0.9; this.walkCycle = 0;
     }
     update(predators) {
         this.walkCycle += 0.15;
         this.x += this.vx;
-        if (this.x < 40 || this.x > 180) this.vx *= -1;
+        if (this.x < 50 || this.x > 210) this.vx *= -1;
 
         if (predators.length > 0) {
             const predator = predators[0];
@@ -561,12 +597,12 @@ class Watchdog {
             const dy = predator.y - this.y;
             const dist = Math.hypot(dx, dy);
 
-            if (dist > 15) {
-                this.x += (dx / dist) * 2.2;
-                this.y += (dy / dist) * 2.2;
+            if (dist > 18) {
+                this.x += (dx / dist) * 2.5;
+                this.y += (dy / dist) * 2.5;
             } else {
-                logEvent('🐕 ¡Bobby echó al zorro a ladridos!');
-                playSound(400, 'square', 0.2);
+                logEvent('🐕 ¡Bobby ahuyentó al zorro a ladridos!');
+                playSound(380, 'square', 0.25);
                 state.predators = [];
             }
         }
@@ -576,25 +612,29 @@ class Watchdog {
         ctx.translate(this.x, this.y);
         if (this.vx < 0) ctx.scale(-1, 1);
 
+        // Sombra
         ctx.beginPath();
-        ctx.ellipse(0, 8, 14, 5, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 10, 16, 6, 0, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(0,0,0,0.2)';
         ctx.fill();
 
+        // Cuerpo Canino Vectorial
         ctx.beginPath();
-        ctx.ellipse(0, 0, 14, 9, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#D35400';
-        ctx.fill(); ctx.strokeStyle = '#2F3542'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.ellipse(0, 0, 16, 10, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#c86d34';
+        ctx.fill(); ctx.strokeStyle = '#2c221e'; ctx.lineWidth = 2; ctx.stroke();
 
+        // Cabeza
         ctx.beginPath();
-        ctx.arc(10, -4, 8, 0, Math.PI * 2);
-        ctx.fillStyle = '#D35400';
+        ctx.arc(12, -5, 9, 0, Math.PI * 2);
+        ctx.fillStyle = '#c86d34';
         ctx.fill(); ctx.stroke();
 
+        // Oreja
         ctx.beginPath();
-        ctx.ellipse(8, -8, 4, 6, 0.4, 0, Math.PI * 2);
-        ctx.fillStyle = '#78281F';
-        ctx.fill();
+        ctx.ellipse(9, -12, 4, 7, 0.3, 0, Math.PI * 2);
+        ctx.fillStyle = '#8c481b';
+        ctx.fill(); ctx.stroke();
 
         ctx.restore();
     }
@@ -613,10 +653,10 @@ class Chicken {
         this.genRes = genRes || BREEDS[breed].resistance;
         this.isInside = isInside;
         
-        this.x = x !== null ? x : (60 + Math.random() * (canvas.width - 120));
-        this.y = y !== null ? y : (100 + Math.random() * (canvas.height - 150));
-        this.vx = (Math.random() - 0.5) * 1.0;
-        this.vy = (Math.random() - 0.5) * 1.0;
+        this.x = x !== null ? x : (80 + Math.random() * (canvas.width - 160));
+        this.y = y !== null ? y : (120 + Math.random() * (canvas.height - 200));
+        this.vx = (Math.random() - 0.5) * 1.1;
+        this.vy = (Math.random() - 0.5) * 1.1;
         
         this.walkCycle = Math.random() * Math.PI * 2;
         this.isPecking = false;
@@ -625,15 +665,15 @@ class Chicken {
 
     update() {
         const isNight = state.time >= 20 || state.time <= 5;
-        const coopDoorX = 40; const coopDoorY = 65;
+        const coopDoorX = 45; const coopDoorY = 70;
 
         if (this.isInside) {
             if (isNight) this.happiness = Math.min(100, this.happiness + 0.05);
             
             if (!isNight && state.coopDoorOpen && Math.random() < 0.005) {
                 this.isInside = false;
-                this.x = coopDoorX + 10;
-                this.y = coopDoorY + 25;
+                this.x = coopDoorX + 15;
+                this.y = coopDoorY + 30;
                 logEvent(`🐔 ${this.name} salió al patio.`);
             }
             return;
@@ -641,19 +681,19 @@ class Chicken {
 
         if (this.isPecking) {
             this.peckTimer--;
-            if (this.peckTimer === 20) createDirtParticles(this.x + (this.vx >= 0 ? 14 : -14), this.y + 8);
+            if (this.peckTimer === 20) createDirtParticles(this.x + (this.vx >= 0 ? 16 : -16), this.y + 10);
             if (this.peckTimer <= 0) this.isPecking = false;
             return;
         }
 
         this.x += this.vx;
         this.y += this.vy;
-        this.walkCycle += 0.2;
+        this.walkCycle += 0.22;
 
-        if (this.x < 30 || this.x > canvas.width - 30) this.vx *= -1;
-        if (this.y < 85 || this.y > canvas.height - 30) this.vy *= -1;
+        if (this.x < 40 || this.x > canvas.width - 40) this.vx *= -1;
+        if (this.y < 100 || this.y > canvas.height - 40) this.vy *= -1;
 
-        if (state.coopDoorOpen && Math.hypot(this.x - coopDoorX, this.y - coopDoorY) < 25) {
+        if (state.coopDoorOpen && Math.hypot(this.x - coopDoorX, this.y - coopDoorY) < 30) {
             if (isNight || Math.random() < 0.003) {
                 this.isInside = true;
                 logEvent(`🏠 ${this.name} entró al gallinero.`);
@@ -662,12 +702,12 @@ class Chicken {
         }
 
         if (Math.random() < 0.003) {
-            if (Math.random() < 0.35) {
+            if (Math.random() < 0.4) {
                 this.isPecking = true;
                 this.peckTimer = 40;
             } else {
-                this.vx = (Math.random() - 0.5) * 1.2;
-                this.vy = (Math.random() - 0.5) * 1.2;
+                this.vx = (Math.random() - 0.5) * 1.3;
+                this.vy = (Math.random() - 0.5) * 1.3;
             }
         }
     }
@@ -683,14 +723,16 @@ class Chicken {
         ctx.translate(this.x, this.y);
         if (this.vx < 0) ctx.scale(-1, 1);
 
+        // Sombra en el suelo
         ctx.beginPath();
-        ctx.ellipse(0, 10, r * 0.8, r * 0.35, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 10, r * 0.85, r * 0.35, 0, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(0,0,0,0.22)';
         ctx.fill();
 
+        // Patas vectoriales
         const legSwing = Math.sin(this.walkCycle) * 4;
-        ctx.strokeStyle = '#2F3542';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#2c221e';
+        ctx.lineWidth = 2.5;
         ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.moveTo(-r * 0.2, 4); ctx.lineTo(-r * 0.2 + legSwing, 12);
@@ -700,63 +742,58 @@ class Chicken {
         const bodyBob = Math.sin(this.walkCycle * 2) * 1.5;
         const peckY = this.isPecking ? 10 : 0;
 
+        // Cuerpo / Plumas traseras
         ctx.fillStyle = info.dark;
-        ctx.strokeStyle = '#2F3542';
+        ctx.strokeStyle = '#2c221e';
         ctx.lineWidth = 2;
         if (isMale) {
             ctx.beginPath();
             ctx.moveTo(-r * 0.5, -r * 0.3 + bodyBob);
-            ctx.bezierCurveTo(-r * 1.7, -r * 1.5, -r * 1.3, -r * 2.0, -r * 0.8, -r * 2.0);
-            ctx.bezierCurveTo(-r * 0.6, -r * 1.4, -r * 0.3, -r * 0.7, -r * 0.2, -r * 0.2);
+            ctx.bezierCurveTo(-r * 1.8, -r * 1.6, -r * 1.4, -r * 2.2, -r * 0.9, -r * 2.1);
+            ctx.bezierCurveTo(-r * 0.7, -r * 1.5, -r * 0.4, -r * 0.8, -r * 0.2, -r * 0.2);
             ctx.fill(); ctx.stroke();
         } else {
             ctx.beginPath();
-            ctx.ellipse(-r * 0.7, -r * 0.4 + bodyBob, r * 0.45, r * 0.3, -0.4, 0, Math.PI * 2);
+            ctx.ellipse(-r * 0.7, -r * 0.4 + bodyBob, r * 0.48, r * 0.32, -0.4, 0, Math.PI * 2);
             ctx.fill(); ctx.stroke();
         }
 
+        // Cuerpo principal
         ctx.beginPath();
-        ctx.ellipse(0, -r * 0.3 + bodyBob, r * 0.9, r * 0.7, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, -r * 0.3 + bodyBob, r * 0.95, r * 0.75, 0, 0, Math.PI * 2);
         ctx.fillStyle = info.base;
         ctx.fill(); ctx.stroke();
 
-        ctx.beginPath();
-        ctx.ellipse(-r * 0.05, -r * 0.2 + bodyBob, r * 0.45, r * 0.32, 0.2, 0, Math.PI * 2);
-        ctx.fillStyle = info.dark;
-        ctx.fill(); ctx.stroke();
-
+        // Cabeza y Cuello
         ctx.save();
-        ctx.translate(r * 0.6, -r * 0.7 + bodyBob + peckY);
+        ctx.translate(r * 0.65, -r * 0.75 + bodyBob + peckY);
 
         ctx.beginPath();
-        ctx.arc(0, 0, r * 0.5, 0, Math.PI * 2);
+        ctx.arc(0, 0, r * 0.52, 0, Math.PI * 2);
         ctx.fillStyle = info.base;
         ctx.fill(); ctx.stroke();
 
+        // Pico vectorial
         ctx.beginPath();
-        ctx.moveTo(r * 0.3, -r * 0.05); ctx.lineTo(r * 0.7, 0.05); ctx.lineTo(r * 0.3, r * 0.2);
-        ctx.fillStyle = '#FFA502';
+        ctx.moveTo(r * 0.3, -r * 0.05); ctx.lineTo(r * 0.75, 0.05); ctx.lineTo(r * 0.3, r * 0.22);
+        ctx.fillStyle = '#f4a261';
         ctx.fill(); ctx.stroke();
 
+        // Ojo brillante
         ctx.beginPath();
-        ctx.ellipse(r * 0.15, -r * 0.1, r * 0.12, r * 0.16, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#2F3542';
+        ctx.arc(r * 0.18, -r * 0.15, r * 0.08, 0, Math.PI * 2);
+        ctx.fillStyle = '#2c221e';
         ctx.fill();
-        
         ctx.beginPath();
-        ctx.arc(r * 0.18, -r * 0.15, r * 0.05, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.ellipse(r * 0.25, r * 0.12, r * 0.08, r * 0.05, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 107, 129, 0.5)';
+        ctx.arc(r * 0.2, -r * 0.17, r * 0.03, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
         ctx.fill();
 
-        const combSize = isMale ? r * 0.55 : r * 0.3;
+        // Cresta vectorial
+        const combSize = isMale ? r * 0.6 : r * 0.35;
         ctx.fillStyle = info.comb;
         ctx.beginPath();
-        ctx.ellipse(-r * 0.05, -combSize, combSize * 0.65, combSize * 0.4, -0.2, 0, Math.PI * 2);
+        ctx.ellipse(-r * 0.05, -combSize, combSize * 0.7, combSize * 0.45, -0.2, 0, Math.PI * 2);
         ctx.fill(); ctx.stroke();
 
         ctx.restore();
@@ -766,11 +803,11 @@ class Chicken {
 
 class Predator {
     constructor() {
-        this.x = Math.random() < 0.5 ? -30 : canvas.width + 30;
-        this.y = 90 + Math.random() * (canvas.height - 150);
+        this.x = Math.random() < 0.5 ? -35 : canvas.width + 35;
+        this.y = 110 + Math.random() * (canvas.height - 180);
         this.hp = state.hasReinforcedFence ? 1 : 3;
         this.anim = 0;
-        this.speed = 1.3;
+        this.speed = 1.4;
         
         const outdoorChickens = state.chickens.filter(c => !c.isInside);
         this.target = outdoorChickens.length > 0 ? outdoorChickens[Math.floor(Math.random() * outdoorChickens.length)] : null;
@@ -784,15 +821,15 @@ class Predator {
             const dy = this.target.y - this.y;
             const dist = Math.hypot(dx, dy);
 
-            if (dist > 15) {
+            if (dist > 18) {
                 this.x += (dx / dist) * this.speed;
                 this.y += (dy / dist) * this.speed;
             } else {
-                logEvent(`🚨 ¡EL ZORRO SE COMÍO A ${this.target.name.toUpperCase()}! 😭`);
+                logEvent(`🚨 ¡EL ZORRO ATACÓ Y CAPTURÓ A ${this.target.name.toUpperCase()}! 😭`);
                 const idx = state.chickens.indexOf(this.target);
                 if (idx !== -1) state.chickens.splice(idx, 1);
                 state.predators = [];
-                playSound(150, 'sawtooth', 0.4);
+                playSound(130, 'sawtooth', 0.4);
                 updateUI();
                 saveGame();
             }
@@ -805,55 +842,60 @@ class Predator {
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        const tailWag = Math.sin(this.anim) * 6;
+        const tailWag = Math.sin(this.anim) * 7;
 
+        // Sombra
         ctx.beginPath();
-        ctx.ellipse(0, 10, 18, 6, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0,0,0,0.22)';
+        ctx.ellipse(0, 12, 20, 7, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
         ctx.fill();
 
+        // Cola zorro
         ctx.beginPath();
-        ctx.moveTo(-10, -2);
-        ctx.quadraticCurveTo(-25 + tailWag, -18, -32 + tailWag, -8);
-        ctx.quadraticCurveTo(-20 + tailWag, 6, -10, 2);
-        ctx.fillStyle = '#FF6B6B';
-        ctx.fill();
-        ctx.strokeStyle = '#2F3542';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        ctx.moveTo(-12, -2);
+        ctx.quadraticCurveTo(-28 + tailWag, -20, -36 + tailWag, -10);
+        ctx.quadraticCurveTo(-22 + tailWag, 8, -10, 3);
+        ctx.fillStyle = '#e76f51';
+        ctx.fill(); ctx.strokeStyle = '#2c221e'; ctx.lineWidth = 2; ctx.stroke();
 
+        // Punta blanca cola
         ctx.beginPath();
-        ctx.arc(-28 + tailWag, -9, 4, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFF';
+        ctx.arc(-32 + tailWag, -11, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
         ctx.fill();
 
+        // Cuerpo zorro
         ctx.beginPath();
-        ctx.ellipse(0, 0, 16, 10, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#EE5253';
+        ctx.ellipse(0, 0, 18, 11, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#e76f51';
         ctx.fill(); ctx.stroke();
 
+        // Cabeza y hocico
         ctx.beginPath();
-        ctx.moveTo(10, -8); ctx.lineTo(24, -2); ctx.lineTo(10, 6);
-        ctx.fillStyle = '#EE5253';
+        ctx.moveTo(10, -9); ctx.lineTo(26, -2); ctx.lineTo(10, 7);
+        ctx.fillStyle = '#e76f51';
         ctx.fill(); ctx.stroke();
 
+        // Oreja
         ctx.beginPath();
-        ctx.moveTo(8, -8); ctx.lineTo(12, -18); ctx.lineTo(15, -6);
-        ctx.fillStyle = '#2F3542';
+        ctx.moveTo(9, -9); ctx.lineTo(14, -20); ctx.lineTo(17, -7);
+        ctx.fillStyle = '#2c221e';
         ctx.fill();
 
+        // Ojo
         ctx.beginPath();
-        ctx.arc(16, -3, 3, 0, Math.PI * 2);
-        ctx.fillStyle = '#FF9F43';
+        ctx.arc(18, -4, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#f4a261';
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(17, -3, 1.2, 0, Math.PI * 2);
+        ctx.arc(19, -4, 1.3, 0, Math.PI * 2);
         ctx.fillStyle = '#000';
         ctx.fill();
 
-        ctx.fillStyle = '#FF4757';
+        // HP Badge
+        ctx.fillStyle = '#d9534f';
         ctx.font = 'bold 12px sans-serif';
-        ctx.fillText(`⚡ ¡TAP! [${this.hp}]`, -16, -22);
+        ctx.fillText(`⚡ ¡CLIC! [${this.hp}]`, -18, -26);
 
         ctx.restore();
     }
@@ -866,7 +908,7 @@ function resizeCanvas() {
     const container = canvas.parentElement;
     canvas.width = container.clientWidth;
     canvas.height = container.clientHeight;
-    generateGrassTufts();
+    generateEnvironment();
 }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
@@ -895,13 +937,13 @@ function saveGame(manual = false) {
             })),
             worldEggs: state.worldEggs
         };
-        localStorage.setItem('proyecto_gallinero_save', JSON.stringify(saveData));
-        if (manual) logEvent('💾 Partida guardada.');
+        localStorage.setItem('proyecto_gallinero_cozy_save', JSON.stringify(saveData));
+        if (manual) logEvent('💾 Partida guardada con éxito.');
     } catch(e){}
 }
 
 function loadGame() {
-    const raw = localStorage.getItem('proyecto_gallinero_save');
+    const raw = localStorage.getItem('proyecto_gallinero_cozy_save');
     if (!raw) return false;
     try {
         const data = JSON.parse(raw);
@@ -928,8 +970,8 @@ function loadGame() {
 }
 
 function resetGame() {
-    if (confirm('¿Seguro que quieres borrar la partida?')) {
-        localStorage.removeItem('proyecto_gallinero_save');
+    if (confirm('¿Seguro que quieres borrar todo el progreso?')) {
+        localStorage.removeItem('proyecto_gallinero_cozy_save');
         location.reload();
     }
 }
@@ -942,11 +984,11 @@ if (!loadGame()) {
 function updateUpgradeButtons() {
     if (state.hasReinforcedFence) {
         const btn = document.getElementById('btn-fence');
-        if(btn) { btn.innerText = 'Adquirido ✅'; btn.disabled = true; btn.style.background = '#6b9080'; }
+        if(btn) { btn.innerText = 'Adquirido ✅'; btn.disabled = true; btn.style.background = '#5b9279'; }
     }
     if (state.hasWatchdog) {
         const btn = document.getElementById('btn-dog');
-        if(btn) { btn.innerText = 'Adquirido ✅'; btn.disabled = true; btn.style.background = '#6b9080'; }
+        if(btn) { btn.innerText = 'Adquirido ✅'; btn.disabled = true; btn.style.background = '#5b9279'; }
     }
     if (state.hasVipAccess) {
         document.getElementById('card-vip').style.display = 'block';
@@ -968,7 +1010,7 @@ function updateMarketPrices() {
     state.marketPrices.calcium = factorCal;
     state.marketPrices.exotic = factorExo;
 
-    logEvent(`📈 Mercado Libre: ${state.marketTrend}`);
+    logEvent(`📈 Actualización Mercado: ${state.marketTrend}`);
 }
 
 function sellAllEggsMarket() {
@@ -977,10 +1019,10 @@ function sellAllEggsMarket() {
     const totalExo = state.eggStock.exotic * state.marketPrices.exotic;
     const grandTotal = totalStd + totalCal + totalExo;
 
-    if (grandTotal <= 0) return logEvent('❌ No tienes huevos para vender.');
+    if (grandTotal <= 0) return logEvent('❌ No tienes huevos almacenados.');
 
     state.money += grandTotal;
-    logEvent(`💰 Vendiste tu stock por $${grandTotal}!`);
+    logEvent(`💰 ¡Huevos vendidos por un total de $${grandTotal}!`);
     state.eggStock.standard = 0;
     state.eggStock.calcium = 0;
     state.eggStock.exotic = 0;
@@ -993,12 +1035,12 @@ function fulfillContract(type) {
         if (state.eggStock.standard < 5) return logEvent('❌ Faltan Huevos Comunes (req. 5).');
         state.eggStock.standard -= 5;
         state.money += 80;
-        logEvent('🍞 ¡Contrato Panadería completado (+$80)!');
+        logEvent('🍞 ¡Contrato con Panadería completado (+$80)!');
     } else if (type === 'gourmet') {
         if (state.eggStock.exotic < 3) return logEvent('❌ Faltan Huevos Exóticos (req. 3).');
         state.eggStock.exotic -= 3;
         state.money += 250;
-        logEvent('👨‍🍳 ¡Orden Michelin entregada (+$250)!');
+        logEvent('👨‍🍳 ¡Orden Michelin entregada con éxito (+$250)!');
     }
     updateUI();
     saveGame();
@@ -1007,17 +1049,17 @@ function fulfillContract(type) {
 function buyUpgrade(type) {
     if (type === 'fence') {
         if (state.hasReinforcedFence) return;
-        if (state.money < 150) return logEvent('❌ Sin dinero.');
+        if (state.money < 150) return logEvent('❌ Sin dinero suficiente.');
         state.money -= 150;
         state.hasReinforcedFence = true;
         logEvent('🛡️ ¡Malla reforzada instalada!');
         updateUpgradeButtons();
     } else if (type === 'dog') {
         if (state.hasWatchdog) return;
-        if (state.money < 300) return logEvent('❌ Sin dinero.');
+        if (state.money < 300) return logEvent('❌ Sin dinero suficiente.');
         state.money -= 300;
         state.hasWatchdog = true;
-        logEvent('🐕 ¡Bobby el perro guardián se unió!');
+        logEvent('🐕 ¡Bobby el perro guardián vigila la granja!');
         updateUpgradeButtons();
     }
     updateUI();
@@ -1038,20 +1080,20 @@ function enterContest() {
         state.trophies.gold++;
         state.money += 500;
         state.hasVipAccess = true;
-        logEvent(`🥇 ¡1º PUESTO! ${c.name} ganó Oro y $500!`);
-        playSound(800, 'triangle', 0.3);
+        logEvent(`🥇 ¡1º PUESTO! ${c.name} ganó Medalla de Oro y $500!`);
+        playSound(850, 'triangle', 0.3);
     } else if (score >= 65) {
         state.trophies.silver++;
         state.money += 300;
         state.hasVipAccess = true;
-        logEvent(`🥈 ¡2º PUESTO! ${c.name} ganó Plata y $300!`);
-        playSound(650, 'triangle', 0.2);
+        logEvent(`🥈 ¡2º PUESTO! ${c.name} ganó Medalla de Plata y $300!`);
+        playSound(680, 'triangle', 0.2);
     } else if (score >= 50) {
         state.trophies.bronze++;
         state.money += 150;
         logEvent(`🥉 3º Puesto para ${c.name}. Premio de $150.`);
     } else {
-        logEvent(`🎗️ ${c.name} obtuvo mención honorífica.`);
+        logEvent(`🎗️ ${c.name} obtuvo mención honorífica en la exposición.`);
     }
 
     updateUpgradeButtons();
@@ -1063,14 +1105,24 @@ function gameLoop() {
     state.globalFrame++;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Fondo de pastizal con gradiente estético
     const grassGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grassGrad.addColorStop(0, '#74c69d');
-    grassGrad.addColorStop(1, '#52b788');
+    grassGrad.addColorStop(0, '#74b283');
+    grassGrad.addColorStop(1, '#518e61');
     ctx.fillStyle = grassGrad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Flores vectoriales en el suelo
+    state.flowers.forEach(f => {
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = f.color;
+        ctx.fill();
+    });
+
+    // Briznas de pasto oscilantes
     state.grassTufts.forEach((tuft) => {
-        const sway = Math.sin(state.globalFrame * tuft.swaySpeed + tuft.offset) * 3;
+        const sway = Math.sin(state.globalFrame * tuft.swaySpeed + tuft.offset) * 3.5;
         ctx.strokeStyle = tuft.color;
         ctx.lineWidth = 1.8;
         ctx.lineCap = 'round';
@@ -1083,55 +1135,60 @@ function gameLoop() {
         }
     });
 
-    ctx.fillStyle = '#d8f3dc';
-    ctx.beginPath();
-    ctx.ellipse(canvas.width * 0.55, canvas.height * 0.55, 110, 55, 0, 0, Math.PI * 2);
-    ctx.fill();
-
+    // --- GALLINERO VECTORIAL ISOMÉTRICO ---
     ctx.save();
-    ctx.translate(15, 15);
+    ctx.translate(20, 20);
     
+    // Sombra gallinero
     ctx.beginPath();
-    ctx.ellipse(62, 82, 65, 12, 0, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.ellipse(70, 92, 75, 14, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
     ctx.fill();
 
-    ctx.fillStyle = '#8B4513';
-    ctx.fillRect(0, 15, 125, 75);
-    ctx.strokeStyle = '#2F3542';
-    ctx.lineWidth = 2.5;
-    ctx.strokeRect(0, 15, 125, 75);
+    // Estructura de Madera
+    ctx.fillStyle = '#8c5830';
+    ctx.fillRect(0, 20, 140, 80);
+    ctx.strokeStyle = '#2c221e';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(0, 20, 140, 80);
 
+    // Tablas de madera horizontales
     ctx.beginPath();
-    ctx.moveTo(0, 40); ctx.lineTo(125, 40);
-    ctx.moveTo(0, 65); ctx.lineTo(125, 65);
+    ctx.moveTo(0, 45); ctx.lineTo(140, 45);
+    ctx.moveTo(0, 72); ctx.lineTo(140, 72);
     ctx.stroke();
 
-    ctx.fillStyle = '#EE5253';
+    // Techo a dos aguas vectorial
+    ctx.fillStyle = '#c0392b';
     ctx.beginPath();
-    ctx.moveTo(-12, 15); ctx.lineTo(62, -10); ctx.lineTo(137, 15);
+    ctx.moveTo(-15, 20); ctx.lineTo(70, -12); ctx.lineTo(155, 20);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
 
+    // Sombra del techo
     ctx.fillStyle = 'rgba(0,0,0,0.15)';
     ctx.beginPath();
-    ctx.moveTo(-12, 15); ctx.lineTo(62, -10); ctx.lineTo(62, 15); ctx.closePath();
+    ctx.moveTo(-15, 20); ctx.lineTo(70, -12); ctx.lineTo(70, 20); ctx.closePath();
     ctx.fill();
 
-    ctx.fillStyle = '#FECA57';
-    ctx.fillRect(80, 30, 28, 28);
-    ctx.strokeRect(80, 30, 28, 28);
-    ctx.fillStyle = '#2F3542';
-    ctx.fillRect(92, 30, 4, 28);
-    ctx.fillRect(80, 42, 28, 4);
+    // Ventana circular estilo granero
+    ctx.fillStyle = '#f4a261';
+    ctx.beginPath();
+    ctx.arc(95, 38, 15, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#2c221e';
+    ctx.fillRect(93, 23, 4, 30);
+    ctx.fillRect(80, 36, 30, 4);
 
-    ctx.fillStyle = state.coopDoorOpen ? '#1E272E' : '#5C2C06';
-    ctx.fillRect(20, 40, 30, 50);
-    ctx.strokeRect(20, 40, 30, 50);
+    // Puerta del gallinero
+    ctx.fillStyle = state.coopDoorOpen ? '#1e1816' : '#522f1c';
+    ctx.fillRect(22, 45, 34, 55);
+    ctx.strokeRect(22, 45, 34, 55);
 
-    ctx.fillStyle = '#FFF';
-    ctx.font = 'bold 10px sans-serif';
-    ctx.fillText(state.coopDoorOpen ? 'Abierta' : 'Cerrada', 16, 34);
+    // Etiqueta estado puerta
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText(state.coopDoorOpen ? 'Puerta Abierta' : 'Puerta Cerrada', 15, 12);
 
     ctx.restore();
 
@@ -1140,24 +1197,27 @@ function gameLoop() {
         watchdogInstance.draw(ctx);
     }
 
+    // Partículas de tierra / polvo
     for (let i = state.particles.length - 1; i >= 0; i--) {
         const p = state.particles[i];
         p.x += p.vx; p.y += p.vy; p.life--;
-        ctx.fillStyle = '#40916c';
-        ctx.fillRect(p.x, p.y, 2.5, 2.5);
+        ctx.fillStyle = '#4f7942';
+        ctx.fillRect(p.x, p.y, 3, 3);
         if (p.life <= 0) state.particles.splice(i, 1);
     }
 
+    // Huevos puestos en el suelo
     state.worldEggs.forEach((egg) => {
         ctx.beginPath();
-        ctx.ellipse(egg.x, egg.y, 6, 8, 0, 0, Math.PI * 2);
-        ctx.fillStyle = egg.type === 'Exótica' ? '#48DBFB' : (egg.type === 'Rica en Calcio' ? '#FFD32A' : '#FFFFFF');
+        ctx.ellipse(egg.x, egg.y, 7, 9, 0, 0, Math.PI * 2);
+        ctx.fillStyle = egg.type === 'Exótica' ? '#4cc9f0' : (egg.type === 'Rica en Calcio' ? '#ffd166' : '#ffffff');
         ctx.fill();
-        ctx.strokeStyle = '#2F3542';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#2c221e';
+        ctx.lineWidth = 1.8;
         ctx.stroke();
     });
 
+    // Renderizar ordenado por profundidad (Eje Y)
     const renderables = [...state.chickens, ...state.predators];
     renderables.sort((a, b) => a.y - b.y);
 
@@ -1166,8 +1226,9 @@ function gameLoop() {
         item.draw(ctx);
     });
 
+    // Ciclo Nocturno
     if (state.time >= 20 || state.time <= 5) {
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+        ctx.fillStyle = 'rgba(18, 24, 38, 0.55)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
@@ -1181,51 +1242,56 @@ function handleCanvasInteraction(clientX, clientY) {
     const clickX = clientX - rect.left;
     const clickY = clientY - rect.top;
 
-    if (clickX >= 25 && clickX <= 75 && clickY >= 40 && clickY <= 110) {
+    // Clic en puerta del gallinero
+    if (clickX >= 35 && clickX <= 95 && clickY >= 60 && clickY <= 130) {
         state.coopDoorOpen = !state.coopDoorOpen;
-        playSound(350, 'square', 0.15);
-        logEvent(state.coopDoorOpen ? '🚪 Puerta abierta.' : '🚪 Puerta cerrada.');
+        playSound(320, 'square', 0.15);
+        logEvent(state.coopDoorOpen ? '🚪 Puerta del gallinero abierta.' : '🚪 Puerta del gallinero cerrada.');
         saveGame();
         return;
     }
 
+    // Recolectar huevos
     for (let i = state.worldEggs.length - 1; i >= 0; i--) {
         const egg = state.worldEggs[i];
-        if (Math.hypot(egg.x - clickX, egg.y - clickY) < 30) {
+        if (Math.hypot(egg.x - clickX, egg.y - clickY) < 32) {
             if (egg.type === 'Exótica') state.eggStock.exotic++;
             else if (egg.type === 'Rica en Calcio') state.eggStock.calcium++;
             else state.eggStock.standard++;
 
             state.worldEggs.splice(i, 1);
-            playSound(650, 'sine', 0.05);
-            logEvent(`🥚 Huevo recolectado.`);
+            playSound(620, 'sine', 0.06);
+            logEvent(`🥚 ¡Huevo recolectado con éxito!`);
             updateUI();
             saveGame();
             return;
         }
     }
 
+    // Atacar zorros
     for (let i = state.predators.length - 1; i >= 0; i--) {
         const p = state.predators[i];
-        if (Math.hypot(p.x - clickX, p.y - clickY) < 40) {
+        if (Math.hypot(p.x - clickX, p.y - clickY) < 45) {
             p.hp--;
-            playSound(250, 'square', 0.1);
+            playSound(240, 'square', 0.1);
             if (p.hp <= 0) {
                 state.predators.splice(i, 1);
-                logEvent('⚔️ ¡Espantaste al zorro!');
+                logEvent('⚔️ ¡Espantaste al zorro exitosamente!');
             }
             return;
         }
     }
 
+    // Inspeccionar ave
     state.chickens.forEach((c, index) => {
-        if (!c.isInside && Math.hypot(c.x - clickX, c.y - clickY) < 30) {
+        if (!c.isInside && Math.hypot(c.x - clickX, c.y - clickY) < 32) {
             inspectChicken(index);
-            playSound(450, 'triangle', 0.1);
+            playSound(440, 'triangle', 0.1);
         }
     });
 }
 
+// Control táctil limpio (Filtro Tap vs Swipe para evitar acelerar aves al deslizar)
 let touchStartX = 0;
 let touchStartY = 0;
 
@@ -1275,9 +1341,10 @@ function updateUI() {
     state.chickens.forEach((c, i) => {
         list.innerHTML += `
             <div class="card">
-                <h4 style="font-size:0.75rem;">${c.gender === 'female' ? '🐓' : '🐓♂️'} ${c.name}</h4>
-                <p style="font-size:0.65rem; color:#666;">${c.breed} ${c.isInside ? '(Adentro)' : '(Patio)'}</p>
-                <button class="btn btn-warning" style="width:100%; margin-top:2px; font-size:0.7rem;" onclick="inspectChicken(${i})">Ver</button>
+                <h4 style="font-size:0.8rem; color:var(--primary);">${c.gender === 'female' ? '🐓' : '🐓♂️'} ${c.name}</h4>
+                <p style="font-size:0.68rem; color:#666; margin-top:2px;">${c.breed}</p>
+                <p style="font-size:0.65rem; color:${c.isInside ? '#8c5830' : '#5b9279'}; font-weight:bold;">${c.isInside ? 'En Gallinero' : 'En el Patio'}</p>
+                <button class="btn btn-warning" style="width:100%; margin-top:5px; font-size:0.7rem; min-height:30px;" onclick="inspectChicken(${i})">Inspeccionar</button>
             </div>
         `;
     });
@@ -1292,7 +1359,7 @@ function updateUI() {
 
     if (selectM) selectM.innerHTML = '<option value="">Seleccionar Madre</option>';
     if (selectF) selectF.innerHTML = '<option value="">Seleccionar Padre</option>';
-    if (selectContest) selectContest.innerHTML = '<option value="">Seleccionar Ave de Exposición</option>';
+    if (selectContest) selectContest.innerHTML = '<option value="">Seleccionar Ave para Feria</option>';
 
     state.chickens.forEach((c, i) => {
         const opt = `<option value="${i}">${c.name} (${c.breed} - ${c.gender === 'female' ? 'Hembra' : 'Macho'})</option>`;
@@ -1312,7 +1379,7 @@ function logEvent(msg) {
     item.className = 'log-item';
     item.innerText = msg;
     panel.appendChild(item);
-    setTimeout(() => item.remove(), 3000);
+    setTimeout(() => item.remove(), 3200);
 }
 
 function switchTab(tabId, e) {
@@ -1323,14 +1390,14 @@ function switchTab(tabId, e) {
 }
 
 function buyChicken(breed) {
-    if (state.chickens.length >= state.capacity) return logEvent('❌ Gallinero lleno.');
+    if (state.chickens.length >= state.capacity) return logEvent('❌ ¡Gallinero lleno! Amplía su capacidad.');
     const cost = breed === 'Leghorn' ? 50 : 80;
-    if (state.money < cost) return logEvent('❌ Sin dinero.');
+    if (state.money < cost) return logEvent('❌ Dinero insuficiente.');
 
     state.money -= cost;
     const gender = Math.random() > 0.3 ? 'female' : 'male';
     state.chickens.push(new Chicken(`Ave #${state.chickens.length + 1}`, breed, gender));
-    logEvent(`✅ Compraste ${breed} (${gender === 'female' ? 'Hembra' : 'Macho'}).`);
+    logEvent(`✅ Adquiriste un/a ${breed} (${gender === 'female' ? 'Hembra' : 'Macho'}).`);
     updateUI();
     saveGame();
 }
@@ -1338,9 +1405,9 @@ function buyChicken(breed) {
 function breedChickens() {
     const mIdx = document.getElementById('select-mother').value;
     const fIdx = document.getElementById('select-father').value;
-    if (mIdx === "" || fIdx === "") return logEvent('❌ Selecciona la madre y el padre.');
-    if (state.money < 30) return logEvent('❌ Sin dinero.');
-    if (state.chickens.length >= state.capacity) return logEvent('❌ Gallinero sin espacio.');
+    if (mIdx === "" || fIdx === "") return logEvent('❌ Selecciona la madre y el padre para la cruza.');
+    if (state.money < 30) return logEvent('❌ Necesitas $30 para la incubación.');
+    if (state.chickens.length >= state.capacity) return logEvent('❌ Gallinero sin espacio disponible.');
 
     const mother = state.chickens[mIdx];
     const father = state.chickens[fIdx];
@@ -1348,20 +1415,20 @@ function breedChickens() {
     state.money -= 30;
     const childLay = Math.round((mother.genLay + father.genLay) / 2 + (Math.random() * 12 - 4));
     const childRes = Math.round((mother.genRes + father.genRes) / 2 + (Math.random() * 12 - 4));
-    const isHybrid = Math.random() < 0.4;
+    const isHybrid = Math.random() < 0.45;
 
     const breed = isHybrid ? 'Híbrida' : mother.breed;
     const gender = Math.random() > 0.5 ? 'female' : 'male';
     state.chickens.push(new Chicken(`Cría #${state.chickens.length + 1}`, breed, gender, childLay, childRes));
     
-    logEvent(`🐣 ¡Nació cría ${breed} (${gender === 'female' ? 'Hembra' : 'Macho'})!`);
+    logEvent(`🐣 ¡Incubación exitosa! Nació cría ${breed} (${gender === 'female' ? 'Hembra' : 'Macho'})!`);
     updateUI();
     saveGame();
 }
 
 function setDiet(dietName) {
     state.diet = dietName;
-    logEvent(`🌾 Dieta: ${dietName}`);
+    logEvent(`🌾 Dieta actualizada: ${dietName}`);
     updateUI();
     saveGame();
 }
@@ -1396,34 +1463,36 @@ function sellInspectedChicken() {
 
 function upgradeFarm() {
     const cost = state.level * 200;
-    if (state.money < cost) return logEvent('❌ Sin dinero.');
+    if (state.money < cost) return logEvent(`❌ Necesitas $${cost} para ampliar el gallinero.`);
     state.money -= cost;
     state.level++;
     state.capacity += 5;
-    logEvent(`🏗️ Gallinero Nivel ${state.level}!`);
+    logEvent(`🏗️ ¡Gallinero ampliado a Nivel ${state.level}! Capacidad: +5.`);
     updateUI();
     saveGame();
 }
 
+// Bucle de tiempo y producción de la granja
 setInterval(() => {
     state.time++;
     if (state.time >= 24) {
         state.time = 0;
         updateMarketPrices();
     }
-    document.getElementById('time-display').innerText = `${state.time.toString().padStart(2, '0')}:00`;
+    const timeFormatted = state.time === 0 ? '12:00 AM' : (state.time < 12 ? `${state.time.toString().padStart(2, '0')}:00 AM` : (state.time === 12 ? '12:00 PM' : `${(state.time-12).toString().padStart(2, '0')}:00 PM`));
+    document.getElementById('time-display').innerText = timeFormatted;
 
     state.chickens.forEach(c => {
         if (c.gender === 'female') {
-            if (Math.random() < (c.genLay / 2400)) {
+            if (Math.random() < (c.genLay / 2300)) {
                 if (c.isInside) {
                     if (state.diet === 'Exótica') state.eggStock.exotic++;
                     else if (state.diet === 'Rica en Calcio') state.eggStock.calcium++;
                     else state.eggStock.standard++;
-                    logEvent(`🐔 ${c.name} puso un huevo adentro.`);
+                    logEvent(`🐔 ${c.name} puso un huevo dentro del gallinero.`);
                 } else {
                     state.worldEggs.push({ x: c.x, y: c.y + 6, type: state.diet });
-                    logEvent(`🐔 ${c.name} puso un huevo en el patio.`);
+                    logEvent(`🐔 ${c.name} puso un huevo en el pastizal.`);
                 }
                 updateUI();
             }
@@ -1432,16 +1501,16 @@ setInterval(() => {
 
     if ((state.time >= 20 || state.time <= 5) && state.coopDoorOpen) {
         state.chickens.forEach(c => {
-            if (!c.isInside && Math.random() < 0.4) c.isInside = true;
+            if (!c.isInside && Math.random() < 0.45) c.isInside = true;
         });
         updateUI();
     }
 
-    if ((state.time > 20 || state.time < 5) && Math.random() < 0.25 && state.predators.length === 0) {
+    if ((state.time > 20 || state.time < 5) && Math.random() < 0.22 && state.predators.length === 0) {
         const outdoorChickens = state.chickens.filter(c => !c.isInside);
         if (outdoorChickens.length > 0) {
             state.predators.push(new Predator());
-            logEvent('⚠️ ¡Un zorro se acerca!');
+            logEvent('⚠️ ¡Alerta! ¡Un zorro se acerca sigilosamente!');
         }
     }
 
