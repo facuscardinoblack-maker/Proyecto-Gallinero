@@ -3,7 +3,7 @@ let game = {
     money: 500,
     level: 1,
     maxChickens: 5,
-    time: 480, // 08:00 AM (Minutos del día)
+    time: 480, // 08:00 AM
     day: 1,
     seasonIndex: 0,
     seasons: [
@@ -355,14 +355,24 @@ function togglePanel() {
     game.panelOpen = !game.panelOpen;
     const panel = document.getElementById('controls-panel');
     const btn = document.getElementById('toggle-btn-text');
+    
     if (game.panelOpen) {
-        panel.style.height = '320px';
-        btn.textContent = '▲ Ocultar Panel';
+        panel.style.height = '260px';
+        btn.textContent = '▲ Ocultar';
     } else {
-        panel.style.height = '42px';
-        btn.textContent = '▼ Mostrar Panel';
+        panel.style.height = '36px'; // Deja visible la barra superior para poder reabrirlo
+        btn.textContent = '▼ Mostrar';
     }
-    setTimeout(resizeCanvas, 300);
+    
+    // Forzamos la actualización inmediata del canvas cuadro por cuadro mientras se anima
+    let startTime = performance.now();
+    function animateResize(currentTime) {
+        resizeCanvas();
+        if (currentTime - startTime < 250) {
+            requestAnimationFrame(animateResize);
+        }
+    }
+    requestAnimationFrame(animateResize);
 }
 
 function showToast(msg, type = 'success') {
@@ -473,10 +483,6 @@ function enterContest() {
 }
 function closeContestModal() { document.getElementById('contest-modal').classList.add('hidden'); }
 
-function buyStructure(type) {
-    if (game.money < 100) return showToast('❌ Dinero insuficiente', 'error');
-    game.money -= 100; game.structures[type] = true; playSound('coin'); updateUI();
-}
 function buyUpgrade(type) {
     if (game.money < 300) return showToast('❌ Dinero insuficiente', 'error');
     game.money -= 300; game.upgrades[type] = true; playSound('coin'); updateUI();
