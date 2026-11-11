@@ -3,7 +3,7 @@ let game = {
     money: 500,
     level: 1,
     maxChickens: 5,
-    time: 480, // 08:00 AM
+    time: 480, // 08:00 AM (Minutos del día)
     day: 1,
     seasonIndex: 0,
     seasons: [
@@ -90,13 +90,13 @@ class ChickenEntity {
         this.y = Math.random() * (height - 180) + 120;
         this.targetX = this.x;
         this.targetY = this.y;
-        this.speed = 0.6 + Math.random() * 0.4;
+        this.speed = 0.06; // Velocidad ajustada para Delta-Time (píxeles por milisegundo)
         this.animTimer = Math.random() * 100;
         this.state = 'walking';
         this.peckTimer = 0;
     }
 
-    update() {
+    update(dt) {
         const hour = Math.floor(game.time / 60);
         const isNight = hour >= 21 || hour < 6;
 
@@ -121,11 +121,12 @@ class ChickenEntity {
             let dy = this.targetY - this.y;
             let dist = Math.sqrt(dx * dx + dy * dy);
             if (dist > 2) {
-                this.x += (dx / dist) * this.speed;
-                this.y += (dy / dist) * this.speed;
+                // Multiplicamos por dt (milisegundos transcurridos) para que el movimiento sea fluido e independiente de los FPS
+                this.x += (dx / dist) * this.speed * dt;
+                this.y += (dy / dist) * this.speed * dt;
             }
         }
-        this.animTimer += 0.1;
+        this.animTimer += dt * 0.005;
     }
 
     draw() {
@@ -158,11 +159,11 @@ class FoxEntity {
     constructor() {
         this.x = width + 50;
         this.y = Math.random() * (height - 200) + 120;
-        this.speed = game.upgrades.fence ? 0.4 : 0.9;
+        this.speed = game.upgrades.fence ? 0.04 : 0.08;
         this.active = true;
     }
-    update() {
-        this.x -= this.speed;
+    update(dt) {
+        this.x -= this.speed * dt;
         if (game.upgrades.dog && this.x < width / 2 + 100) {
             this.active = false;
             showToast('🐕 ¡Bobby ahuyentó al zorro!', 'success');
@@ -187,7 +188,10 @@ function syncChickenEntities() {
     });
 }
 
-// --- BUCLE DE JUEGO ---
+// --- BUCLE DE JUEGO BASADO EN DELTA-TIME ---
+let lastFrameTime = performance.now();
+let tickAccumulator = 0;
+
 function initGame() {
     loadGame();
     resizeCanvas();
@@ -199,17 +203,33 @@ function initGame() {
     }
     syncChickenEntities();
     updateUI();
+    
+    // Arrancamos el motor con requestAnimationFrame continuo
     requestAnimationFrame(gameLoop);
-    setInterval(gameTick, 1000);
 }
 
-function gameLoop() {
-    updateCanvas();
+function gameLoop(now) {
+    let dt = now - lastFrameTime;
+    // Limitamos el dt máximo (si la pestaña se minimiza, evita saltos gigantes de tiempo)
+    if (dt > 100) dt = 16;
+    lastFrameTime = now;
+
+    // 1. Acumulamos el tiempo para los ticks lógicos del juego (1 segundo real = 1 tick)
+    tickAccumulator += dt;
+    while (tickAccumulator >= 1000) {
+        gameTick();
+        tickAccumulator -= 1000;
+    }
+
+    // 2. Actualizamos físicas y dibujamos pasando el dt
+    updateCanvas(dt);
     renderCanvas();
+
     requestAnimationFrame(gameLoop);
 }
 
 function gameTick() {
+    // El tiempo del reloj avanza 2 minutos por cada segundo real
     game.time += 2;
     if (game.time >= 1440) {
         game.time = 0;
@@ -250,7 +270,7 @@ function gameTick() {
     updateUI();
 }
 
-function updateCanvas() {
+function updateCanvas(dt) {
     if (Math.random() < 0.3) {
         particles.push({
             x: Math.random() * width, y: -10,
@@ -259,11 +279,14 @@ function updateCanvas() {
             type: game.weather
         });
     }
-    particles.forEach(p => { p.x += p.vx; p.y += p.vy; });
+    particles.forEach(p => { 
+        p.x += p.vx * (dt / 16); 
+        p.y += p.vy * (dt / 16); 
+    });
     particles = particles.filter(p => p.y < height + 20 && p.x < width + 20);
 
-    chickenEntities.forEach(e => e.update());
-    foxes.forEach(f => f.update());
+    chickenEntities.forEach(e => e.update(dt));
+    foxes.forEach(f => f.update(dt));
     foxes = foxes.filter(f => f.active);
 }
 
