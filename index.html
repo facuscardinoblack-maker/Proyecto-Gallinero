@@ -88,12 +88,28 @@
 </head>
 <body class="text-slate-800 flex flex-col md:flex-row h-full w-full overflow-hidden">
 
-    <div id="app" class="flex flex-col md:flex-row w-full h-full relative overflow-hidden">
+    <!-- PANTALLA DE INICIO / MENÚ PRINCIPAL -->
+    <div id="main-menu" class="absolute inset-0 bg-wood-900 z-50 flex flex-col items-center justify-center p-6 text-center text-amber-50">
+        <div class="max-w-md w-full bg-wood-800/90 border-2 border-wood-600 p-8 rounded-3xl shadow-2xl backdrop-blur-md">
+            <div class="text-6xl mb-3 animate-bounce">🐓</div>
+            <h1 class="text-3xl font-bold text-amber-200 mb-2">Proyecto Gallinero</h1>
+            <p class="text-xs text-amber-100/80 mb-6">Simulador de granja acogedor • Edición Modular</p>
+            
+            <div class="space-y-3">
+                <button onclick="startGameSession()" class="w-full btn-press bg-cozy-accent hover:bg-amber-700 text-white font-bold py-3 px-6 rounded-2xl text-base shadow-lg border border-amber-400/40">
+                    🎮 Jugar Partida
+                </button>
+                <div class="text-[11px] text-amber-200/60 pt-2">Tu progreso se guarda automáticamente en el navegador.</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" class="flex flex-col md:flex-row w-full h-full relative overflow-hidden opacity-0 transition-opacity duration-500">
 
         <!-- SIDEBAR DE ESTADÍSTICAS Y CONTROL -->
         <header id="sidebar" class="bg-wood-900 text-amber-50 p-2.5 md:p-5 flex md:flex-col justify-between items-center md:items-start w-full md:w-80 shrink-0 z-25 shadow-xl border-b md:border-r border-wood-700">
             <div class="flex items-center gap-2 md:mb-4">
-                <span class="text-2xl md:text-4xl animate-bounce">🐓</span>
+                <span class="text-2xl md:text-4xl">🐓</span>
                 <div>
                     <h1 class="font-bold text-sm md:text-2xl text-amber-200 leading-tight">Proyecto Gallinero</h1>
                     <div class="flex items-center gap-1.5 text-[11px] md:text-xs text-amber-100/80">
@@ -142,14 +158,6 @@
             <div id="canvas-container" class="relative flex-1 w-full h-full overflow-hidden cursor-pointer">
                 <canvas id="gameCanvas" class="absolute inset-0 w-full h-full block"></canvas>
                 
-                <div id="merchant-badge" class="hidden absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-amber-700 text-white px-3 py-1.5 rounded-2xl shadow-xl border-2 border-amber-200 cursor-pointer pulse-glow z-30 flex items-center gap-2" onclick="openMerchantModal()">
-                    <span class="text-lg">🎩</span>
-                    <div>
-                        <div class="text-xs font-bold leading-tight">¡Vendedor Ambulante!</div>
-                        <div class="text-[9px] text-amber-100">Ofertas por tiempo limitado</div>
-                    </div>
-                </div>
-
                 <div id="log-panel" class="absolute top-3 right-3 left-3 md:left-auto md:w-80 max-h-40 overflow-hidden pointer-events-none flex flex-col gap-1.5 z-30"></div>
 
                 <!-- MODAL INSPECTOR -->
@@ -163,50 +171,21 @@
                     </div>
                     
                     <div class="space-y-2 text-xs text-slate-700 mb-3 bg-amber-50/70 p-2.5 rounded-xl border border-amber-200/80">
-                        <div class="flex justify-between"><span>Ubicación:</span> <b id="inspect-inside" class="text-cozy-accent">En el patio</b></div>
                         <div class="flex justify-between"><span>Estado de Salud:</span> <b id="inspect-sick" class="text-emerald-600">Sana ✅</b></div>
                         <div>
                             <div class="flex justify-between mb-0.5"><span>Salud:</span><b id="inspect-health-val">100%</b></div>
                             <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden"><div id="inspect-health-bar" class="bg-emerald-500 h-full w-full"></div></div>
                         </div>
-                        <div>
-                            <div class="flex justify-between mb-0.5"><span>Felicidad:</span><b id="inspect-happy-val">100%</b></div>
-                            <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden"><div id="inspect-happy-bar" class="bg-amber-400 h-full w-full"></div></div>
-                        </div>
                     </div>
-
                     <div class="flex gap-2">
-                        <button onclick="sellInspectedChicken()" class="flex-1 btn-press bg-cozy-danger hover:bg-red-600 text-white font-bold py-2 px-3 text-xs rounded-xl shadow-md">Vender ($40)</button>
-                        <button onclick="closeInspector()" class="flex-1 btn-press bg-wood-600 hover:bg-wood-700 text-white font-bold py-2 px-3 text-xs rounded-xl shadow-md">Cerrar</button>
+                        <button onclick="sellInspectedChicken()" class="flex-1 btn-press bg-cozy-danger text-white font-bold py-2 px-3 text-xs rounded-xl shadow-md">Vender ($40)</button>
+                        <button onclick="closeInspector()" class="flex-1 btn-press bg-wood-600 text-white font-bold py-2 px-3 text-xs rounded-xl shadow-md">Cerrar</button>
                     </div>
-                </div>
-
-                <!-- MODAL FERIA RURAL -->
-                <div id="contest-modal" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md glass-panel p-4 rounded-2xl border-2 border-cozy-gold shadow-2xl z-50 text-center">
-                    <h3 class="text-lg font-bold text-wood-900 mb-1">🏆 Exposición Rural</h3>
-                    <p class="text-xs text-gray-600 mb-2">Evaluando ave...</p>
-                    <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 mb-3">
-                        <div id="contest-chicken-name" class="font-bold text-sm text-wood-800">Gallina Leghorn</div>
-                        <div id="contest-stars" class="text-2xl my-1 text-gray-300">⭐⭐⭐⭐⭐</div>
-                        <div id="contest-status" class="text-xs font-semibold text-amber-700 animate-pulse">Evaluando...</div>
-                    </div>
-                    <div id="contest-rewards" class="hidden mb-3 p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-800 font-bold"></div>
-                    <button id="contest-close-btn" onclick="closeContestModal()" class="hidden w-full btn-press bg-cozy-accent text-white font-bold py-2 rounded-xl text-xs shadow-md">Continuar</button>
-                </div>
-
-                <!-- MODAL VENDEDOR -->
-                <div id="merchant-modal" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-sm glass-panel p-4 rounded-2xl border-2 border-amber-500 shadow-2xl z-50">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-sm font-bold text-wood-900">🎩 Vendedor Ambulante</h3>
-                        <button onclick="closeMerchantModal()" class="text-gray-400 font-bold">✕</button>
-                    </div>
-                    <p class="text-xs text-gray-600 mb-3">"¡Ofertas exclusivas!"</p>
-                    <button onclick="closeMerchantModal()" class="w-full bg-amber-500 text-white font-bold py-1.5 rounded-xl text-xs">Cerrar</button>
                 </div>
 
             </div>
 
-            <!-- PANEL INFERIOR DE GESTIÓN (OPTIMIZADO PARA MÓVIL) -->
+            <!-- PANEL INFERIOR DE GESTIÓN -->
             <div id="controls-panel" class="relative w-full bg-cozy-card border-t-2 border-cozy-border shadow-2xl flex flex-col z-20 shrink-0 transition-all duration-200 ease-out" style="height: 260px;">
                 
                 <div onclick="togglePanel()" class="w-full bg-stone-200 hover:bg-stone-300 px-3 py-1.5 flex items-center justify-between cursor-pointer border-b border-cozy-border shrink-0">
@@ -223,10 +202,6 @@
                     <button class="tab-btn tab-active px-2.5 py-1 text-xs font-bold rounded-t-lg text-wood-800" onclick="switchTab('tab-mercado', event)">📈 Mercado</button>
                     <button class="tab-btn px-2.5 py-1 text-xs font-bold rounded-t-lg text-wood-800" onclick="switchTab('tab-gallinas', event)">🐔 Aves</button>
                     <button class="tab-btn px-2.5 py-1 text-xs font-bold rounded-t-lg text-wood-800" onclick="switchTab('tab-cruza', event)">🧬 Cruza</button>
-                    <button class="tab-btn px-2.5 py-1 text-xs font-bold rounded-t-lg text-wood-800" onclick="switchTab('tab-feria', event)">🏆 Feria</button>
-                    <button class="tab-btn px-2.5 py-1 text-xs font-bold rounded-t-lg text-wood-800" onclick="switchTab('tab-construccion', event)">🔨 Edificios</button>
-                    <button class="tab-btn px-2.5 py-1 text-xs font-bold rounded-t-lg text-wood-800" onclick="switchTab('tab-veterinaria', event)">🩺 Salud</button>
-                    <button class="tab-btn px-2.5 py-1 text-xs font-bold rounded-t-lg text-wood-800" onclick="switchTab('tab-dieta', event)">🌾 Dieta</button>
                     <button class="tab-btn px-2.5 py-1 text-xs font-bold rounded-t-lg text-wood-800" onclick="switchTab('tab-ajustes', event)">⚙️ Sistema</button>
                 </div>
 
@@ -237,16 +212,12 @@
                         <div class="bg-amber-100/70 border border-amber-300/80 p-2 rounded-xl flex items-center justify-between text-xs">
                             <div>
                                 <span class="font-bold text-wood-900 block">📦 Almacén de Huevos</span>
-                                <span class="text-stone-600">Común: <b id="stock-std" class="text-wood-900">0</b> | Calcio: <b id="stock-cal" class="text-amber-800">0</b></span>
+                                <span class="text-stone-600">Común: <b id="stock-std" class="text-wood-900">0</b></span>
                             </div>
                             <button onclick="sellAllEggsMarket()" class="btn-press bg-cozy-success text-white font-bold px-2.5 py-1 rounded-lg text-xs shadow-sm">Vender Todo</button>
                         </div>
 
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                            <div class="bg-white p-2 rounded-xl border border-cozy-border shadow-sm">
-                                <div class="text-[10px] font-bold text-stone-500">Mercado</div>
-                                <div class="text-xs mt-0.5">Precio: $<span id="price-std">10</span></div>
-                            </div>
+                        <div class="grid grid-cols-2 gap-2">
                             <div class="bg-white p-2 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
                                 <div class="text-xs font-bold text-wood-900">Leghorn ($50)</div>
                                 <button onclick="buyChicken('Leghorn')" class="btn-press bg-cozy-accent text-white text-[11px] font-bold py-1 px-2 rounded-lg mt-1">Comprar</button>
@@ -254,10 +225,6 @@
                             <div class="bg-white p-2 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
                                 <div class="text-xs font-bold text-wood-900">R. Island ($80)</div>
                                 <button onclick="buyChicken('Rhode Island Red')" class="btn-press bg-cozy-accent text-white text-[11px] font-bold py-1 px-2 rounded-lg mt-1">Comprar</button>
-                            </div>
-                            <div class="bg-white p-2 rounded-xl border border-amber-300 shadow-sm flex flex-col justify-between">
-                                <div class="text-xs font-bold text-amber-800">Panadería ($80)</div>
-                                <button onclick="fulfillContract('bakery')" class="btn-press bg-amber-500 text-white text-[11px] font-bold py-1 px-2 rounded-lg mt-1">Entregar</button>
                             </div>
                         </div>
                     </div>
@@ -275,36 +242,6 @@
                         </div>
                     </div>
 
-                    <div id="tab-feria" class="tab-content hidden max-w-md mx-auto space-y-2">
-                        <div class="bg-amber-50 p-2 rounded-xl border text-xs">🏆 Exposición Rural</div>
-                        <select id="select-contestant" class="w-full bg-white border rounded-lg p-1.5 text-xs"></select>
-                        <button onclick="enterContest()" class="w-full btn-press bg-cozy-gold text-wood-900 font-bold py-1.5 rounded-lg text-xs">Inscribir ($50)</button>
-                        <div class="flex justify-around bg-white p-1.5 rounded-lg border text-xs">
-                            <div>🥇 Oros: <b id="trophy-gold" class="text-amber-600">0</b></div>
-                        </div>
-                    </div>
-
-                    <div id="tab-construccion" class="tab-content hidden">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                            <div class="bg-white p-2.5 rounded-xl border flex justify-between items-center text-xs">
-                                <div><b>Ampliar Gallinero</b> (+5 cupos)</div>
-                                <button onclick="upgradeFarm()" class="btn-press bg-cozy-accent text-white font-bold py-1 px-2 rounded">Ampliar ($200)</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="tab-veterinaria" class="tab-content hidden max-w-md mx-auto space-y-2">
-                        <div class="bg-red-50 p-2 rounded-xl border text-xs text-red-800">🩺 Gabinete Veterinario</div>
-                        <div id="sick-chickens-list" class="space-y-1.5"></div>
-                        <button onclick="buyMedicineBatch()" class="w-full btn-press bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-xs">Comprar Medicina ($35)</button>
-                    </div>
-
-                    <div id="tab-dieta" class="tab-content hidden max-w-md mx-auto space-y-1.5">
-                        <button onclick="setDiet('Estándar')" class="w-full text-left bg-white p-2 rounded-lg border text-xs font-bold">🌽 Maíz Básico (Gratis)</button>
-                        <button onclick="setDiet('Rica en Calcio')" class="w-full text-left bg-white p-2 rounded-lg border text-xs font-bold text-amber-800">🥚 Calcio Plus ($15)</button>
-                        <div class="text-[10px] text-stone-500 text-center">Actual: <b id="current-diet">Estándar</b></div>
-                    </div>
-
                     <div id="tab-ajustes" class="tab-content hidden max-w-md mx-auto space-y-2 text-center">
                         <button onclick="resetGame()" class="w-full btn-press bg-cozy-danger text-white font-bold py-2 rounded-xl text-xs">🗑️ Reiniciar Partida</button>
                     </div>
@@ -314,7 +251,7 @@
         </main>
     </div>
 
-    <!-- CONEXIÓN CON EL MOTOR -->
+    <!-- MOTOR -->
     <script src="game.js"></script>
 </body>
 </html>
