@@ -340,10 +340,9 @@ function renderCanvas() {
     if (!ctx || !width || !height) return;
     ctx.clearRect(0, 0, width, height);
 
-    // Altura fija segura para el cielo (ej. 150px o 30% de la altura)
     let skyHeight = Math.min(150, height * 0.35);
 
-    // 1. Cielo
+    // 1. Cielo y Ciclo Día/Noche
     const hour = game.time / 60;
     let skyGradient = ctx.createLinearGradient(0, 0, 0, skyHeight);
     if (hour >= 6 && hour < 18) {
@@ -354,23 +353,65 @@ function renderCanvas() {
     ctx.fillStyle = skyGradient; 
     ctx.fillRect(0, 0, width, skyHeight);
 
-    // 2. Pasto (ocupa el resto de la pantalla)
+    // 2. Pasto de la Granja
     ctx.fillStyle = '#386641'; 
     ctx.fillRect(0, skyHeight, width, height - skyHeight);
 
-    // 3. Gallinero
+    // --- MEJORA VISUAL: Textura de pasto y florecitas en el suelo ---
+    ctx.fillStyle = '#4e7c59';
+    for (let i = 30; i < width; i += 70) {
+        ctx.fillRect(i, skyHeight + 25, 4, 10);
+        ctx.fillRect(i + 35, skyHeight + 55, 4, 10);
+    }
+    // Pequeñas florecitas silvestres decorativas
+    ctx.fillStyle = '#f4a261';
+    ctx.fillRect(width * 0.2, skyHeight + 40, 4, 4);
+    ctx.fillRect(width * 0.75, skyHeight + 70, 4, 4);
+    ctx.fillStyle = '#e9c46a';
+    ctx.fillRect(width * 0.45, skyHeight + 30, 4, 4);
+
+    // 3. Gallinero Detallado (Madera con textura y ventana cálida)
     let coopX = width / 2 - 80;
     let coopY = skyHeight - 20;
+
+    // Paredes del gallinero
     ctx.fillStyle = '#4e342e'; 
     ctx.fillRect(coopX, coopY, 160, 90);
+
+    // Líneas de textura de tablas de madera
+    ctx.strokeStyle = '#3e2723';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(coopX, coopY + 30); ctx.lineTo(coopX + 160, coopY + 30);
+    ctx.moveTo(coopX, coopY + 60); ctx.lineTo(coopX + 160, coopY + 60);
+    ctx.stroke();
+
+    // Ventana cálida e iluminada en el gallinero
+    ctx.fillStyle = '#ffb703';
+    ctx.fillRect(width / 2 - 15, coopY + 12, 30, 20);
+    ctx.strokeStyle = '#2c1810';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(width / 2 - 15, coopY + 12, 30, 20);
+    // Cruz de la ventana
+    ctx.beginPath();
+    ctx.moveTo(width / 2, coopY + 12); ctx.lineTo(width / 2, coopY + 32);
+    ctx.moveTo(width / 2 - 15, coopY + 22); ctx.lineTo(width / 2 + 15, coopY + 22);
+    ctx.stroke();
+
+    // Techo del gallinero
     ctx.fillStyle = '#bc6c25';
     ctx.beginPath(); 
     ctx.moveTo(coopX - 15, coopY); 
     ctx.lineTo(width / 2, coopY - 45); 
     ctx.lineTo(coopX + 175, coopY); 
     ctx.fill();
+    ctx.strokeStyle = '#2c1810';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Puerta del gallinero
     ctx.fillStyle = '#2c1810'; 
-    ctx.fillRect(width / 2 - 18, coopY + 40, 36, 50);
+    ctx.fillRect(width / 2 - 18, coopY + 45, 36, 45);
 
     // 4. Huevos y Gallinas
     canvasEggs.forEach(egg => {
@@ -381,7 +422,6 @@ function renderCanvas() {
 
     chickenEntities.forEach(e => e.draw());
 }
-
 // --- UI Y ACCIONES ---
 function updateUI() {
     document.getElementById('money-display').textContent = game.money;
