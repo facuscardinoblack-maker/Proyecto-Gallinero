@@ -283,8 +283,11 @@ function updateCanvas(dt) {
 function renderCanvas() {
     ctx.clearRect(0, 0, width, height);
 
+    // 1. Cielo y Ciclo Día/Noche
     const hour = game.time / 60;
-    let skyGradient = ctx.createLinearGradient(0, 0, 0, height);
+    let skyHeight = height * 0.45; // El cielo ocupa la parte superior
+    let skyGradient = ctx.createLinearGradient(0, 0, 0, skyHeight);
+    
     if (hour >= 6 && hour < 8) {
         skyGradient.addColorStop(0, '#ffb703'); skyGradient.addColorStop(1, '#fb8500');
     } else if (hour >= 8 && hour < 18) {
@@ -295,20 +298,53 @@ function renderCanvas() {
     } else {
         skyGradient.addColorStop(0, '#0d1b2a'); skyGradient.addColorStop(1, '#1b263b');
     }
-    ctx.fillStyle = skyGradient; ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = skyGradient; 
+    ctx.fillRect(0, 0, width, skyHeight);
 
-    // Gallinero
-    ctx.fillStyle = '#4e342e'; ctx.fillRect(width / 2 - 80, 80, 160, 90);
-    ctx.fillStyle = '#bc6c25';
-    ctx.beginPath(); ctx.moveTo(width / 2 - 95, 80); ctx.lineTo(width / 2, 35); ctx.lineTo(width / 2 + 95, 80); ctx.fill();
-    ctx.fillStyle = '#2c1810'; ctx.fillRect(width / 2 - 18, 120, 36, 50);
+    // Estrellas de noche
+    if (hour >= 20 || hour < 6) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(width * 0.2, skyHeight * 0.2, 2, 2);
+        ctx.fillRect(width * 0.7, skyHeight * 0.4, 3, 3);
+        ctx.fillRect(width * 0.5, skyHeight * 0.15, 2, 2);
+    }
 
+    // 2. Suelo / Pasto de la Granja
+    ctx.fillStyle = game.seasonIndex === 3 ? '#b8c5d6' : '#386641'; // Si es invierno se ve nieve, sino verde granja
+    ctx.fillRect(0, skyHeight, width, height - skyHeight);
+
+    // Detalle de pastito decorativo en el suelo
+    ctx.fillStyle = '#6a994e';
+    for (let i = 20; i < width; i += 50) {
+        ctx.fillRect(i, skyHeight + 10, 3, 8);
+        ctx.fillRect(i + 25, skyHeight + 25, 3, 8);
+    }
+
+    // 3. Gallinero (Estructura central superior)
+    let coopX = width / 2 - 80;
+    let coopY = skyHeight - 40;
+    ctx.fillStyle = '#4e342e'; 
+    ctx.fillRect(coopX, coopY, 160, 90);
+    
+    ctx.fillStyle = '#bc6c25'; // Techo
+    ctx.beginPath(); 
+    ctx.moveTo(coopX - 15, coopY); 
+    ctx.lineTo(width / 2, coopY - 45); 
+    ctx.lineTo(coopX + 175, coopY); 
+    ctx.fill();
+    
+    // Puerta del gallinero
+    ctx.fillStyle = '#2c1810'; 
+    ctx.fillRect(width / 2 - 18, coopY + 40, 36, 50);
+
+    // 4. Renderizar Huevos en el suelo
     canvasEggs.forEach(egg => {
         ctx.fillStyle = egg.type === 'calcium' ? '#f4a261' : '#fffdf9';
         ctx.beginPath(); ctx.ellipse(egg.x, egg.y, 6, 8, 0, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = '#2c1810'; ctx.lineWidth = 1; ctx.stroke();
     });
 
+    // 5. Renderizar Aves y Zorros
     chickenEntities.forEach(e => e.draw());
     foxes.forEach(f => f.draw());
 }
