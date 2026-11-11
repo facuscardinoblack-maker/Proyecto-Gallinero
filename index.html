@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Proyecto Gallinero - Deluxe Cozy Edition</title>
+    <title>Proyecto Gallinero - Modular Edition</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -27,7 +27,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Permitir selección de texto solo donde sea necesario, evitando bloqueos táctiles en móviles */
         body {
             user-select: none;
             -webkit-user-select: none;
@@ -45,18 +44,9 @@
             background-color: #2c1810;
         }
 
-        /* Scrollbar personalizada */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #efebe9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #b08968;
-            border-radius: 4px;
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #efebe9; }
+        ::-webkit-scrollbar-thumb { background: #b08968; border-radius: 4px; }
 
         .glass-panel {
             background: rgba(255, 253, 249, 0.96);
@@ -80,7 +70,6 @@
             from { opacity: 0; transform: translateY(-12px) scale(0.95); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
-
         .toast-animate {
             animation: toastIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
@@ -99,7 +88,7 @@
     <div id="app" class="flex flex-col md:flex-row w-full h-full relative">
 
         <!-- SIDEBAR DE ESTADÍSTICAS Y CONTROL -->
-        <header id="sidebar" class="bg-wood-900 text-amber-50 p-3 md:p-5 flex md:flex-col justify-between items-center md:items-start w-full md:w-80 shrink-0 z-20 shadow-xl border-b md:border-r border-wood-700">
+        <header id="sidebar" class="bg-wood-900 text-amber-50 p-3 md:p-5 flex md:flex-col justify-between items-center md:items-start w-full md:w-80 shrink-0 z-25 shadow-xl border-b md:border-r border-wood-700">
             <div class="flex items-center gap-2.5 md:mb-4">
                 <span class="text-3xl md:text-4xl animate-bounce">🐓</span>
                 <div>
@@ -114,19 +103,16 @@
 
             <!-- Dashboard de Stats -->
             <div class="flex md:flex-col gap-2 md:gap-3 w-auto md:w-full">
-                <!-- Dinero -->
                 <div class="bg-wood-800/80 border border-wood-700/60 rounded-xl px-3 py-1.5 md:p-3 flex items-center justify-between gap-2 min-w-[95px]">
                     <div class="text-[10px] md:text-xs text-amber-200/80 uppercase font-semibold">Dinero</div>
                     <div class="text-sm md:text-xl font-bold text-emerald-400">$<span id="money-display">500</span></div>
                 </div>
 
-                <!-- Capacidad Aves -->
                 <div class="bg-wood-800/80 border border-wood-700/60 rounded-xl px-3 py-1.5 md:p-3 flex items-center justify-between gap-2 min-w-[95px]">
                     <div class="text-[10px] md:text-xs text-amber-200/80 uppercase font-semibold">Aves</div>
                     <div class="text-sm md:text-xl font-bold text-amber-300"><span id="chickens-count">0</span>/<span id="max-chickens">5</span></div>
                 </div>
 
-                <!-- Clima & Reloj (Desktop) -->
                 <div class="hidden md:flex flex-col gap-2 bg-wood-800/80 border border-wood-700/60 rounded-xl p-3 w-full">
                     <div class="flex items-center justify-between">
                         <span class="text-xs text-amber-200/80 uppercase font-semibold">Hora Solar</span>
@@ -141,21 +127,18 @@
                 </div>
             </div>
 
-            <!-- Clima Móvil -->
             <div class="flex md:hidden items-center gap-1.5 bg-wood-800/90 px-2.5 py-1 rounded-lg text-xs font-bold text-cozy-gold border border-wood-700">
                 <span id="time-icon-mobile">☀️</span> <span id="time-display-mobile">08:00</span>
                 <span id="weather-icon-mobile">☀️</span>
             </div>
         </header>
 
-        <!-- ÁREA CENTRAL (CANVAS Y REGLAS DE INTERACCIÓN) -->
+        <!-- ÁREA CENTRAL (CANVAS Y MODALES) -->
         <main class="flex-1 flex flex-col relative h-full w-full overflow-hidden bg-farm-green">
             
-            <!-- CONTENEDOR DEL CANVAS DE JUEGO -->
             <div id="canvas-container" class="relative flex-1 w-full h-full overflow-hidden cursor-pointer">
                 <canvas id="gameCanvas" class="absolute inset-0 w-full h-full block"></canvas>
                 
-                <!-- BUSTER VENDEDOR AMBULANTE FLOATING BADGE -->
                 <div id="merchant-badge" class="hidden absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-amber-700 text-white px-3.5 py-1.5 rounded-2xl shadow-xl border-2 border-amber-200 cursor-pointer pulse-glow z-30 flex items-center gap-2" onclick="openMerchantModal()">
                     <span class="text-xl">🎩</span>
                     <div>
@@ -164,10 +147,9 @@
                     </div>
                 </div>
 
-                <!-- NOTIFICACIONES TOAST SOBRE EL CANVAS -->
                 <div id="log-panel" class="absolute top-3 right-3 left-3 md:left-auto md:w-80 max-h-40 overflow-hidden pointer-events-none flex flex-col gap-1.5 z-30"></div>
 
-                <!-- MODAL INSPECTOR DE AVE -->
+                <!-- MODAL INSPECTOR -->
                 <div id="inspector-modal" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-sm glass-panel p-5 rounded-2xl border-2 border-wood-600 shadow-2xl z-40">
                     <div class="flex justify-between items-start mb-3">
                         <div>
@@ -206,7 +188,7 @@
                     </div>
                 </div>
 
-                <!-- MODAL INTERACTIVO FERIA RURAL JUECES -->
+                <!-- MODAL FERIA RURAL -->
                 <div id="contest-modal" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md glass-panel p-5 rounded-2xl border-2 border-cozy-gold shadow-2xl z-50 text-center">
                     <h3 class="text-xl font-bold text-wood-900 mb-1">🏆 Exposición Rural Anual</h3>
                     <p class="text-xs text-gray-600 mb-3">Los jueces están evaluando la genética, plumaje y estado del ave...</p>
@@ -250,10 +232,9 @@
 
             </div>
 
-            <!-- PANEL DESPLEGABLE INFERIOR DE GESTIÓN -->
+            <!-- PANEL INFERIOR DE GESTIÓN -->
             <div id="controls-panel" class="relative w-full bg-cozy-card border-t-2 border-cozy-border shadow-2xl flex flex-col z-20 transition-all duration-300 ease-in-out h-72 md:h-80">
                 
-                <!-- BARRITA SUPERIOR DE INTERACCIÓN DEL PANEL -->
                 <div onclick="togglePanel()" class="w-full bg-stone-200/90 hover:bg-stone-300/70 px-4 py-2 flex items-center justify-between cursor-pointer border-b border-cozy-border shrink-0">
                     <span class="text-xs font-bold text-wood-900 flex items-center gap-1.5">
                         <span>⚙️</span> Panel de Gestión y Granja
@@ -263,7 +244,7 @@
                     </button>
                 </div>
 
-                <!-- NAVEGACIÓN DE PESTAÑAS (SCROLL HORIZONTAL) -->
+                <!-- NAVEGACIÓN DE PESTAÑAS -->
                 <div class="flex bg-stone-100 border-b border-cozy-border overflow-x-auto whitespace-nowrap scrollbar-none shrink-0 px-2 pt-1.5 gap-1">
                     <button class="tab-btn tab-active px-3 py-1.5 text-xs font-bold rounded-t-xl text-wood-800 hover:bg-stone-200 transition" onclick="switchTab('tab-mercado', event)">📈 Mercado</button>
                     <button class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t-xl text-wood-800 hover:bg-stone-200 transition" onclick="switchTab('tab-gallinas', event)">🐔 Mis Aves</button>
@@ -275,10 +256,9 @@
                     <button class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t-xl text-wood-800 hover:bg-stone-200 transition" onclick="switchTab('tab-ajustes', event)">⚙️ Sistema</button>
                 </div>
 
-                <!-- CONTENIDO DE PESTAÑAS -->
+                <!-- CONTENIDO PESTAÑAS -->
                 <div class="flex-1 overflow-y-auto p-3 md:p-4 relative">
                     
-                    <!-- PESTAÑA: MERCADO -->
                     <div id="tab-mercado" class="tab-content block space-y-3">
                         <div class="bg-amber-100/70 border border-amber-300/80 p-2.5 rounded-xl flex items-center justify-between text-xs">
                             <div>
@@ -294,7 +274,6 @@
                                 <div class="text-xs mt-1">Tendencia: <b id="market-trend" class="text-emerald-600">Estable ➡️</b></div>
                                 <div class="text-[11px] text-stone-600 mt-0.5">P. Común: $<span id="price-std">10</span></div>
                             </div>
-
                             <div class="bg-white p-2.5 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
                                 <div>
                                     <div class="text-xs font-bold text-wood-900">Comprar Leghorn</div>
@@ -302,7 +281,6 @@
                                 </div>
                                 <button onclick="buyChicken('Leghorn')" class="btn-press bg-cozy-accent hover:bg-amber-700 text-white text-xs font-bold py-1 px-2 rounded-lg mt-2 shadow-sm">Comprar ($50)</button>
                             </div>
-
                             <div class="bg-white p-2.5 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
                                 <div>
                                     <div class="text-xs font-bold text-wood-900">Comprar R. Island</div>
@@ -310,7 +288,6 @@
                                 </div>
                                 <button onclick="buyChicken('Rhode Island Red')" class="btn-press bg-cozy-accent hover:bg-amber-700 text-white text-xs font-bold py-1 px-2 rounded-lg mt-2 shadow-sm">Comprar ($80)</button>
                             </div>
-
                             <div class="bg-white p-2.5 rounded-xl border border-amber-300 shadow-sm flex flex-col justify-between">
                                 <div>
                                     <div class="text-xs font-bold text-amber-800">🍞 Panadería</div>
@@ -318,26 +295,16 @@
                                 </div>
                                 <button onclick="fulfillContract('bakery')" class="btn-press bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-1 px-2 rounded-lg mt-2 shadow-sm">Entregar ($80)</button>
                             </div>
-
-                            <div id="card-vip" class="hidden bg-white p-2.5 rounded-xl border border-emerald-300 shadow-sm flex flex-col justify-between">
-                                <div>
-                                    <div class="text-xs font-bold text-emerald-800">🌟 Orden Michelin</div>
-                                    <div class="text-[10px] text-stone-500">Req: 3x Exóticos</div>
-                                </div>
-                                <button onclick="fulfillContract('gourmet')" class="btn-press bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1 px-2 rounded-lg mt-2 shadow-sm">Entregar ($250)</button>
-                            </div>
                         </div>
                     </div>
 
-                    <!-- PESTAÑA: MIS AVES -->
                     <div id="tab-gallinas" class="tab-content hidden">
                         <div id="chickens-list" class="grid grid-cols-2 md:grid-cols-4 gap-2.5"></div>
                     </div>
 
-                    <!-- PESTAÑA: CRUZA -->
                     <div id="tab-cruza" class="tab-content hidden max-w-md mx-auto space-y-3">
                         <div class="text-xs text-stone-600 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
-                            🧬 <b>Laboratorio de Cruza:</b> Combina estadísticas genéticas de tus especímenes masculinos y femeninos.
+                            🧬 <b>Laboratorio de Cruza:</b> Combina estadísticas genéticas de tus especímenes.
                         </div>
                         <div class="space-y-2">
                             <div>
@@ -356,10 +323,9 @@
                         </div>
                     </div>
 
-                    <!-- PESTAÑA: FERIA RURAL -->
                     <div id="tab-feria" class="tab-content hidden max-w-md mx-auto space-y-3">
                         <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-xs">
-                            🏆 <b>Exposición de Calidad:</b> Compite en tiempo real para obtener medallas y reconocimiento.
+                            🏆 <b>Exposición de Calidad:</b> Compite en tiempo real para obtener medallas.
                         </div>
                         <div class="space-y-2">
                             <label class="text-[11px] font-bold text-wood-700 block mb-1">Ave participante:</label>
@@ -375,93 +341,51 @@
                         </div>
                     </div>
 
-                    <!-- PESTAÑA: CONSTRUCCIÓN Y MEJORAS -->
                     <div id="tab-construccion" class="tab-content hidden">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div class="bg-white p-3 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
-                                <div>
-                                    <h4 class="font-bold text-xs text-wood-900">🌧️ Cobertizo de Patio</h4>
-                                    <p class="text-[10px] text-stone-500 mt-1">Protege a las aves de la lluvia y la nieve cuando están afuera.</p>
-                                </div>
-                                <button id="btn-shelter" onclick="buyStructure('shelter')" class="btn-press bg-cozy-accent hover:bg-amber-700 text-white font-bold py-1.5 text-xs rounded-xl mt-3 shadow-sm">Comprar ($120)</button>
+                                <div><h4 class="font-bold text-xs text-wood-900">🌧️ Cobertizo</h4><p class="text-[10px] text-stone-500 mt-1">Protege a las aves.</p></div>
+                                <button onclick="buyStructure('shelter')" class="btn-press bg-cozy-accent text-white font-bold py-1.5 text-xs rounded-xl mt-3">Comprar ($120)</button>
                             </div>
-
                             <div class="bg-white p-3 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
-                                <div>
-                                    <h4 class="font-bold text-xs text-wood-900">🌽 Comedero Automático</h4>
-                                    <p class="text-[10px] text-stone-500 mt-1">Mantiene a las aves alimentadas automáticamente.</p>
-                                </div>
-                                <button id="btn-feeder" onclick="buyStructure('feeder')" class="btn-press bg-cozy-accent hover:bg-amber-700 text-white font-bold py-1.5 text-xs rounded-xl mt-3 shadow-sm">Comprar ($100)</button>
+                                <div><h4 class="font-bold text-xs text-wood-900">🌽 Comedero</h4><p class="text-[10px] text-stone-500 mt-1">Alimentación automática.</p></div>
+                                <button onclick="buyStructure('feeder')" class="btn-press bg-cozy-accent text-white font-bold py-1.5 text-xs rounded-xl mt-3">Comprar ($100)</button>
                             </div>
-
                             <div class="bg-white p-3 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
-                                <div>
-                                    <h4 class="font-bold text-xs text-wood-900">💧 Bebedero Automático</h4>
-                                    <p class="text-[10px] text-stone-500 mt-1">Previene enfermedades asociadas a deshidratación.</p>
-                                </div>
-                                <button id="btn-drinker" onclick="buyStructure('drinker')" class="btn-press bg-cozy-accent hover:bg-amber-700 text-white font-bold py-1.5 text-xs rounded-xl mt-3 shadow-sm">Comprar ($100)</button>
+                                <div><h4 class="font-bold text-xs text-wood-900">🐕 Perro Bobby</h4><p class="text-[10px] text-stone-500 mt-1">Ahuyenta zorros.</p></div>
+                                <button onclick="buyUpgrade('dog')" class="btn-press bg-cozy-success text-white font-bold py-1.5 text-xs rounded-xl mt-3">Comprar ($300)</button>
                             </div>
-
                             <div class="bg-white p-3 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
-                                <div>
-                                    <h4 class="font-bold text-xs text-wood-900">🛡️ Malla Reforzada</h4>
-                                    <p class="text-[10px] text-stone-500 mt-1">Debilita a los zorros cazadores instantáneamente.</p>
-                                </div>
-                                <button id="btn-fence" onclick="buyUpgrade('fence')" class="btn-press bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 text-xs rounded-xl mt-3 shadow-sm">Comprar ($150)</button>
-                            </div>
-
-                            <div class="bg-white p-3 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
-                                <div>
-                                    <h4 class="font-bold text-xs text-wood-900">🐕 Perro Guardián (Bobby)</h4>
-                                    <p class="text-[10px] text-stone-500 mt-1">Ahuyenta zorros automáticamente en el patio.</p>
-                                </div>
-                                <button id="btn-dog" onclick="buyUpgrade('dog')" class="btn-press bg-cozy-success hover:bg-emerald-700 text-white font-bold py-1.5 text-xs rounded-xl mt-3 shadow-sm">Comprar ($300)</button>
-                            </div>
-
-                            <div class="bg-white p-3 rounded-xl border border-cozy-border shadow-sm flex flex-col justify-between">
-                                <div>
-                                    <h4 class="font-bold text-xs text-wood-900">🏗️ Ampliar Gallinero (+5)</h4>
-                                    <p class="text-[10px] text-stone-500 mt-1">Incrementa el límite de espacio para tus aves.</p>
-                                </div>
-                                <button onclick="upgradeFarm()" class="btn-press bg-cozy-accent hover:bg-amber-700 text-white font-bold py-1.5 text-xs rounded-xl mt-3 shadow-sm">Ampliar ($200)</button>
+                                <div><h4 class="font-bold text-xs text-wood-900">🏗️ Ampliar (+5)</h4><p class="text-[10px] text-stone-500 mt-1">Más espacio.</p></div>
+                                <button onclick="upgradeFarm()" class="btn-press bg-cozy-accent text-white font-bold py-1.5 text-xs rounded-xl mt-3">Ampliar ($200)</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- PESTAÑA: VETERINARIA Y SALUD -->
                     <div id="tab-veterinaria" class="tab-content hidden max-w-md mx-auto space-y-3">
                         <div class="bg-red-50 p-2.5 rounded-xl border border-red-200 text-xs text-red-800">
-                            🩺 <b>Gabinete Veterinario:</b> Cura enfermedades respiratorias provocadas por la intemperie o falta de vacunas.
+                            🩺 <b>Veterinaria:</b> Cura enfermedades respiratorias.
                         </div>
                         <div id="sick-chickens-list" class="space-y-2"></div>
                         <div class="pt-2 border-t border-cozy-border flex gap-2">
-                            <button onclick="buyMedicineBatch()" class="flex-1 btn-press bg-emerald-600 text-white font-bold py-2 rounded-xl text-xs shadow-sm">Comprar Lote Medicina ($35)</button>
+                            <button onclick="buyMedicineBatch()" class="flex-1 btn-press bg-emerald-600 text-white font-bold py-2 rounded-xl text-xs">Comprar Medicina ($35)</button>
                         </div>
                     </div>
 
-                    <!-- PESTAÑA: DIETA -->
                     <div id="tab-dieta" class="tab-content hidden max-w-md mx-auto space-y-2">
                         <div class="text-xs text-stone-600 bg-amber-50 p-2.5 rounded-xl border border-amber-200 mb-2">
-                            🌾 La alimentación influye en la calidad del huevo y resistencia biológica.
+                            🌾 La alimentación influye en la calidad del huevo.
                         </div>
-                        <button onclick="setDiet('Estándar')" class="w-full btn-press text-left bg-white p-2.5 rounded-xl border border-cozy-border text-xs font-bold text-wood-900 hover:bg-amber-50 flex justify-between">
-                            <span>🌽 Maíz Básico (Común)</span> <span>Gratis</span>
-                        </button>
-                        <button onclick="setDiet('Rica en Calcio')" class="w-full btn-press text-left bg-white p-2.5 rounded-xl border border-amber-300 text-xs font-bold text-amber-800 hover:bg-amber-50 flex justify-between">
-                            <span>🥚 Calcio Plus (+Huevos Calcio)</span> <span class="text-amber-600">$15 / día</span>
-                        </button>
-                        <button onclick="setDiet('Semillas Exóticas')" class="w-full btn-press text-left bg-white p-2.5 rounded-xl border border-sky-300 text-xs font-bold text-sky-800 hover:bg-sky-50 flex justify-between">
-                            <span>✨ Semillas Exóticas (+Huevos Exóticos)</span> <span class="text-sky-600">$35 / día</span>
-                        </button>
-                        <div class="text-[11px] text-stone-500 text-center mt-2">Dieta actual: <b id="current-diet" class="text-cozy-accent">Estándar</b></div>
+                        <button onclick="setDiet('Estándar')" class="w-full btn-press text-left bg-white p-2.5 rounded-xl border border-cozy-border text-xs font-bold text-wood-900 flex justify-between"><span>🌽 Maíz Básico</span> <span>Gratis</span></button>
+                        <button onclick="setDiet('Rica en Calcio')" class="w-full btn-press text-left bg-white p-2.5 rounded-xl border border-amber-300 text-xs font-bold text-amber-800 flex justify-between"><span>🥚 Calcio Plus</span> <span>$15 / día</span></button>
+                        <div class="text-[11px] text-stone-500 text-center mt-2">Dieta: <b id="current-diet" class="text-cozy-accent">Estándar</b></div>
                     </div>
 
-                    <!-- PESTAÑA: SISTEMA -->
                     <div id="tab-ajustes" class="tab-content hidden max-w-md mx-auto space-y-3">
-                        <div class="text-xs text-stone-600 bg-stone-100 p-3 rounded-xl border border-stone-200">
-                            ⚙️ Tus datos se guardan automáticamente en este navegador. Puedes reiniciar la granja si deseas comenzar desde cero.
+                        <div class="text-xs text-stone-600 bg-stone-100 p-3 rounded-xl border">
+                            ⚙️ Los datos se guardan en el navegador.
                         </div>
-                        <button onclick="resetGame()" class="w-full btn-press bg-cozy-danger hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-md">🗑️ Reiniciar Partida</button>
+                        <button onclick="resetGame()" class="w-full btn-press bg-cozy-danger text-white font-bold py-2.5 rounded-xl text-xs">🗑️ Reiniciar Partida</button>
                     </div>
 
                 </div>
@@ -469,829 +393,7 @@
         </main>
     </div>
 
-    <!-- MOTOR JAVASCRIPT -->
-    <script>
-        // --- ESTADO GLOBAL DEL JUEGO ---
-        let game = {
-            money: 500,
-            level: 1,
-            maxChickens: 5,
-            time: 480, // Minutos desde las 00:00 (480 = 08:00 AM)
-            day: 1,
-            seasonIndex: 0,
-            seasons: [
-                { name: '🌸 Primavera', icon: '🌸', color: '#6a994e' },
-                { name: '☀️ Verano', icon: '☀️', color: '#386641' },
-                { name: '🍁 Otoño', icon: '🍁', color: '#bc6c25' },
-                { name: '❄️ Invierno', icon: '❄️', color: '#4a5759' }
-            ],
-            weather: 'Soleado',
-            weatherList: ['Soleado', 'Lluvia', 'Nublado', 'Nieve'],
-            eggs: { standard: 0, calcium: 0, exotic: 0 },
-            prices: { standard: 10, calcium: 22, exotic: 45 },
-            marketTrend: 'Estable ➡️',
-            diet: 'Estándar',
-            medicines: 2,
-            structures: { shelter: false, feeder: false, drinker: false },
-            upgrades: { fence: false, dog: false },
-            trophies: { gold: 0, silver: 0, bronze: 0 },
-            contracts: { bakery: true, gourmet: false },
-            chickens: [],
-            selectedChickenId: null,
-            panelOpen: true
-        };
-
-        const namesList = ['Clara', 'Pepa', 'Coco', 'Blanca', 'Manchitas', 'Roco', 'Tito', 'Grisilda', 'Cenicienta', 'Nugget', 'Pepita', 'Fósforo'];
-        const breedsList = [
-            { name: 'Leghorn', minLay: 40, maxLay: 80, odpor: 40, price: 50, type: 'standard' },
-            { name: 'Rhode Island Red', minLay: 30, maxLay: 60, odpor: 80, price: 80, type: 'standard' }
-        ];
-
-        // --- AUDIO PROCEDURAL (WEB AUDIO API) ---
-        let audioCtx = null;
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-        }
-        function playSound(type) {
-            try {
-                initAudio();
-                if (!audioCtx) return;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                const now = audioCtx.currentTime;
-
-                if (type === 'coin') {
-                    osc.frequency.setValueAtTime(600, now);
-                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.15);
-                    gain.gain.setValueAtTime(0.15, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                    osc.start(now);
-                    osc.stop(now + 0.15);
-                } else if (type === 'click') {
-                    osc.frequency.setValueAtTime(300, now);
-                    gain.gain.setValueAtTime(0.08, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-                    osc.start(now);
-                    osc.stop(now + 0.05);
-                } else if (type === 'cluck') {
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(220, now);
-                    osc.frequency.exponentialRampToValueAtTime(150, now + 0.2);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-                    osc.start(now);
-                    osc.stop(now + 0.2);
-                }
-            } catch (e) {}
-        }
-
-        // --- CANVAS & ENTIDADES ---
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
-        let canvasEggs = [];
-        let foxes = [];
-
-        function resizeCanvas() {
-            const container = document.getElementById('canvas-container');
-            width = container.clientWidth;
-            height = container.clientHeight;
-            canvas.width = width;
-            canvas.height = height;
-        }
-        window.addEventListener('resize', resizeCanvas);
-
-        class ChickenEntity {
-            constructor(chickenObj) {
-                this.data = chickenObj;
-                this.x = Math.random() * (width - 100) + 50;
-                this.y = Math.random() * (height - 180) + 120;
-                this.targetX = this.x;
-                this.targetY = this.y;
-                this.speed = 0.6 + Math.random() * 0.4;
-                this.animTimer = Math.random() * 100;
-                this.state = 'walking'; // walking, pecking, sleeping
-                this.peckTimer = 0;
-            }
-
-            update() {
-                // Si es de noche (21:00 a 06:00), van hacia el gallinero (centro superior)
-                const hour = Math.floor(game.time / 60);
-                const isNight = hour >= 21 || hour < 6;
-
-                if (isNight) {
-                    this.targetX = width / 2 + (Math.random() * 80 - 40);
-                    this.targetY = 130 + (Math.random() * 40 - 20);
-                    this.state = 'sleeping';
-                } else {
-                    if (Math.random() < 0.01) {
-                        this.targetX = Math.random() * (width - 120) + 60;
-                        this.targetY = Math.random() * (height - 200) + 140;
-                        this.state = Math.random() < 0.4 ? 'pecking' : 'walking';
-                        if (this.state === 'pecking') this.peckTimer = 60;
-                    }
-                }
-
-                if (this.state === 'pecking') {
-                    this.peckTimer--;
-                    if (this.peckTimer <= 0) this.state = 'walking';
-                } else {
-                    let dx = this.targetX - this.x;
-                    let dy = this.targetY - this.y;
-                    let dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist > 2) {
-                        this.x += (dx / dist) * this.speed;
-                        this.y += (dy / dist) * this.speed;
-                    }
-                }
-
-                this.animTimer += 0.1;
-            }
-
-            draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                const bob = Math.sin(this.animTimer * 2) * 2;
-                
-                // Sombra
-                ctx.fillStyle = 'rgba(0,0,0,0.2)';
-                ctx.beginPath();
-                ctx.arc(0, 14, 12, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Cuerpo de la gallina
-                const isRooster = this.data.gender === 'Macho';
-                ctx.fillStyle = this.data.sick ? '#94a3b8' : (isRooster ? '#d97706' : '#fffdf9');
-                ctx.strokeStyle = '#2c1810';
-                ctx.lineWidth = 2;
-
-                ctx.beginPath();
-                ctx.ellipse(0, bob, 14, 11, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-
-                // Cabeza
-                ctx.beginPath();
-                ctx.arc(8, -8 + bob, 7, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-
-                // Cresta
-                ctx.fillStyle = '#e63946';
-                ctx.beginPath();
-                ctx.arc(10, -15 + bob, isRooster ? 5 : 3, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Pico
-                ctx.fillStyle = '#ffb703';
-                ctx.beginPath();
-                ctx.moveTo(14, -8 + bob);
-                ctx.lineTo(18, -6 + bob);
-                ctx.lineTo(14, -4 + bob);
-                ctx.fill();
-
-                // Ojo
-                ctx.fillStyle = '#2c1810';
-                ctx.fillRect(10, -10 + bob, 2, 2);
-
-                ctx.restore();
-            }
-        }
-
-        class FoxEntity {
-            constructor() {
-                this.x = width + 50;
-                this.y = Math.random() * (height - 200) + 120;
-                this.speed = game.upgrades.fence ? 0.4 : 0.9;
-                this.active = true;
-            }
-            update() {
-                this.x -= this.speed;
-                if (game.upgrades.dog && this.x < width / 2 + 100) {
-                    this.active = false; // Perro Bobby espanta al zorro
-                    showToast('🐕 ¡Bobby el perro guardián ahuyentó al zorro!', 'success');
-                }
-                if (this.x < -50) this.active = false;
-            }
-            draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.fillStyle = '#c85a17';
-                ctx.strokeStyle = '#2c1810';
-                ctx.lineWidth = 2;
-                // Cuerpo del zorro
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 18, 10, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                // Cabeza
-                ctx.beginPath();
-                ctx.arc(-14, -6, 8, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                ctx.restore();
-            }
-        }
-
-        let chickenEntities = [];
-
-        function syncChickenEntities() {
-            chickenEntities = game.chickens.map(c => {
-                let existing = chickenEntities.find(e => e.data.id === c.id);
-                return existing ? (existing.data = c, existing) : new ChickenEntity(c);
-            });
-        }
-
-        // --- INICIALIZACIÓN Y BUCLE DE JUEGO ---
-        function initGame() {
-            loadGame();
-            resizeCanvas();
-            if (game.chickens.length === 0) {
-                // Gallina inicial
-                game.chickens.push({
-                    id: Date.now(),
-                    name: 'Clara',
-                    breed: 'Leghorn',
-                    gender: 'Hembra',
-                    health: 100,
-                    happiness: 100,
-                    sick: false,
-                    genLay: 55,
-                    genRes: 50,
-                    inside: false,
-                    layProgress: 0
-                });
-            }
-            syncChickenEntities();
-            updateUI();
-            requestAnimationFrame(gameLoop);
-            setInterval(gameTick, 1000); // 1 tick por segundo real
-        }
-
-        function gameLoop() {
-            updateCanvas();
-            renderCanvas();
-            requestAnimationFrame(gameLoop);
-        }
-
-        function gameTick() {
-            // Avanzar reloj
-            game.time += 2;
-            if (game.time >= 1440) {
-                game.time = 0;
-                game.day++;
-                if (game.day > 7) {
-                    game.day = 1;
-                    game.seasonIndex = (game.seasonIndex + 1) % 4;
-                }
-                // Costos de dieta diarios
-                if (game.diet === 'Rica en Calcio' && game.money >= 15) game.money -= 15;
-                if (game.diet === 'Semillas Exóticas' && game.money >= 35) game.money -= 35;
-            }
-
-            // Probabilidad de clima
-            if (Math.random() < 0.05) {
-                const seasonWeather = ['Soleado', 'Soleado', 'Lluvia', 'Nublado'];
-                if (game.seasonIndex === 3) seasonWeather.push('Nieve');
-                game.weather = seasonWeather[Math.floor(Math.random() * seasonWeather.length)];
-            }
-
-            // Actualizar aves
-            game.chickens.forEach(c => {
-                if (c.health > 0) {
-                    c.layProgress += (c.genLay / 50);
-                    if (c.layProgress >= 100) {
-                        c.layProgress = 0;
-                        let eggType = 'standard';
-                        if (game.diet === 'Rica en Calcio' && Math.random() < 0.6) eggType = 'calcium';
-                        if (game.diet === 'Semillas Exóticas' && Math.random() < 0.5) eggType = 'exotic';
-                        
-                        game.eggs[eggType]++;
-                        playSound('cluck');
-                        // Crear huevo en el canvas
-                        canvasEggs.push({ x: chickenEntities.find(e => e.data.id === c.id)?.x || 200, y: (chickenEntities.find(e => e.data.id === c.id)?.y || 200) + 10, type: eggType });
-                    }
-                }
-            });
-
-            // Probabilidad de zorro
-            if (Math.random() < 0.03 && foxes.length === 0) {
-                foxes.push(new FoxEntity());
-                playSound('cluck');
-            }
-
-            saveGame();
-            updateUI();
-        }
-
-        function updateCanvas() {
-            // Actualizar partículas
-            if (Math.random() < 0.3) {
-                particles.push({
-                    x: Math.random() * width,
-                    y: -10,
-                    vx: game.weather === 'Lluvia' ? 2 : (Math.random() * 2 - 1),
-                    vy: game.weather === 'Lluvia' ? 12 : (game.weather === 'Nieve' ? 2 : 1),
-                    type: game.weather
-                });
-            }
-
-            particles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-            });
-            particles = particles.filter(p => p.y < height + 20 && p.x < width + 20);
-
-            chickenEntities.forEach(e => e.update());
-            foxes.forEach(f => f.update());
-            foxes = foxes.filter(f => f.active);
-        }
-
-        function renderCanvas() {
-            ctx.clearRect(0, 0, width, height);
-
-            // 1. Cielo y Ciclo Día/Noche
-            const hour = game.time / 60;
-            let skyGradient = ctx.createLinearGradient(0, 0, 0, height);
-            
-            if (hour >= 6 && hour < 8) { // Amanecer
-                skyGradient.addColorStop(0, '#ffb703');
-                skyGradient.addColorStop(1, '#fb8500');
-            } else if (hour >= 8 && hour < 18) { // Día
-                skyGradient.addColorStop(0, game.seasonIndex === 3 ? '#90e0ef' : '#8ecae6');
-                skyGradient.addColorStop(1, game.seasonIndex === 0 ? '#b7e4c7' : '#d8f3dc');
-            } else if (hour >= 18 && hour < 20) { // Atardecer
-                skyGradient.addColorStop(0, '#e07a5f');
-                skyGradient.addColorStop(1, '#f4a261');
-            } else { // Noche
-                skyGradient.addColorStop(0, '#0d1b2a');
-                skyGradient.addColorStop(1, '#1b263b');
-            }
-
-            ctx.fillStyle = skyGradient;
-            ctx.fillRect(0, 0, width, height);
-
-            // Estrellas de noche
-            if (hour >= 20 || hour < 6) {
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(width * 0.2, height * 0.1, 2, 2);
-                ctx.fillRect(width * 0.7, height * 0.15, 3, 3);
-                ctx.fillRect(width * 0.5, height * 0.08, 2, 2);
-            }
-
-            // 2. Gallinero (Estructura central superior)
-            ctx.fillStyle = '#4e342e';
-            ctx.fillRect(width / 2 - 80, 80, 160, 90);
-            ctx.fillStyle = '#bc6c25'; // Techo
-            ctx.beginPath();
-            ctx.moveTo(width / 2 - 95, 80);
-            ctx.lineTo(width / 2, 35);
-            ctx.lineTo(width / 2 + 95, 80);
-            ctx.fill();
-            // Puerta gallinero
-            ctx.fillStyle = '#2c1810';
-            ctx.fillRect(width / 2 - 18, 120, 36, 50);
-
-            // 3. Renderizar Huevos en el suelo
-            canvasEggs.forEach(egg => {
-                ctx.fillStyle = egg.type === 'exotic' ? '#38b000' : (egg.type === 'calcium' ? '#f4a261' : '#fffdf9');
-                ctx.beginPath();
-                ctx.ellipse(egg.x, egg.y, 6, 8, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#2c1810';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-            });
-
-            // 4. Renderizar Aves
-            chickenEntities.forEach(e => e.draw());
-
-            // 5. Renderizar Zorros
-            foxes.forEach(f => f.draw());
-
-            // 6. Partículas de clima (Lluvia, Nieve)
-            particles.forEach(p => {
-                ctx.fillStyle = p.type === 'Nieve' ? '#ffffff' : 'rgba(255,255,255,0.6)';
-                ctx.beginPath();
-                if (p.type === 'Lluvia') {
-                    ctx.fillRect(p.x, p.y, 1.5, 8);
-                } else {
-                    ctx.arc(p.x, p.y, p.type === 'Nieve' ? 3 : 2, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            });
-        }
-
-        // --- GESTIÓN DE UI Y DATOS ---
-        function updateUI() {
-            document.getElementById('money-display').textContent = game.money;
-            document.getElementById('chickens-count').textContent = game.chickens.length;
-            document.getElementById('max-chickens').textContent = game.maxChickens;
-            document.getElementById('level-display').textContent = game.level;
-            document.getElementById('season-display').textContent = game.seasons[game.seasonIndex].name;
-
-            // Hora
-            const h = Math.floor(game.time / 60);
-            const m = game.time % 60;
-            const ampm = h >= 12 ? 'PM' : 'AM';
-            const formattedH = h % 12 === 0 ? 12 : h % 12;
-            const formattedTime = `${formattedH.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
-            document.getElementById('time-display').textContent = formattedTime;
-            document.getElementById('time-display-mobile').textContent = formattedTime;
-            document.getElementById('time-icon').textContent = (h >= 6 && h < 19) ? '☀️' : '🌙';
-            document.getElementById('time-icon-mobile').textContent = (h >= 6 && h < 19) ? '☀️' : '🌙';
-
-            // Clima
-            document.getElementById('weather-badge').textContent = (game.weather === 'Soleado' ? '☀️ ' : game.weather === 'Lluvia' ? '🌧️ ' : '❄️ ') + game.weather;
-            document.getElementById('weather-icon-mobile').textContent = game.weather === 'Soleado' ? '☀️' : (game.weather === 'Lluvia' ? '🌧️' : '❄️');
-
-            // Mercado y Almacén
-            document.getElementById('stock-std').textContent = game.eggs.standard;
-            document.getElementById('stock-cal').textContent = game.eggs.calcium;
-            document.getElementById('stock-exo').textContent = game.eggs.exotic;
-            document.getElementById('price-std').textContent = game.prices.standard;
-
-            document.getElementById('trophy-gold').textContent = game.trophies.gold;
-            document.getElementById('trophy-silver').textContent = game.trophies.silver;
-            document.getElementById('trophy-bronze').textContent = game.trophies.bronze;
-            document.getElementById('current-diet').textContent = game.diet;
-
-            renderChickensList();
-            renderSelects();
-            renderSickList();
-        }
-
-        function switchTab(tabId, event) {
-            playSound('click');
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
-            if (event && event.currentTarget) event.currentTarget.classList.add('tab-active');
-        }
-
-        function togglePanel() {
-            playSound('click');
-            game.panelOpen = !game.panelOpen;
-            const panel = document.getElementById('controls-panel');
-            const btn = document.getElementById('toggle-btn-text');
-            if (game.panelOpen) {
-                panel.style.height = '320px';
-                btn.textContent = '▲ Ocultar Panel';
-            } else {
-                panel.style.height = '42px';
-                btn.textContent = '▼ Mostrar Panel';
-            }
-        }
-
-        function showToast(msg, type = 'success') {
-            const logPanel = document.getElementById('log-panel');
-            const toast = document.createElement('div');
-            toast.className = `toast-animate px-3 py-2 rounded-xl text-xs font-bold shadow-lg border text-white ${type === 'success' ? 'bg-emerald-600 border-emerald-400' : 'bg-red-600 border-red-400'}`;
-            toast.textContent = msg;
-            logPanel.appendChild(toast);
-            setTimeout(() => toast.remove(), 3500);
-        }
-
-        // --- ACCIONES DE JUEGO ---
-        function buyChicken(breedName) {
-            if (game.chickens.length >= game.maxChickens) {
-                showToast('❌ ¡Gallinero lleno! Amplía la capacidad en Construcción.', 'error');
-                return;
-            }
-            const breedInfo = breedsList.find(b => b.name === breedName) || breedsList[0];
-            if (game.money < breedInfo.price) {
-                showToast('❌ Dinero insuficiente.', 'error');
-                return;
-            }
-            game.money -= breedInfo.price;
-            const newChicken = {
-                id: Date.now() + Math.random(),
-                name: namesList[Math.floor(Math.random() * namesList.length)],
-                breed: breedName,
-                gender: Math.random() < 0.3 ? 'Macho' : 'Hembra',
-                health: 100,
-                happiness: 100,
-                sick: false,
-                genLay: Math.floor(Math.random() * 40) + 40,
-                genRes: Math.floor(Math.random() * 40) + 40,
-                inside: false,
-                layProgress: 0
-            };
-            game.chickens.push(newChicken);
-            syncChickenEntities();
-            playSound('coin');
-            showToast(`🐣 ¡Nueva ave (${newChicken.name}) adquirida!`);
-            updateUI();
-        }
-
-        function sellAllEggsMarket() {
-            const totalEarned = (game.eggs.standard * game.prices.standard) + 
-                                (game.eggs.calcium * game.prices.calcium) + 
-                                (game.eggs.exotic * game.prices.exotic);
-            if (totalEarned === 0) {
-                showToast('❌ No tienes huevos para vender.', 'error');
-                return;
-            }
-            game.money += totalEarned;
-            game.eggs = { standard: 0, calcium: 0, exotic: 0 };
-            playSound('coin');
-            showToast(`💰 ¡Huevos vendidos por $${totalEarned}!`);
-            updateUI();
-        }
-
-        function renderChickensList() {
-            const list = document.getElementById('chickens-list');
-            list.innerHTML = game.chickens.map(c => `
-                <div onclick="inspectChicken(${c.id})" class="bg-white p-2.5 rounded-xl border border-cozy-border shadow-sm cursor-pointer hover:border-cozy-accent transition">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="font-bold text-xs text-wood-900">${c.name}</span>
-                        <span class="text-[10px] px-1.5 py-0.5 rounded ${c.gender === 'Macho' ? 'bg-sky-100 text-sky-700' : 'bg-pink-100 text-pink-700'}">${c.gender === 'Macho' ? '♂️ Gallo' : '♀️ Gallina'}</span>
-                    </div>
-                    <div class="text-[10px] text-stone-500 mb-1">${c.breed}</div>
-                    <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
-                        <div class="bg-emerald-500 h-full" style="width: ${c.health}%"></div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        let inspectedId = null;
-        function inspectChicken(id) {
-            const c = game.chickens.find(x => x.id === id);
-            if (!c) return;
-            inspectedId = id;
-            document.getElementById('inspect-name').textContent = c.name;
-            document.getElementById('inspect-breed').textContent = `Raza: ${c.breed}`;
-            document.getElementById('inspect-gender-badge').textContent = c.gender === 'Macho' ? '♂️ Macho' : '♀️ Hembra';
-            document.getElementById('inspect-sick').textContent = c.sick ? 'Enferma ❌' : 'Sana ✅';
-            document.getElementById('inspect-health-val').textContent = `${c.health}%`;
-            document.getElementById('inspect-health-bar').style.width = `${c.health}%`;
-            document.getElementById('inspect-happy-val').textContent = `${c.happiness}%`;
-            document.getElementById('inspect-happy-bar').style.width = `${c.happiness}%`;
-            document.getElementById('inspect-gen-lay').textContent = c.genLay;
-            document.getElementById('inspect-gen-res').textContent = c.genRes;
-            document.getElementById('inspector-modal').classList.remove('hidden');
-        }
-
-        function closeInspector() {
-            document.getElementById('inspector-modal').classList.add('hidden');
-        }
-
-        function sellInspectedChicken() {
-            game.chickens = game.chickens.filter(c => c.id !== inspectedId);
-            syncChickenEntities();
-            closeInspector();
-            playSound('coin');
-            game.money += 40;
-            showToast('💰 Ave vendida por $40.');
-            updateUI();
-        }
-
-        function renderSelects() {
-            const mothers = game.chickens.filter(c => c.gender === 'Hembra');
-            const fathers = game.chickens.filter(c => c.gender === 'Macho');
-            
-            const mSelect = document.getElementById('select-mother');
-            mSelect.innerHTML = '<option value="">Seleccionar Madre...</option>' + mothers.map(c => `<option value="${c.id}">${c.name} (Gen Puesta: ${c.genLay})</option>`).join('');
-
-            const fSelect = document.getElementById('select-father');
-            fSelect.innerHTML = '<option value="">Seleccionar Padre...</option>' + fathers.map(c => `<option value="${c.id}">${c.name} (Gen Res: ${c.genRes})</option>`).join('');
-
-            const cSelect = document.getElementById('select-contestant');
-            cSelect.innerHTML = '<option value="">Seleccionar Ave...</option>' + game.chickens.map(c => `<option value="${c.id}">${c.name} (${c.breed})</option>`).join('');
-        }
-
-        function breedChickens() {
-            const mId = document.getElementById('select-mother').value;
-            const fId = document.getElementById('select-father').value;
-            if (!mId || !fId) {
-                showToast('❌ Selecciona una madre y un padre.', 'error');
-                return;
-            }
-            if (game.money < 30) {
-                showToast('❌ Necesitas $30 para incubar.', 'error');
-                return;
-            }
-            if (game.chickens.length >= game.maxChickens) {
-                showToast('❌ Gallinero lleno.', 'error');
-                return;
-            }
-            game.money -= 30;
-            const m = game.chickens.find(x => x.id == mId);
-            const f = game.chickens.find(x => x.id == fId);
-
-            const newBaby = {
-                id: Date.now(),
-                name: namesList[Math.floor(Math.random() * namesList.length)],
-                breed: m.breed,
-                gender: Math.random() < 0.5 ? 'Hembra' : 'Macho',
-                health: 100,
-                happiness: 100,
-                sick: false,
-                genLay: Math.min(100, Math.floor((m.genLay + f.genLay) / 2 + Math.random() * 10)),
-                genRes: Math.min(100, Math.floor((m.genRes + f.genRes) / 2 + Math.random() * 10)),
-                inside: false,
-                layProgress: 0
-            };
-            game.chickens.push(newBaby);
-            syncChickenEntities();
-            playSound('coin');
-            showToast(`🐣 ¡Cría incubada con éxito (${newBaby.name})!`);
-            updateUI();
-        }
-
-        // Feria rural
-        function enterContest() {
-            const cId = document.getElementById('select-contestant').value;
-            if (!cId) {
-                showToast('❌ Selecciona un ave participante.', 'error');
-                return;
-            }
-            if (game.money < 50) {
-                showToast('❌ Necesitas $50 para la inscripción.', 'error');
-                return;
-            }
-            game.money -= 50;
-            const c = game.chickens.find(x => x.id == cId);
-            document.getElementById('contest-chicken-name').textContent = `${c.name} (${c.breed})`;
-            document.getElementById('contest-modal').classList.remove('hidden');
-            document.getElementById('contest-stars').textContent = '⭐⭐⭐';
-            document.getElementById('contest-rewards').classList.add('hidden');
-            document.getElementById('contest-close-btn').classList.add('hidden');
-
-            setTimeout(() => {
-                const score = c.genLay + c.genRes + c.health;
-                let medal = 'bronze';
-                if (score > 220) medal = 'gold';
-                else if (score > 180) medal = 'silver';
-
-                game.trophies[medal]++;
-                const reward = medal === 'gold' ? 150 : (medal === 'silver' ? 90 : 50);
-                game.money += reward;
-
-                document.getElementById('contest-status').textContent = `¡Premio obtenido: Medalla ${medal.toUpperCase()}!`;
-                document.getElementById('contest-rewards').textContent = `Has ganado $${reward} y prestigio.`;
-                document.getElementById('contest-rewards').classList.remove('hidden');
-                document.getElementById('contest-close-btn').classList.remove('hidden');
-                playSound('coin');
-                updateUI();
-            }, 1800);
-        }
-
-        function closeContestModal() {
-            document.getElementById('contest-modal').classList.add('hidden');
-        }
-
-        // Construcción y mejoras
-        function upgradeFarm() {
-            if (game.money < 200) {
-                showToast('❌ Dinero insuficiente.', 'error');
-                return;
-            }
-            game.money -= 200;
-            game.maxChickens += 5;
-            game.level++;
-            playSound('coin');
-            showToast('🏗️ ¡Gallinero ampliado con éxito!');
-            updateUI();
-        }
-
-        function buyUpgrade(type) {
-            const cost = type === 'fence' ? 150 : 300;
-            if (game.money < cost) {
-                showToast('❌ Dinero insuficiente.', 'error');
-                return;
-            }
-            if (game.upgrades[type]) {
-                showToast('⚠️ Ya tienes esta mejora adquirida.');
-                return;
-            }
-            game.money -= cost;
-            game.upgrades[type] = true;
-            playSound('coin');
-            showToast(`✅ Mejora ${type === 'fence' ? 'Malla Reforzada' : 'Perro Guardián'} instalada.`);
-            updateUI();
-        }
-
-        function buyStructure(type) {
-            const cost = type === 'shelter' ? 120 : 100;
-            if (game.money < cost) {
-                showToast('❌ Dinero insuficiente.', 'error');
-                return;
-            }
-            if (game.structures[type]) {
-                showToast('⚠️ Ya cuentas con esta estructura.');
-                return;
-            }
-            game.money -= cost;
-            game.structures[type] = true;
-            playSound('coin');
-            showToast(`🔨 Estructura ${type} instalada.`);
-            updateUI();
-        }
-
-        // Veterinaria
-        function renderSickList() {
-            const list = document.getElementById('sick-chickens-list');
-            const sickOnes = game.chickens.filter(c => c.sick);
-            if (sickOnes.length === 0) {
-                list.innerHTML = `<div class="text-xs text-stone-500 italic text-center p-3">No hay aves enfermas actualmente. ¡Todo en orden!</div>`;
-                return;
-            }
-            list.innerHTML = sickOnes.map(c => `
-                <div class="bg-white p-2.5 rounded-xl border border-red-200 flex justify-between items-center text-xs">
-                    <div><b>${c.name}</b> (${c.breed})</div>
-                    <button onclick="cureChicken(${c.id})" class="btn-press bg-emerald-600 text-white font-bold px-2.5 py-1 rounded-lg">Curar</button>
-                </div>
-            `).join('');
-        }
-
-        function cureChicken(id) {
-            if (game.medicines <= 0) {
-                showToast('❌ No tienes lotes de medicina. Compra más.', 'error');
-                return;
-            }
-            game.medicines--;
-            const c = game.chickens.find(x => x.id === id);
-            if (c) {
-                c.sick = false;
-                c.health = 90;
-            }
-            playSound('coin');
-            showToast('💉 ¡Ave curada exitosamente!');
-            updateUI();
-        }
-
-        function buyMedicineBatch() {
-            if (game.money < 35) {
-                showToast('❌ Dinero insuficiente.', 'error');
-                return;
-            }
-            game.money -= 35;
-            game.medicines++;
-            playSound('coin');
-            showToast('📦 Lote de medicina adquirido.');
-            updateUI();
-        }
-
-        function setDiet(dietName) {
-            playSound('click');
-            game.diet = dietName;
-            showToast(`🌾 Dieta actualizada a: ${dietName}`);
-            updateUI();
-        }
-
-        function fulfillContract(type) {
-            if (type === 'bakery') {
-                if (game.eggs.standard < 5) {
-                    showToast('❌ Necesitas al menos 5 huevos comunes.', 'error');
-                    return;
-                }
-                game.eggs.standard -= 5;
-                game.money += 80;
-                showToast('🍞 ¡Contrato de panadería completado! +$80');
-            } else if (type === 'gourmet') {
-                if (game.eggs.exotic < 3) {
-                    showToast('❌ Necesitas al menos 3 huevos exóticos.', 'error');
-                    return;
-                }
-                game.eggs.exotic -= 3;
-                game.money += 250;
-                showToast('🌟 ¡Orden Michelin entregada! +$250');
-            }
-            playSound('coin');
-            updateUI();
-        }
-
-        // --- PERSISTENCIA ---
-        function saveGame() {
-            localStorage.setItem('proyecto_gallinero_deluxe_save', JSON.stringify(game));
-        }
-
-        function loadGame() {
-            const saved = localStorage.getItem('proyecto_gallinero_deluxe_save');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    game = Object.assign({}, game, parsed);
-                } catch (e) {}
-            }
-        }
-
-        function resetGame() {
-            if (confirm('¿Estás seguro de reiniciar tu partida? Perderás todo tu progreso.')) {
-                localStorage.removeItem('proyecto_gallinero_deluxe_save');
-                location.reload();
-            }
-        }
-
-        // Iniciar al cargar la página
-        window.onload = initGame;
-    </script>
+    <!-- AQUÍ CONECTAMOS EL MOTOR SEPARADO -->
+    <script src="game.js"></script>
 </body>
 </html>
