@@ -132,28 +132,122 @@ class ChickenEntity {
     draw() {
         ctx.save();
         ctx.translate(this.x, this.y);
-        const bob = Math.sin(this.animTimer * 2) * 2;
-        
-        ctx.fillStyle = 'rgba(0,0,0,0.2)';
-        ctx.beginPath(); ctx.arc(0, 14, 12, 0, Math.PI * 2); ctx.fill();
+        const bob = Math.sin(this.animTimer * 3) * 2;
+        const walkLegAnim = Math.sin(this.animTimer * 6) * 3;
+
+        // Sombra en el suelo
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
+        ctx.beginPath(); 
+        ctx.arc(0, 16, 10, 0, Math.PI * 2); 
+        ctx.fill();
 
         const isRooster = this.data.gender === 'Macho';
-        ctx.fillStyle = this.data.sick ? '#94a3b8' : (isRooster ? '#d97706' : '#fffdf9');
-        ctx.strokeStyle = '#2c1810'; ctx.lineWidth = 2;
 
-        ctx.beginPath(); ctx.ellipse(0, bob, 14, 11, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.arc(8, -8 + bob, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        // --- PATITAS DETALLADAS ---
+        ctx.strokeStyle = '#d97706';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
 
-        ctx.fillStyle = '#e63946';
-        ctx.beginPath(); ctx.arc(10, -15 + bob, isRooster ? 5 : 3, 0, Math.PI * 2); ctx.fill();
+        // Pata izquierda
+        ctx.beginPath();
+        ctx.moveTo(-4, 12);
+        ctx.lineTo(-4 + walkLegAnim, 18);
+        ctx.lineTo(-7 + walkLegAnim, 20); // Deditos
+        ctx.stroke();
 
+        // Pata derecha
+        ctx.beginPath();
+        ctx.moveTo(4, 12);
+        ctx.lineTo(4 - walkLegAnim, 18);
+        ctx.lineTo(2 - walkLegAnim, 20); // Deditos
+        ctx.stroke();
+
+        if (isRooster) {
+            // --- DISEÑO DEL GALLO (Inspirado en el icono) ---
+            // Cuerpo cobrizo / marrón rojizo
+            ctx.fillStyle = this.data.sick ? '#94a3b8' : '#b45309';
+            ctx.strokeStyle = '#2c1810'; 
+            ctx.lineWidth = 2;
+
+            ctx.beginPath(); 
+            ctx.ellipse(0, bob, 15, 12, 0, 0, Math.PI * 2); 
+            ctx.fill(); 
+            ctx.stroke();
+
+            // Cola elegante y oscura con plumas verdes/negras hacia arriba
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.moveTo(-12, bob - 2);
+            ctx.quadraticCurveTo(-22, bob - 12, -18, bob - 18);
+            ctx.quadraticCurveTo(-14, bob - 8, -8, bob - 4);
+            ctx.fill();
+            ctx.stroke();
+
+            // Ala con detalles
+            ctx.fillStyle = '#92400e';
+            ctx.beginPath();
+            ctx.ellipse(-2, bob + 2, 8, 5, 0.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cabeza del gallo
+            ctx.fillStyle = '#b45309';
+            ctx.beginPath(); 
+            ctx.arc(10, -10 + bob, 7, 0, Math.PI * 2); 
+            ctx.fill(); 
+            ctx.stroke();
+
+            // Cresta grande y roja
+            ctx.fillStyle = '#e63946';
+            ctx.beginPath(); 
+            ctx.arc(12, -18 + bob, 5, 0, Math.PI * 2);
+            ctx.arc(8, -17 + bob, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Barbilla roja debajo del pico
+            ctx.beginPath();
+            ctx.ellipse(14, -6 + bob, 3, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+        } else {
+            // --- DISEÑO DE GALLINA (Clásico y limpio) ---
+            ctx.fillStyle = this.data.sick ? '#94a3b8' : '#fffdf9';
+            ctx.strokeStyle = '#2c1810'; 
+            ctx.lineWidth = 2;
+
+            ctx.beginPath(); 
+            ctx.ellipse(0, bob, 14, 11, 0, 0, Math.PI * 2); 
+            ctx.fill(); 
+            ctx.stroke();
+
+            // Cabeza de gallina
+            ctx.beginPath(); 
+            ctx.arc(8, -8 + bob, 7, 0, Math.PI * 2); 
+            ctx.fill(); 
+            ctx.stroke();
+
+            // Cresta pequeña
+            ctx.fillStyle = '#e63946';
+            ctx.beginPath(); 
+            ctx.arc(10, -15 + bob, 3, 0, Math.PI * 2); 
+            ctx.fill();
+        }
+
+        // Pico común para ambos
         ctx.fillStyle = '#ffb703';
-        ctx.beginPath(); ctx.moveTo(14, -8 + bob); ctx.lineTo(18, -6 + bob); ctx.lineTo(14, -4 + bob); ctx.fill();
+        ctx.beginPath(); 
+        ctx.moveTo(14, -8 + bob); 
+        ctx.lineTo(19, -6 + bob); 
+        ctx.lineTo(14, -4 + bob); 
+        ctx.fill();
 
-        ctx.fillStyle = '#2c1810'; ctx.fillRect(10, -10 + bob, 2, 2);
+        // Ojo
+        ctx.fillStyle = '#2c1810'; 
+        ctx.fillRect(10, -10 + bob, 2, 2);
+
         ctx.restore();
     }
 }
+
 
 let chickenEntities = [];
 function syncChickenEntities() {
