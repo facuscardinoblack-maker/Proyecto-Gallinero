@@ -76,6 +76,7 @@ let foxes = [];
 
 function resizeCanvas() {
     const container = document.getElementById('canvas-container');
+    if (!container) return;
     width = container.clientWidth;
     height = container.clientHeight;
     canvas.width = width;
@@ -90,7 +91,7 @@ class ChickenEntity {
         this.y = Math.random() * (height - 180) + 120;
         this.targetX = this.x;
         this.targetY = this.y;
-        this.speed = 0.06; // Velocidad ajustada para Delta-Time (píxeles por milisegundo)
+        this.speed = 0.06;
         this.animTimer = Math.random() * 100;
         this.state = 'walking';
         this.peckTimer = 0;
@@ -121,7 +122,6 @@ class ChickenEntity {
             let dy = this.targetY - this.y;
             let dist = Math.sqrt(dx * dx + dy * dy);
             if (dist > 2) {
-                // Multiplicamos por dt (milisegundos transcurridos) para que el movimiento sea fluido e independiente de los FPS
                 this.x += (dx / dist) * this.speed * dt;
                 this.y += (dy / dist) * this.speed * dt;
             }
@@ -188,7 +188,7 @@ function syncChickenEntities() {
     });
 }
 
-// --- BUCLE DE JUEGO BASADO EN DELTA-TIME ---
+// --- BUCLE DE JUEGO ---
 let lastFrameTime = performance.now();
 let tickAccumulator = 0;
 
@@ -203,33 +203,26 @@ function initGame() {
     }
     syncChickenEntities();
     updateUI();
-    
-    // Arrancamos el motor con requestAnimationFrame continuo
     requestAnimationFrame(gameLoop);
 }
 
 function gameLoop(now) {
     let dt = now - lastFrameTime;
-    // Limitamos el dt máximo (si la pestaña se minimiza, evita saltos gigantes de tiempo)
     if (dt > 100) dt = 16;
     lastFrameTime = now;
 
-    // 1. Acumulamos el tiempo para los ticks lógicos del juego (1 segundo real = 1 tick)
     tickAccumulator += dt;
     while (tickAccumulator >= 1000) {
         gameTick();
         tickAccumulator -= 1000;
     }
 
-    // 2. Actualizamos físicas y dibujamos pasando el dt
     updateCanvas(dt);
     renderCanvas();
-
     requestAnimationFrame(gameLoop);
 }
 
 function gameTick() {
-    // El tiempo del reloj avanza 2 minutos por cada segundo real
     game.time += 2;
     if (game.time >= 1440) {
         game.time = 0;
@@ -279,10 +272,7 @@ function updateCanvas(dt) {
             type: game.weather
         });
     }
-    particles.forEach(p => { 
-        p.x += p.vx * (dt / 16); 
-        p.y += p.vy * (dt / 16); 
-    });
+    particles.forEach(p => { p.x += p.vx * (dt / 16); p.y += p.vy * (dt / 16); });
     particles = particles.filter(p => p.y < height + 20 && p.x < width + 20);
 
     chickenEntities.forEach(e => e.update(dt));
@@ -372,6 +362,7 @@ function togglePanel() {
         panel.style.height = '42px';
         btn.textContent = '▼ Mostrar Panel';
     }
+    setTimeout(resizeCanvas, 300);
 }
 
 function showToast(msg, type = 'success') {
