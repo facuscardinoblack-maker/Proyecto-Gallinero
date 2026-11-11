@@ -281,11 +281,14 @@ function updateCanvas(dt) {
 }
 
 function renderCanvas() {
+    if (!ctx || !width || !height) return;
     ctx.clearRect(0, 0, width, height);
 
-    // 1. Cielo y Ciclo Día/Noche
+    // 1. Definir altura fija para el cielo (ej. 160 píxeles arriba) y el resto para el pasto
+    let skyHeight = Math.min(160, height * 0.35);
+
+    // 2. Cielo y Ciclo Día/Noche
     const hour = game.time / 60;
-    let skyHeight = height * 0.45; // El cielo ocupa la parte superior
     let skyGradient = ctx.createLinearGradient(0, 0, 0, skyHeight);
     
     if (hour >= 6 && hour < 8) {
@@ -309,8 +312,8 @@ function renderCanvas() {
         ctx.fillRect(width * 0.5, skyHeight * 0.15, 2, 2);
     }
 
-    // 2. Suelo / Pasto de la Granja
-    ctx.fillStyle = game.seasonIndex === 3 ? '#b8c5d6' : '#386641'; // Si es invierno se ve nieve, sino verde granja
+    // 3. Suelo / Pasto de la Granja (ocupa desde el final del cielo hasta abajo del todo)
+    ctx.fillStyle = game.seasonIndex === 3 ? '#b8c5d6' : '#386641'; 
     ctx.fillRect(0, skyHeight, width, height - skyHeight);
 
     // Detalle de pastito decorativo en el suelo
@@ -320,9 +323,10 @@ function renderCanvas() {
         ctx.fillRect(i + 25, skyHeight + 25, 3, 8);
     }
 
-    // 3. Gallinero (Estructura central superior)
+    // 4. Gallinero (Estructura central posicionada justo debajo de la línea del cielo)
     let coopX = width / 2 - 80;
-    let coopY = skyHeight - 40;
+    let coopY = skyHeight - 20;
+    
     ctx.fillStyle = '#4e342e'; 
     ctx.fillRect(coopX, coopY, 160, 90);
     
@@ -337,14 +341,14 @@ function renderCanvas() {
     ctx.fillStyle = '#2c1810'; 
     ctx.fillRect(width / 2 - 18, coopY + 40, 36, 50);
 
-    // 4. Renderizar Huevos en el suelo
+    // 5. Renderizar Huevos en el suelo
     canvasEggs.forEach(egg => {
         ctx.fillStyle = egg.type === 'calcium' ? '#f4a261' : '#fffdf9';
         ctx.beginPath(); ctx.ellipse(egg.x, egg.y, 6, 8, 0, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = '#2c1810'; ctx.lineWidth = 1; ctx.stroke();
     });
 
-    // 5. Renderizar Aves y Zorros
+    // 6. Renderizar Aves y Zorros
     chickenEntities.forEach(e => e.draw());
     foxes.forEach(f => f.draw());
 }
